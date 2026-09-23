@@ -25,8 +25,8 @@ entry, and always add one for a new dependency.
   storage keys (D7).
 - No AI-generated art or audio. The repo is public, so check an asset's license before
   committing it, and never commit secrets (`VITE_*` values ship to players).
-- One Phase 0 step (see the checklist in `docs/design.md`), or one milestone in later phases,
-  per branch → pull request → merge.
+- Work happens in numbered **steps** (Phase 0's are in the checklist in `docs/design.md`).
+  One step per branch → pull request → merge.
 - Attribution is decided per commit and per PR: add the `Co-Authored-By: Claude` trailer
   when Claude wrote most of the change, leave it off when Mainak did, and ask when unclear.
 - When Mainak asks for something to pass to the design chat, save it as a markdown file in

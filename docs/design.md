@@ -276,6 +276,9 @@ behind one storage module (D10) · live play and offline catch-up run the same c
 
 ## Build phases
 
+**Terms:** a *phase* is a stage of the roadmap below. Each phase is split into numbered
+*steps*, and each step is built on its own branch and merged through one pull request.
+
 | Phase | Deliverable |
 |---|---|
 | **0** | `Big` class, game loop with offline catch-up, coffee shop from a definition file, portrait layout with placeholder art, save system (versioned, export/import), first active mechanic. See the checklist below |
@@ -290,7 +293,7 @@ behind one storage module (D10) · live play and offline catch-up run the same c
 
 One step per branch → pull request → merge.
 
-| Step | Milestone | See |
+| Step | What gets built | See |
 |---|---|---|
 | 1 ✅ | Scaffold: Vite, React, TypeScript, Vitest, oxlint | D12 |
 | 2 | `Big` class, plus the `src/game/` folder and a check that keeps React and Pixi out of it | D5, D6 |
