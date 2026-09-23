@@ -15,6 +15,9 @@ entry, and always add one for a new dependency.
 
 - Mainak is learning and wants to understand every line. Explain design choices and
   non-obvious code as you go. Readable beats clever. Work in small steps he can review.
+- Game design is decided in a separate design chat and lands in `docs/design.md` and
+  `docs/decisions.md`. If the docs don't answer a design question, stop and ask Mainak instead
+  of inventing an answer.
 - A dependency must solve a problem we've actually hit (D4). Propose it along with the
   hand-rolled alternative instead of just adding it.
 - Game logic imports nothing from React or Pixi. Every game quantity is a `Big` (D5, D6).
@@ -22,6 +25,9 @@ entry, and always add one for a new dependency.
   storage keys (D7).
 - No AI-generated art or audio. The repo is public, so check an asset's license before
   committing it, and never commit secrets (`VITE_*` values ship to players).
-- One milestone per branch → pull request → merge.
+- One Phase 0 step (see the checklist in `docs/design.md`), or one milestone in later phases,
+  per branch → pull request → merge.
 - Attribution is decided per commit and per PR: add the `Co-Authored-By: Claude` trailer
   when Claude wrote most of the change, leave it off when Mainak did, and ask when unclear.
+- When Mainak asks for something to pass to the design chat, save it as a markdown file in
+  `~/handoff/` and give him the path.

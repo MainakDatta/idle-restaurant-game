@@ -2,6 +2,9 @@
 
 One entry per real choice: what we decided, why, and what we passed on. Newest last.
 **Status:** Accepted · Proposed (awaiting a call) · Superseded (kept for history — never delete).
+**Changing a decision:** a clarification that doesn't reverse it gets a dated *Updated* note on
+the entry. A reversal gets a new entry, and the old one is marked Superseded with a pointer to
+its replacement.
 
 Adding a dependency always gets an entry (see D4).
 
@@ -62,6 +65,12 @@ Alembic, Howler deferred.
 Adding it later means rewriting every arithmetic expression in the game, plus the save format.
 **Supersedes:** the earlier plan to start with `number` behind a wrapper module. A wrapper
 doesn't help, because the operators themselves change.
+**Updated 2026-09-22 (which quantities):** `Big` is for anything that can grow without limit over
+the life of a save: money, costs, income, sale value, the cross-run currency, and multipliers
+that stack. Quantities with a natural limit stay plain numbers: time, levels, counts,
+percentages (including Potential) and slots. `Big`'s methods accept plain numbers as
+arguments, so `cost.mul(1.15)` is fine. Use `null` for "unlimited" (e.g. `maxSlots`), because
+JSON saves `Infinity` as `null`.
 
 ## D6 · Big-number implementation: our own `Big` class — Accepted · 2026-09-22
 
@@ -93,6 +102,9 @@ keeps the last good save.
 **Passed on:** break_infinity.js · break_eternity.js (maintained, but 7× larger and built for far
 bigger numbers than we need).
 **Note:** Mainak was fine with either; this was decided on the evidence above.
+**Updated 2026-09-22 (game-side rules):** no game quantity is ever negative (no debt, no fail
+states), so `Big` throws if a result would go below zero. Display follows D15. The rest of the
+API is settled in Phase 0 step 2.
 
 ## D7 · Codename vs title — Accepted · 2026-09-22
 
@@ -154,6 +166,11 @@ the leaderboard; it doesn't own it.
 **Why:** The game has to work fully in the browser long before a backend exists. If only the
 server could calculate offline progress, closing the tab would pause the game. This corrects
 the early brainstorming, which had the server doing the calculation.
+**Updated 2026-09-22:** all progress is calculated from real elapsed time, never by counting
+timer ticks. Live play and catch-up run **the same code** (advance the game by N seconds), so
+every rule applies identically whether the player was watching or not, including the knee once
+it's designed. Catch-up runs when the game opens and when a background tab becomes visible
+again. If the clock moves backward, elapsed time counts as zero, so progress is never lost.
 
 ## D12 · Phase 0 foundation dependencies — Accepted · 2026-09-22
 
@@ -189,3 +206,24 @@ macOS runners, so iOS builds won't require owning a Mac.
 - **Personal details stay out of the repo.** Project instructions for Claude live in
   `CLAUDE.md`; personal preferences and machine setup live in `~/.claude/CLAUDE.md`, which is
   never committed.
+**Updated 2026-09-22:** every asset gets a row in `CREDITS.md` (source, license, required
+attribution).
+
+## D14 · No cap on offline progress — Accepted · 2026-09-22
+
+**Decision:** Idle progress keeps building however long the game is closed.
+**Why:** A cap punishes absence and pushes daily check-ins, against pillars 1 and 4. The knee
+already slows the cross-run currency, so a long absence can't break progression. Someone who
+moves their clock forward only cheats a single-player game; the Phase 4 server protects the
+leaderboard.
+**Passed on:** the genre-standard 8–24h cap · a generous 7-day cap.
+**Still open:** how the knee's slowdown is applied during catch-up is on the next design
+session's agenda. The structure is settled in D11.
+
+## D15 · Numbers shown with short suffixes — Accepted · 2026-09-22
+
+**Decision:** 1.23K, 45.6M, 789B, 1.23T, then Qa, Qi, Sx, Sp, Oc, No, Dc, then two-letter codes
+(aa, ab, …). Three significant digits. A setting switches to scientific notation.
+**Why:** Compact enough for phone screens, and friendly to casual players.
+**Passed on:** full words ("1.23 million"), which get long on phones and unwieldy at names like
+"quattuordecillion" · scientific notation by default, which reads like math to casual players.
