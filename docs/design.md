@@ -2,7 +2,7 @@
 
 *Working title, for display only. Code, folders, packages and storage keys use the neutral
 codename `idle-restaurant-game` — see `decisions.md` D7.*
-*Status: design settled 2026-09-22, ready for Phase 0. Technical rationale lives in
+*Status: Phase 0 in progress (see the checklist under *Build phases*). Technical rationale lives in
 `decisions.md`; this doc is about the game.*
 
 An idle/incremental game about starting, growing, and **selling** eating establishments —
@@ -51,6 +51,8 @@ capacity. What varies:
 - New franchise reusing an existing mechanic = **data + sprites only**.
 - New mechanic = code, written once, then reusable by any franchise.
 - **Build franchise #1 reading from a definition file**, even though there's only one.
+- **The file format** is settled in step 4. Design lean: JSON, because the Phase 4 server has to
+  read the same numbers to check progress.
 
 *Later:* **templates** (e.g. counter-service vs table-service) as a layer between the engine
 and franchise data, for structural variety.
@@ -85,8 +87,11 @@ exact collapse the pacing floor forbids. Tiers make **targets grow alongside pow
 unlock upward as meta-progression grows. Higher tiers also bring *more* — staff roles, upgrade
 lines, on-screen activity — so later runs are richer, not just longer.
 
-**Open:** does tier belong to the franchise type or the location? Lean: **location**, so every
-franchise type stays in play all game (a late-game coffee run is an airport, not a cart).
+**Open, and the earlier lean is in doubt.** The lean was to make tier part of the location, so
+every franchise type stays in play all game. But tiers add new systems (staff roles, upgrade
+lines), while locations are meant to be light modifiers, and the ladder above mixes business
+sizes with a location (the airport). Likely answer: tier is the business's *size*, its own
+part of a listing. To revisit in a design session.
 
 ---
 
@@ -114,7 +119,8 @@ the floor.
 - **Tuning target:** fully active ≈ 1.5–2× fully idle over a run. Hypothesis; Phase 1 proves or
   kills it.
 - **Mini-games skew simple and cozy.** One gesture, clear feedback.
-  - v1: coffee — hold to pour espresso, release in the green zone.
+  - v1 for coffee: hold to pour espresso, release in the green zone. **Under review:** a
+    brainstorm on alternatives comes before step 7.
   - **Stretch: merge** (NecroMerger-style), contained as *one franchise's* mechanic — e.g. a
     bakery merging dough → bread → pastries — not the whole game's progression system.
 - **To jam on when relevant:** Cookie Clicker (click value scales with upgrades), Egg Inc
@@ -187,7 +193,7 @@ the surprise back to anyone who wants it.
 - **Once per sale, free:** throw out the whole board and draw a fresh hand.
 - **Can't be undone.** That's what makes it a real card draw instead of a free peek.
 - **Same quality, different businesses:** the new hand has as many listings as the board you
-  earned, under the same rules (including the special 100% slot). A redraw changes *which*
+  earned, under the same rules (including the special 100% slot, if we adopt it). A redraw changes *which*
   businesses you're offered, never *how good* the offer is, so reaching 100% still matters.
 - **Make it a show:** listings are cards, and a redraw flips them over one at a time.
 - It serves three kinds of player: the *planner* picks what they've been eyeing, the
@@ -216,7 +222,8 @@ customer requests, surprise visits.
 ## First build: coffee shop
 
 Fast customer cycle keeps the screen visibly busy, so early playtesting feels alive.
-Hold-to-pour sets the template every later mechanic copies.
+Its first active mechanic (hold-to-pour, under review) sets the template every later mechanic
+copies.
 
 ## Visible growth & asset loading
 
@@ -234,13 +241,19 @@ Performance plan (Phase 2, a deliberate learning area):
 - **Portrait / mobile-first.** Desktop is the scaled-up variant.
 - **No hover-dependent UI.** Tap to inspect.
 - Finger-sized tap targets.
+- **Numbers use short suffixes:** 1.23K, 45.6M, 789B, 1.23T, then Qa, Qi, Sx, Sp, Oc, No, Dc,
+  then two-letter codes (aa, ab, …). Three significant digits, and a setting for scientific
+  notation (D15).
 - **Reserve the scene region in the layout from day one**, even as a gray box.
 - **Saves must survive.** Losing progress breaks pillar 1: export/import and an iPhone install
   hint first, then cloud saves (D10).
 
 ---
 
-## Stack (summary — rationale in `decisions.md`)
+## Stack (summary)
+
+Picks already in use have an entry in `decisions.md`. The rest are the plan, and each gets an
+entry when its phase adopts it.
 
 | Layer | Pick | Phase |
 |---|---|---|
@@ -257,15 +270,18 @@ Performance plan (Phase 2, a deliberate learning area):
 | Hosting | Cloudflare Pages · Fly.io | 1 · 4 |
 | Mobile | Installable PWA → offline support → Capacitor | 1 · 5 · post-5 |
 
-**Structural rules:** game logic imports nothing from React or Pixi · every game quantity is a
-big number · the title lives in one constant · saves are versioned JSON behind one storage
-module · offline progress is calculated in the browser (D11).
+**Structural rules:** game logic imports nothing from React or Pixi · anything that can grow
+without limit is a `Big` (D5) · the title lives only in `.env` (D7) · saves are versioned JSON
+behind one storage module (D10) · live play and offline catch-up run the same code (D11).
 
 ## Build phases
 
+**Terms:** a *phase* is a stage of the roadmap below. Each phase is split into numbered
+*steps*, and each step is built on its own branch and merged through one pull request.
+
 | Phase | Deliverable |
 |---|---|
-| **0** | `Big` class, game loop with offline catch-up, coffee shop from a definition file, portrait layout with placeholder art, save system (versioned, export/import) |
+| **0** | `Big` class, game loop with offline catch-up, coffee shop from a definition file, portrait layout with placeholder art, save system (versioned, export/import), first active mechanic. See the checklist below |
 | **1** | Tune curves until genuinely fun. CI. Deploy to Cloudflare Pages, installable (manifest + iPhone install hint) for playtesters |
 | **2** | PixiJS scene, real sprites, visible growth, asset loading |
 | **3** | Audio — lofi, unobtrusive over hours, persistent mute |
@@ -273,10 +289,26 @@ module · offline progress is calculated in the browser (D11).
 | **5** | Offline support (service worker), polish, share widely |
 | **post-5** | Capacitor → app stores |
 
+### Phase 0 checklist
+
+One step per branch → pull request → merge.
+
+| Step | What gets built | See |
+|---|---|---|
+| 1 ✅ | Scaffold: Vite, React, TypeScript, Vitest, oxlint | D12 |
+| 2 | `Big` class, plus the `src/game/` folder and a check that keeps React and Pixi out of it | D5, D6 |
+| 3 | Game state and loop, with offline catch-up | D11, D14 |
+| 4 | Coffee shop definition file and the engine that reads it | D9 |
+| 5 | Portrait UI: money, upgrades, a gray box where the scene will go | *Constraints* |
+| 6 | Save system: one storage module, versioned JSON, export/import | D10 |
+| 7 | First active mechanic, with its Rush Hour boost and the resource that limits it (placeholder numbers) | *Active play* (mechanic under review) |
+
 ## Assets & audio
 
 - Free/cheap packs to start (Kenney, itch.io). **No AI-generated images.** Pixel art by hand is
   a maybe-later.
+- **Every asset gets a row in `CREDITS.md`:** where it came from, its license, and any required
+  attribution text. Assets that require attribution also appear on an in-game credits screen.
 - Audio is relaxing lofi that survives hours of looping. Persistent mute. Browsers block
   autoplay until the first interaction.
 
@@ -284,15 +316,30 @@ module · offline progress is calculated in the browser (D11).
 
 ## Open questions
 
-- [ ] Title — "Under New Management" is a working title
+### Next design session
+
+- [ ] **Roadmap:** the build phases don't yet schedule selling, the valuation screen, the market
+      board and draft, or the cross-run currency and meta upgrades. Phase 1 needs them to test
+      whether the game is fun.
+- [ ] **Active mechanic:** alternatives to hold-to-pour for the coffee shop (needed before
+      step 7), and what goes in the first version of the mechanic library.
+- [ ] **Consumable resource:** name, regen rate and cap (needed for step 7; placeholders are fine).
+- [ ] **The cross-run currency:** its name, what it buys, how it relates to the sale value, and
+      what royalties pay in. ("Potential" is the bar the currency fills, not the currency.)
+- [ ] **How the knee works in practice:** the exact curve, and how catch-up applies it after a
+      long absence. The structure is settled: catch-up and live play run the same code (D11).
+
+### Later
+
+- [ ] Title: "Under New Management" is a working title
 - [ ] How many listings arrive per run? (start: 4, at 25 / 50 / 75 / 100%)
 - [ ] Is the 100% listing special (e.g. the only tier-up)?
+- [ ] Selling before the first listing arrives: have a listing waiting from the start, or unlock
+      selling with the first listing? Lean: a listing from the start, so the board is never
+      empty and a redraw always deals cards.
 - [ ] Trickle rate past 100% (start: ~10% of the run's average rate)
 - [ ] Currency for paid swaps (lean: in-run cash, which gives money earned past 100% a use,
       with a mild side effect of encouraging players to stay past 100%)
 - [ ] Guarantee variety, or allow repeat franchise types?
-- [ ] Tier on franchise type or on location?
+- [ ] What a tier is (see *Tiers*: probably business size, not location)
 - [ ] Floorplan as a third listing axis?
-- [ ] Consumable resource — name, regen rate, cap
-- [ ] Mechanic library v1 contents
-- [ ] Offline progress cap (genre norm: 8–24h)
