@@ -1,0 +1,6 @@
+{
+  // Use the TypeScript version pinned in this repo (6.0), so the editor and
+  // `npm run typecheck` always agree.
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
+}
