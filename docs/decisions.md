@@ -342,3 +342,68 @@ like income previews. The scene shows the bottleneck.
 is ever useless anyway.
 
 **Passed on:** showing "+$X/s right now" on every button.
+
+## D21 · Three active mechanics: tips, Rush Hour, special customers — Accepted · 2026-09-24
+
+**Decision:** The coffee shop gets three active mechanics. **Tips** pile up while you watch, and
+you tap to collect them. **Rush Hour** starts with the pour (hold the espresso machine, let go; a
+wide sweet spot adds "Perfect!", latte art and a longer rush) and costs Buzz (D22, D23).
+**Special customers** visit one at a time while you watch: a big tipper, a food critic whose
+review raises Demand, and a stray cat that doubles tips. Tips and visitors are free because they
+come at a fixed pace; anything where more tapping means more boost costs Buzz. Nothing can fail,
+and every reward scales with the shop. The first mechanic library holds three reusable kinds:
+boost, collectible and visitor.
+
+**Why:** Each mechanic gives a different kind of reward (money in hand, a busier shop, a
+surprise), each is one short gesture, and none punishes absence (pillars 1 and 4). Tips, the
+forgiving sweet spot and special customers were Mainak's picks. Holding to pour, speeding up the
+machines and calling in customers merged into one mechanic: the pour starts a rush that does
+those jobs.
+
+**Passed on:** dragging food to customers (fiddly on a phone, and it needs Phase 2's live
+customers) · separate buttons for faster machines and for more customers (see D22) · a pour that
+can fail · the critic's pour for a free rush (on ice: edge cases such as a rush already running)
+· a "never do the staff's job" rule. Doing a barista's job is fine when tuned, but one barista is
+under 1% of income by hour 1, so such a mechanic should be sized as a share of the crew.
+
+## D22 · Rush Hour rolls one lever at ×3 — Accepted · 2026-09-24
+
+**Decision:** Each rush rolls Demand or Service at random (50/50) and multiplies it by 3 for 3
+minutes, or 4.5 after a Perfect pour. One rush runs at a time, and a running rush finishes on its
+own after the app closes. The tuning target for a player who's always watching becomes about
+1.5× idle (it was 1.5–2×).
+
+**Why:** In simulation, both levers ×2 always paid +100%: a flat bonus you'd want running
+nonstop. Mainak wanted rushes to feel different from each other. A single-lever roll pays about
+the same on average whichever way the shop leans (about +47% at ×2, +70–90% at ×3), so it
+survives Phase 1 tuning. Letting the player pick the lever doesn't work: the simulated shop leans
+one way almost all run, so one button would nearly always be the weak pick. ×3 keeps each rush
+big and the rush time needed down: reaching 1.5× takes a rush about 45% of the time at ×3, versus
+77% at ×2. Nothing breaks at the top end. Even nonstop rushes move a player through a run only
+about 1.8× faster, because a steady boost compresses the run instead of compounding. The old 2×
+end would need rushes nonstop.
+
+**Passed on:** Demand and Service ×2 together · the player choosing the lever · ×2 per roll ·
+overlapping rushes (a double rush running nonstop gives 3.3×, well past the target).
+
+## D23 · Buzz: one refill rate, a small cap — Accepted · 2026-09-24
+
+**Decision:** Rush Hour costs one charge of **Buzz**. Buzz refills at a single rate, 1 charge
+every 10 minutes whether you're in the shop or away, up to a cap of 6. When the pile is full, the
+refill timer disappears. All numbers are placeholders. This replaces the design doc's earlier rule
+to size the cap to cover a night away, which was never a numbered decision.
+
+**Why:** The refill rate sets the ceiling for a player who never leaves (a rush running about 45%
+of the time). The cap only decides how long you can rush nonstop when you come back. In
+simulation, the old rule (a cap covering a night, with a refill fast enough for the 1.5× target)
+let normal players keep a rush going nonstop by pouring every 5 minutes. With a cap of 6, you come
+back to about 50 minutes of nonstop rushes, then settle into a rush about half the time. Because
+only one rush runs at a time, a short visit can't spend a big pile, so a full pile gives no reason
+to check in more often. A refill 2–3× slower while away changed almost nothing (only a long
+session after a short break: 82% → 71% of play with a rush running), so one rate wins on
+simplicity. It also gives no reason to leave the app open.
+
+**Passed on:** one rate with a cap covering a night (48 charges) · fast in the shop and slow while
+away (16× slower felt jarring, and 2–3× barely differed) · a cap of 3 (Mainak wanted players to
+come back to more) · caps of 20 or more (a 3-hour evening becomes rushes from start to finish) ·
+"rushes" as the name.

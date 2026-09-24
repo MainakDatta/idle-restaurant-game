@@ -46,7 +46,7 @@ capacity. What varies:
 | Art set | sprite sheet |
 | Naming ("Barista" vs "Line Cook") | franchise data file |
 | Tuning (pizza = slow service, high spend · coffee = fast service, low spend) | franchise data file |
-| Active mechanic | **picked by ID from a small library of mechanics (code)** |
+| Active mechanics | **picked by ID from a small library of mechanics (code)**, see *Active play* |
 
 - New franchise reusing an existing mechanic = **data + sprites only**.
 - New mechanic = code, written once, then reusable by any franchise.
@@ -210,25 +210,74 @@ the floor.
 
 ## Active play
 
-- **Rule:** the active mechanic is a bonus on idle progress, never the income itself.
-- **It changes throughput, not income.** E.g. a Rush Hour window: tapping applies a multiplier
-  that decays over a few minutes. Egg Inc's running-chicken button is the proven precedent.
-- **Gated by a consumable resource** that regenerates over time. This is what makes the
-  active:idle ratio *enforceable* — the ceiling becomes two tunable numbers (regen, cap).
-  - ⚠️ **Cozy trap:** a full meter that wastes regen nags people to check in. **Size the cap to
-    cover a normal absence** (a night's sleep, a workday) so returning to a full meter always
-    feels like a gift.
-- **Tuning target:** fully active ≈ 1.5–2× fully idle over a run. Hypothesis; Phase 1 proves or
-  kills it.
-- **Mini-games skew simple and cozy.** One gesture, clear feedback.
-  - v1 for coffee: hold to pour espresso, release in the green zone. **Under review:** a
-    brainstorm on alternatives comes before step 7.
-  - **Stretch: merge** (NecroMerger-style), contained as *one franchise's* mechanic — e.g. a
-    bakery merging dough → bread → pastries — not the whole game's progression system.
-- **To jam on when relevant:** Cookie Clicker (click value scales with upgrades), Egg Inc
-  (running chickens, drones), Eatventure (collecting tips).
-- **Special customers** (a big group order, a food critic, a generous tipper) appear only while
-  you're watching: attention rewarded, absence never punished. Designed with the active mechanic.
+*Settled in design session A, 2026-09-24. Rationale in D21–D23.*
+
+- **Rule:** active play is a bonus on top of idle progress, never the income itself.
+- **Tuning target:** a player who's always watching earns about **1.5×** what a pure idle player
+  earns. Hypothesis; Phase 1 proves or kills it.
+
+### The coffee shop's mechanics
+
+| Mechanic | Costs | You | You get |
+|---|---|---|---|
+| **Tips** | Free | Tap a tip stack | Tips pile up only while you're watching, worth about 10% of income. Stacks grow instead of vanishing, up to 3 stacks at once |
+| **Rush Hour** | 1 Buzz | **The pour:** hold the espresso machine, watch a cup fill, let go | A rush: Demand ×3 *or* Service ×3 (a random roll) for 3 minutes |
+| **Special customers** | Free | Tap or pet them | A reward that depends on who it is (below) |
+
+**The pour can't fail.** Letting go anywhere starts the rush; a wide sweet spot adds "Perfect!",
+latte art and a longer rush (4.5 minutes). One rush runs at a time, and a rush that's running
+finishes on its own after you close the app (offline catch-up counts it).
+
+**Special customers** come one at a time, only while you're watching, about one every 5 minutes.
+They wait patiently. If you close the app they leave, so you miss a bonus but never lose anything.
+
+| Visitor | You | Reward |
+|---|---|---|
+| Big tipper | Tap them | A big tip stack, about 2 minutes of income |
+| Food critic | Tap them | A good review: +25% Demand for 10 minutes. It multiplies with any rush, and a second review restarts the timer |
+| Stray cat | Pet it | Double tips for a few minutes |
+
+### Buzz
+
+Rush Hour costs **Buzz**, counted in charges ("Buzz 4/6"). Placeholder numbers:
+
+| Setting | Placeholder |
+|---|---|
+| Refill | 1 charge every 10 minutes, whether you're in the shop or away |
+| Cap | 6, so it's full after an hour away. Meta upgrades may raise it (see *Meta-progression*) |
+| When full | The refill timer disappears, so a full pile reads as "plenty", not "waste" |
+
+- **The refill rate is what limits active play.** A player who never leaves can have a rush
+  running about 45% of the time. The cap only decides how long you can rush nonstop when you come
+  back: about 50 minutes at a cap of 6.
+- **Coming back to a full pile is fine.** One rush at a time means a short visit can't spend a big
+  pile, so there's no reason to check in more often (pillar 1).
+
+### Principles for every mechanic
+
+| Principle | In practice |
+|---|---|
+| Free if it limits itself; Buzz if it's open-ended | Tips and visitors come at a fixed pace. Anything where more tapping means more boost costs Buzz |
+| Rewards scale with the shop | "×3 for 3 minutes" or "2 minutes of income", never flat amounts |
+| Nothing to fail, nothing to miss | Timing adds a bonus, never a penalty. Tips never vanish, and visitors wait |
+| Short gesture, lasting effect | A second or two of input, then it runs by itself |
+| Feedback is the dopamine | Coins flying to the total, a sound, "Perfect!" |
+
+### The mechanic library, v1
+
+Three reusable kinds, which each franchise's data file picks and dresses up:
+
+- **Boost:** a gesture that starts a timed ×N on a lever and costs Buzz (coffee: the pour starts
+  Rush Hour).
+- **Collectible:** something that piles up while you watch; tap to collect it (coffee: tips).
+- **Visitor:** a special customer with a reward (coffee: the tipper, the critic, the cat).
+
+Later kinds: **merge** (NecroMerger-style), contained to *one franchise*, e.g. a bakery merging
+dough → bread → pastries. A mechanic where you do a staff member's job is fine too. If it should
+stay noticeable, size it as a share of the crew: one barista is under 1% of income by hour 1.
+
+**To jam on when relevant:** Cookie Clicker (click value scales with upgrades), Egg Inc (running
+chickens, drones), Eatventure (collecting tips).
 
 ## Upgrades
 
@@ -251,7 +300,8 @@ Carries across runs:
 - **Signature recipes** — carried forward *(strongest hook; PlateUp's dish cards)*
 - **Better starting equipment**
 - **Advertising** — more customers from minute one
-- **Automation** — autobuyers
+- **Automation** — autobuyers, or a **tip jar** that collects tips for you
+- **A bigger Buzz cap** — more nonstop rushing when you come back (Mainak's idea)
 - **Royalties** — sold franchises pay a small permanent trickle. v1: uncapped. Later: a
   slotted **portfolio**. Model as a *list of holdings* with `maxSlots = ∞` from day one; never a
   single aggregate number.
@@ -329,8 +379,8 @@ customer requests, surprise visits.
 
 Fast customer cycle keeps the screen visibly busy, so early playtesting feels alive. One staff
 role (barista). The menu starts with drip coffee, with latte, muffin and pumpkin spice latte to
-unlock (placeholders; see *Inside a run*). Its first active mechanic (under review) sets the
-template every later mechanic copies.
+unlock (placeholders; see *Inside a run*). Its active mechanics (tips, Rush Hour, special
+customers) set the template later franchises reuse.
 
 ## Visible growth & asset loading
 
@@ -390,8 +440,8 @@ behind one storage module (D10) · live play and offline catch-up run the same c
 
 | Phase | Deliverable |
 |---|---|
-| **0** | `Big` class, game loop with offline catch-up, coffee shop from a definition file, portrait layout with placeholder art, save system (versioned, export/import), first active mechanic. See the checklist below |
-| **1** | Tune curves until genuinely fun. CI. Deploy to Cloudflare Pages, installable (manifest + iPhone install hint) for playtesters |
+| **0** | `Big` class, game loop with offline catch-up, coffee shop from a definition file, portrait layout with placeholder art, save system (versioned, export/import), Rush Hour with Buzz. See the checklist below |
+| **1** | Tips and special customers. Tune curves until genuinely fun. CI. Deploy to Cloudflare Pages, installable (manifest + iPhone install hint) for playtesters |
 | **2** | PixiJS scene, real sprites, visible growth, asset loading, live customers (D18) |
 | **3** | Audio — lofi, unobtrusive over hours, persistent mute |
 | **4** | Python + Postgres: accounts, cloud saves, server-checked progress, leaderboard |
@@ -410,7 +460,7 @@ One step per branch → pull request → merge.
 | 4 | Coffee shop definition file and the engine that reads it | D9, D17, D19; *Inside a run* |
 | 5 | Portrait UI: money, upgrades, a gray box where the scene will go | *Constraints*, D20 |
 | 6 | Save system: one storage module, versioned JSON, export/import | D10 |
-| 7 | First active mechanic, with its Rush Hour boost and the resource that limits it (placeholder numbers) | *Active play* (mechanic under review) |
+| 7 | Rush Hour: the pour, the random rush, and Buzz (placeholder numbers) | *Active play*, D21–D23 |
 
 ## Assets & audio
 
@@ -425,12 +475,6 @@ One step per branch → pull request → merge.
 
 ## Open questions
 
-### Finish session A (before step 7)
-
-- [ ] **Active mechanic:** alternatives to hold-to-pour for the coffee shop, what goes in the first
-      version of the mechanic library, and **special customers** (see *Active play*).
-- [ ] **Consumable resource:** name, regen rate and cap (placeholders are fine).
-
 ### Session B (before Phase 1)
 
 - [ ] **Roadmap:** the build phases don't yet schedule selling, the valuation screen, the market
@@ -439,9 +483,19 @@ One step per branch → pull request → merge.
       as Mainak's first Python in the project.
 - [ ] **The cross-run currency:** its name, what it buys, how it relates to the sale value, and
       what royalties pay in. ("Potential" is the bar the currency fills, not the currency.)
+      Candidates include a bigger Buzz cap and a tip jar. Lean: meta upgrades never raise the
+      ceiling on active play (the rush multiplier, its length, or Buzz's refill rate), so the
+      active/idle gap stays the same run after run.
 - [ ] **How the knee works in practice:** the exact curve, and how catch-up applies it after a
       long absence. The structure is settled in D11.
 - [ ] **What a tier is** (see *Tiers*: probably business size, not location).
+
+### Phase 1 tuning
+
+- [ ] **The bottleneck doesn't swing in simulation.** The shop leans one way for the whole run:
+      idle baristas with today's placeholder numbers, and a permanent line if item speed doesn't
+      double. *Inside a run* expects each unlock to shake up the balance. Check what real play
+      does before tuning around it.
 
 ### Later
 
@@ -461,3 +515,8 @@ One step per branch → pull request → merge.
 - [ ] **Featured item:** a player-chosen item that gets ordered more often.
 - [ ] **Realistic-looking prices** (Phase 1 or 2): how the menu could show believable price
       points while the tier rule still holds.
+- [ ] **More rush types** (Mainak's idea): Rush Hour rolls from a bigger set of random boosts,
+      which echoes the draft's randomness.
+- [ ] **Latte art sketchbook:** each Perfect pour adds a design to a collection. Cosmetic only.
+- [ ] **The critic's pour** (on ice): pour the critic's drink for a free Rush Hour. Set aside
+      because of edge cases, such as a rush that's already running.
