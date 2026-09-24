@@ -72,9 +72,11 @@ cook; full service is host → waiter → chef. See *Inside a run*.
 **Income = customers served × Spend.** Customers served is set by the bottleneck:
 
 - **Strict at the core:** served = the lower of Demand and Service.
-- **Spillover, so surplus is never wasted:** idle staff help 100% within their role and 20% across
-  roles. Idle baristas stepping outside with samples counts as cross-role help (it raises Demand).
-  A line converts 20% of its surplus into self-serve spend (people grab a pastry while waiting).
+- **Spillover:** idle staff help 100% within their role and 20% across roles. Idle baristas
+  stepping outside with samples counts as cross-role help (it raises Demand).
+- *Optional per franchise:* a line converts a share of its surplus into self-serve spend (people
+  grab a pastry while waiting). It's off wherever self-serve isn't realistic, and growth doesn't
+  depend on it.
 - **Off-balance opening:** a run starts with Service a little above Demand, so the first purchases
   have an obvious target.
 - **Templates define the roles.** The coffee shop has one (barista). Kitchen: cashier → cook. Full
@@ -128,7 +130,7 @@ Phase 1 tunes toward these:
 ### Placeholder numbers: coffee shop (for step 4)
 
 Tested in simulation; Phase 1 tunes them. Costs rise **26% per level**. A run starts with 1 table,
-1 barista and drip coffee.
+1 barista and drip coffee. Self-serve from the line: 20%, since a pastry case suits a coffee shop.
 
 | Leveled upgrade | Each level | First level costs |
 |---|---|---|
@@ -457,3 +459,5 @@ One step per branch → pull request → merge.
 - [ ] **Random events** (rain, an influencer post) that temporarily shift a lever. Cozy rule: they
       shift the balance rather than just cutting income.
 - [ ] **Featured item:** a player-chosen item that gets ordered more often.
+- [ ] **Realistic-looking prices** (Phase 1 or 2): how the menu could show believable price
+      points while the tier rule still holds.

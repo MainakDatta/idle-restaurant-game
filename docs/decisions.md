@@ -284,17 +284,19 @@ knee decisions first.
 
 ## D17 · A bottleneck economy with spillover — Accepted · 2026-09-23
 
-**Decision:** Three levers: Demand, Service and Spend ("Ticket", renamed). Income = customers
-served × Spend. Customers served = the lower of Demand and Service, plus spillover: staff help
-100% within their role and 20% across roles (idle staff handing out samples counts as
-cross-role), and a line converts 20% of its surplus into self-serve spend. Runs open slightly off
-balance, with Service above Demand. Franchise templates define the roles.
+**Decision:** Three levers: Demand, Service and Spend. Income = customers served × Spend.
+Customers served = the lower of Demand and Service, plus spillover: staff help 100% within their
+role and 20% across roles (idle staff handing out samples counts as cross-role). Optionally, per
+franchise, a line converts a share of its surplus into self-serve spend (people grab a pastry
+while waiting). It stays off wherever self-serve isn't realistic. Runs open slightly off balance,
+with Service above Demand. Franchise templates define the roles.
 
 **Why:** Every purchase is a real choice, and the screen shows the bottleneck. In simulation, a
 strict bottleneck alone traps a one-purchase-at-a-time player: at balance, a single table or
 barista earns $0, so everything goes into the menu. Players who upgrade stations together escape
 it, and spillover is the safety net for those who don't. It keeps growth even, never leaves a
-purchase doing nothing, and holds with three staff roles.
+purchase doing nothing, and holds with three staff roles. Self-serve isn't needed for any of
+this: removing it left the simulated shop's growth unchanged, so it's optional flavor.
 
 **Passed on:** stacking producers (the only decision becomes best income per dollar) · a strict
 bottleneck alone · a soft congestion formula (loses ~16% at perfect balance, which live customers
