@@ -224,9 +224,15 @@ the floor.
 | **Rush Hour** | 1 Buzz | **The pour:** hold the espresso machine, watch a cup fill, let go | A rush: Demand ×3 *or* Service ×3 (a random roll) for 3 minutes |
 | **Special customers** | Free | Tap or pet them | A reward that depends on who it is (below) |
 
-**The pour can't fail.** Letting go anywhere starts the rush; a wide sweet spot adds "Perfect!",
-latte art and a longer rush (4.5 minutes). One rush runs at a time, and a rush that's running
-finishes on its own after you close the app (offline catch-up counts it).
+**The pour can't fail.**
+
+- Letting go anywhere starts the rush. A wide sweet spot adds "Perfect!", latte art and a longer
+  rush (4.5 minutes).
+- **Latte art** is a little drawing on the cup: a treat for the player, with no effect on the
+  economy. It's art, so it arrives with Phase 2's sprites (hand-drawn or from a licensed pack,
+  never AI-generated). Until then, a Perfect pour just says "Perfect!".
+- One rush runs at a time, and a rush that's running finishes on its own after you close the app
+  (offline catch-up counts it).
 
 **Special customers** come one at a time, only while you're watching, about one every 5 minutes.
 They wait patiently. If you close the app they leave, so you miss a bonus but never lose anything.
@@ -234,8 +240,10 @@ They wait patiently. If you close the app they leave, so you miss a bonus but ne
 | Visitor | You | Reward |
 |---|---|---|
 | Big tipper | Tap them | A big tip stack, about 2 minutes of income |
-| Food critic | Tap them | A good review: +25% Demand for 10 minutes. It multiplies with any rush, and a second review restarts the timer |
-| Stray cat | Pet it | Double tips for a few minutes |
+| Food critic | Tap them | A good review: +25% Demand for 10 minutes. It multiplies with any rush |
+| Stray cat | Pet it | Double tips for 5 minutes |
+
+If the same kind of visitor comes back while its reward is still running, the timer restarts.
 
 ### Buzz
 

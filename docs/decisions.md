@@ -347,12 +347,12 @@ is ever useless anyway.
 
 **Decision:** The coffee shop gets three active mechanics. **Tips** pile up while you watch, and
 you tap to collect them. **Rush Hour** starts with the pour (hold the espresso machine, let go; a
-wide sweet spot adds "Perfect!", latte art and a longer rush) and costs Buzz (D22, D23).
-**Special customers** visit one at a time while you watch: a big tipper, a food critic whose
-review raises Demand, and a stray cat that doubles tips. Tips and visitors are free because they
-come at a fixed pace; anything where more tapping means more boost costs Buzz. Nothing can fail,
-and every reward scales with the shop. The first mechanic library holds three reusable kinds:
-boost, collectible and visitor.
+wide sweet spot adds "Perfect!", cosmetic latte art on the cup and a longer rush) and costs Buzz
+(D22, D23). **Special customers** visit one at a time while you watch: a big tipper, a food
+critic whose review raises Demand, and a stray cat that doubles tips. Tips and visitors are free
+because they come at a fixed pace; anything where more tapping means more boost costs Buzz.
+Nothing can fail, and every reward scales with the shop. The first mechanic library holds three
+reusable kinds: boost, collectible and visitor.
 
 **Why:** Each mechanic gives a different kind of reward (money in hand, a busier shop, a
 surprise), each is one short gesture, and none punishes absence (pillars 1 and 4). Tips, the
