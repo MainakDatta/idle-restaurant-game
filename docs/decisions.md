@@ -204,6 +204,9 @@ every rule applies identically whether the player was watching or not, including
 it's designed. Catch-up runs when the game opens and when a background tab becomes visible
 again. If the clock moves backward, elapsed time counts as zero, so progress is never lost.
 
+**Updated 2026-09-23:** once Phase 2 adds live customers (D18), live play and catch-up follow
+**the same rules** rather than the same code. A test keeps them within 5% of each other.
+
 ## D12 · Phase 0 foundation dependencies — Accepted · 2026-09-22
 
 **Decision:** The scaffold is hand-written from Vite's official `react-ts` starter
@@ -267,3 +270,73 @@ session's agenda. The structure is settled in D11.
 
 **Passed on:** full words ("1.23 million"), which get long on phones and unwieldy at names like
 "quattuordecillion" · scientific notation by default, which reads like math to casual players.
+
+## D16 · Phase 0 ends with one complete run loop — Accepted · 2026-09-23
+
+**Decision:** Phase 0 delivers a playable single run: earning, upgrading, the first active
+mechanic, saves and offline progress. Gray boxes are fine. Selling and everything between runs
+come later.
+
+**Why:** It's the smallest thing Phase 1 can tune for fun.
+
+**Passed on:** a minimal tech demo · including a basic sale, which needs session B's currency and
+knee decisions first.
+
+## D17 · A bottleneck economy with spillover — Accepted · 2026-09-23
+
+**Decision:** Three levers: Demand, Service and Spend ("Ticket", renamed). Income = customers
+served × Spend. Customers served = the lower of Demand and Service, plus spillover: staff help
+100% within their role and 20% across roles (idle staff handing out samples counts as
+cross-role), and a line converts 20% of its surplus into self-serve spend. Runs open slightly off
+balance, with Service above Demand. Franchise templates define the roles.
+
+**Why:** Every purchase is a real choice, and the screen shows the bottleneck. In simulation, a
+strict bottleneck alone traps a one-purchase-at-a-time player: at balance, a single table or
+barista earns $0, so everything goes into the menu. Players who upgrade stations together escape
+it, and spillover is the safety net for those who don't. It keeps growth even, never leaves a
+purchase doing nothing, and holds with three staff roles.
+
+**Passed on:** stacking producers (the only decision becomes best income per dollar) · a strict
+bottleneck alone · a soft congestion formula (loses ~16% at perfect balance, which live customers
+wouldn't reproduce) · universal spillover (any role helps with any job).
+
+## D18 · Rates now, live customers in Phase 2 — Accepted · 2026-09-23
+
+**Decision:** The economy runs on rates; customers on screen only illustrate them. Phase 2 adds
+live customers: irregular arrivals (gaps 60–140% of the average, service times ±20%), weighted
+random orders, and a patient line capped around 50 ("come back later"). Their long-run average
+must stay within 5% of the rate formula, enforced by a test that simulates hours of play.
+
+**Why:** Offline catch-up stays exact while live play gets a restaurant's randomness. In
+simulation with 3 baristas, fully random arrivals and a 10-person line turned away 7.7% of
+customers at balance. A patient line of 50 with moderate randomness lost 0.1%.
+
+**Passed on:** Eatventure's approach (a live simulation plus a capped, deliberately weaker offline
+estimate), which punishes absence (pillars 1 and 4, D14).
+
+## D19 · A real menu with per-item upgrades — Accepted · 2026-09-23
+
+**Decision:** Menu items have a price, a barista time and an order weight. One level per item:
+the price rises every level, and production speed doubles at bonus levels, arriving as visible
+equipment. The whole menu is visible from the start, and items unlock by cost only. New items
+follow the tier rule: about 3× the previous item's value per barista-second at the point it
+typically unlocks.
+
+**Why:** It's how restaurant idle games feel, and fixed order shares push players to spread their
+upgrades. In simulation, new items were never unlocked until the tier rule was measured per
+barista-second. With it, every unlock raises income. Per-item speed makes unlocks a shake-up
+(pumpkin spice: customers served −61%, income +182%), which we treat as a feature. Cost-only
+unlocks pace the same as level-gated ones, because price already does the gating.
+
+**Passed on:** one "Recipes" upgrade for the whole menu · shop-wide speed only (gentler unlocks) ·
+level-gated menu unlocks.
+
+## D20 · Buttons show an upgrade's own effect — Accepted · 2026-09-23
+
+**Decision:** An upgrade button shows what it changes ("Service 24 → 36/min"), never derived stats
+like income previews. The scene shows the bottleneck.
+
+**Why:** Mainak prefers game-like readability over spreadsheet stats. With spillover, no purchase
+is ever useless anyway.
+
+**Passed on:** showing "+$X/s right now" on every button.

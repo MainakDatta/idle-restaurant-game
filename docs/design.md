@@ -45,7 +45,7 @@ capacity. What varies:
 |---|---|
 | Art set | sprite sheet |
 | Naming ("Barista" vs "Line Cook") | franchise data file |
-| Tuning (pizza = slow, high ticket · coffee = fast, low ticket) | franchise data file |
+| Tuning (pizza = slow service, high spend · coffee = fast service, low spend) | franchise data file |
 | Active mechanic | **picked by ID from a small library of mechanics (code)** |
 
 - New franchise reusing an existing mechanic = **data + sprites only**.
@@ -54,8 +54,108 @@ capacity. What varies:
 - **The file format** is settled in step 4. Design lean: JSON, because the Phase 4 server has to
   read the same numbers to check progress.
 
-*Later:* **templates** (e.g. counter-service vs table-service) as a layer between the engine
-and franchise data, for structural variety.
+**Templates** define a franchise's staff roles: counter service has one; kitchen is cashier →
+cook; full service is host → waiter → chef. See *Inside a run*.
+
+## Inside a run: the economy
+
+*Settled in design session A, 2026-09-23. Rationale in D16–D20.*
+
+### Three levers
+
+| Lever | Means | Raised by |
+|---|---|---|
+| **Demand** | Customers arriving per minute | Tables, marketing boosts |
+| **Service** | Customers served per minute | Baristas, equipment, each item's speed |
+| **Spend** | Average spend per customer | Each item's price, new menu items |
+
+**Income = customers served × Spend.** Customers served is set by the bottleneck:
+
+- **Strict at the core:** served = the lower of Demand and Service.
+- **Spillover, so surplus is never wasted:** idle staff help 100% within their role and 20% across
+  roles. Idle baristas stepping outside with samples counts as cross-role help (it raises Demand).
+  A line converts 20% of its surplus into self-serve spend (people grab a pastry while waiting).
+- **Off-balance opening:** a run starts with Service a little above Demand, so the first purchases
+  have an obvious target.
+- **Templates define the roles.** The coffee shop has one (barista). Kitchen: cashier → cook. Full
+  service: host → waiter → chef.
+
+### The menu is real
+
+Each item has a price, a barista time to make it, and an order weight. Spend is the weighted
+average price, and the weighted average barista time sets how many customers the baristas serve.
+
+- **One level per item:** its price rises every level. At bonus levels its production speed
+  doubles, arriving as visible equipment (a second machine, a bigger oven).
+- **The whole menu is visible from the start** and items unlock by **cost only**, priced so an
+  unlock pays for itself in a reasonable time.
+- **Tier rule:** a new item starts at about 3× the previous item's value *at the point it
+  typically unlocks*, measured per second of barista time (price ÷ time). Every unlock raises
+  income, and because the new item starts slow, it also shakes up the balance: the line grows.
+- Every item keeps its share of orders, so a neglected item costs twice (a low price on its share,
+  slow production). Players naturally spread their upgrades.
+- *Advanced franchise trait (later):* a fully unlocked menu from day one.
+
+### Upgrades
+
+| Kind | Examples | Rule |
+|---|---|---|
+| **Leveled** | Tables, Baristas, each menu item | Each level costs more; output doubles at levels 10, 25, 50, 100, then every 50 |
+| **Menu unlocks** | Espresso machine → Latte | Visible from the start; cost is the only gate |
+| **Lever boosts** | Chalkboard sign (×2 Demand), Second grinder (×2 Service) | Visible from the start; buyable once a bonus level is reached; staggered by lever |
+
+Buttons show the upgrade's **own effect** ("Service 24 → 36/min"), never a derived income preview.
+The scene shows the bottleneck: a line out the door, or baristas with nothing to do.
+
+### Rates now, live customers later
+
+The economy runs on **rates**, and customers on screen only illustrate them, so offline catch-up
+is exact. Phase 2 adds live customers with randomness, and their long-run average must stay within
+5% of the rates (D18).
+
+### Pacing targets
+
+Phase 1 tunes toward these:
+
+| Moment | Target |
+|---|---|
+| First purchase | Within about 10 seconds |
+| First level bonus | 2–5 minutes |
+| First one-time upgrade | 5–15 minutes |
+| One-time upgrades | Spread across the whole run |
+| Wait between purchases | 1–5 min around the 1-hour mark; 20–40 min around the 8-hour mark |
+
+### Placeholder numbers: coffee shop (for step 4)
+
+Tested in simulation; Phase 1 tunes them. Costs rise **26% per level**. A run starts with 1 table,
+1 barista and drip coffee.
+
+| Leveled upgrade | Each level | First level costs |
+|---|---|---|
+| Tables | +6 customers/min | $2 |
+| Baristas | +1 barista | $8 |
+| Drip coffee | Price +10% of $3 | $6 |
+| Latte | Price +10% of $51 | $150 |
+| Muffin | Price +10% of $195 | $3.6K |
+| Pumpkin spice latte | Price +10% of $8.5K | $36M |
+
+| Menu item | Starting price | Barista time | Order weight | Unlocked by |
+|---|---|---|---|---|
+| Drip coffee | $3 | 8 s | 5 | Start |
+| Latte | $51 | 12 s | 4 | Espresso machine, $1.44K |
+| Muffin | $195 | 4 s | 3 | Pastry case, $36K |
+| Pumpkin spice latte | $8.5K | 14 s | 2 | Seasonal specials, $373M |
+
+| Lever boost (×2) | Buyable at | Cost |
+|---|---|---|
+| Chalkboard sign (Demand) | Tables 10 | $4.8K |
+| Second grinder (Service) | Baristas 25 | $615K |
+| Loyalty cards (Demand) | Tables 50 | $49.7M |
+| Mobile ordering (Service), Local influencer visit (Demand), Barista training (Service) | Baristas 100, Tables 150, Baristas 200 | ⚠️ Not reached in 24 h of simulation. Lower these in Phase 1 |
+
+Simulated: first purchase at 6 s, first bonus at 2 min, menu unlocks at 6 min, 8 min and 2.4 h.
+Waits between purchases were under a minute around the 1-hour mark and 43 min around the 8-hour
+mark, both a little outside the targets.
 
 ## Drafting: listings
 
@@ -125,6 +225,8 @@ the floor.
     bakery merging dough → bread → pastries — not the whole game's progression system.
 - **To jam on when relevant:** Cookie Clicker (click value scales with upgrades), Egg Inc
   (running chickens, drones), Eatventure (collecting tips).
+- **Special customers** (a big group order, a food critic, a generous tipper) appear only while
+  you're watching: attention rewarded, absence never punished. Designed with the active mechanic.
 
 ## Upgrades
 
@@ -134,7 +236,9 @@ the floor.
   always right, it's a chore, not a decision.
 - **Automation as a reward:** hand-pick early; earn autobuyers through meta-progression. A gift
   that removes chores — cozy by design.
-- **Affordability is visible** — highlight what you can buy, hint "affordable in 4 min."
+- **Affordability is visible:** highlight what you can buy. Buttons show each upgrade's own
+  effect, never derived stats like income previews (D20).
+- How upgrades work in detail: see *Inside a run*.
 
 ## Meta-progression
 
@@ -221,13 +325,16 @@ customer requests, surprise visits.
 
 ## First build: coffee shop
 
-Fast customer cycle keeps the screen visibly busy, so early playtesting feels alive.
-Its first active mechanic (hold-to-pour, under review) sets the template every later mechanic
-copies.
+Fast customer cycle keeps the screen visibly busy, so early playtesting feels alive. One staff
+role (barista). The menu starts with drip coffee, with latte, muffin and pumpkin spice latte to
+unlock (placeholders; see *Inside a run*). Its first active mechanic (under review) sets the
+template every later mechanic copies.
 
 ## Visible growth & asset loading
 
-More tables, more staff sprites bustling, longer queues as you invest.
+More tables, more staff sprites bustling, longer queues as you invest. Each item's bonus levels
+arrive as new equipment (a second machine). Idle baristas step outside with sample trays, and a
+long line snakes out the door with a counter ("+37 waiting").
 
 Performance plan (Phase 2, a deliberate learning area):
 - **Per-franchise asset bundles** — only the current franchise is loaded.
@@ -283,7 +390,7 @@ behind one storage module (D10) · live play and offline catch-up run the same c
 |---|---|
 | **0** | `Big` class, game loop with offline catch-up, coffee shop from a definition file, portrait layout with placeholder art, save system (versioned, export/import), first active mechanic. See the checklist below |
 | **1** | Tune curves until genuinely fun. CI. Deploy to Cloudflare Pages, installable (manifest + iPhone install hint) for playtesters |
-| **2** | PixiJS scene, real sprites, visible growth, asset loading |
+| **2** | PixiJS scene, real sprites, visible growth, asset loading, live customers (D18) |
 | **3** | Audio — lofi, unobtrusive over hours, persistent mute |
 | **4** | Python + Postgres: accounts, cloud saves, server-checked progress, leaderboard |
 | **5** | Offline support (service worker), polish, share widely |
@@ -297,9 +404,9 @@ One step per branch → pull request → merge.
 |---|---|---|
 | 1 ✅ | Scaffold: Vite, React, TypeScript, Vitest, oxlint | D12 |
 | 2 | `Big` class, plus the `src/game/` folder and a check that keeps React and Pixi out of it | D5, D6 |
-| 3 | Game state and loop, with offline catch-up | D11, D14 |
-| 4 | Coffee shop definition file and the engine that reads it | D9 |
-| 5 | Portrait UI: money, upgrades, a gray box where the scene will go | *Constraints* |
+| 3 | Game state and loop, with offline catch-up | D11, D14, D18 |
+| 4 | Coffee shop definition file and the engine that reads it | D9, D17, D19; *Inside a run* |
+| 5 | Portrait UI: money, upgrades, a gray box where the scene will go | *Constraints*, D20 |
 | 6 | Save system: one storage module, versioned JSON, export/import | D10 |
 | 7 | First active mechanic, with its Rush Hour boost and the resource that limits it (placeholder numbers) | *Active play* (mechanic under review) |
 
@@ -316,18 +423,23 @@ One step per branch → pull request → merge.
 
 ## Open questions
 
-### Next design session
+### Finish session A (before step 7)
+
+- [ ] **Active mechanic:** alternatives to hold-to-pour for the coffee shop, what goes in the first
+      version of the mechanic library, and **special customers** (see *Active play*).
+- [ ] **Consumable resource:** name, regen rate and cap (placeholders are fine).
+
+### Session B (before Phase 1)
 
 - [ ] **Roadmap:** the build phases don't yet schedule selling, the valuation screen, the market
       board and draft, or the cross-run currency and meta upgrades. Phase 1 needs them to test
-      whether the game is fun.
-- [ ] **Active mechanic:** alternatives to hold-to-pour for the coffee shop (needed before
-      step 7), and what goes in the first version of the mechanic library.
-- [ ] **Consumable resource:** name, regen rate and cap (needed for step 7; placeholders are fine).
+      whether the game is fun. Idea: a Python balance simulator that reads the franchise file,
+      as Mainak's first Python in the project.
 - [ ] **The cross-run currency:** its name, what it buys, how it relates to the sale value, and
       what royalties pay in. ("Potential" is the bar the currency fills, not the currency.)
 - [ ] **How the knee works in practice:** the exact curve, and how catch-up applies it after a
-      long absence. The structure is settled: catch-up and live play run the same code (D11).
+      long absence. The structure is settled in D11.
+- [ ] **What a tier is** (see *Tiers*: probably business size, not location).
 
 ### Later
 
@@ -341,5 +453,7 @@ One step per branch → pull request → merge.
 - [ ] Currency for paid swaps (lean: in-run cash, which gives money earned past 100% a use,
       with a mild side effect of encouraging players to stay past 100%)
 - [ ] Guarantee variety, or allow repeat franchise types?
-- [ ] What a tier is (see *Tiers*: probably business size, not location)
 - [ ] Floorplan as a third listing axis?
+- [ ] **Random events** (rain, an influencer post) that temporarily shift a lever. Cozy rule: they
+      shift the balance rather than just cutting income.
+- [ ] **Featured item:** a player-chosen item that gets ordered more often.
