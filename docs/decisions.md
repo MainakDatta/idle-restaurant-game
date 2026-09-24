@@ -444,3 +444,18 @@ because the calculation turns 0.11 into 0.11000000000000001.
 getters instead of freezing · break_infinity's `"1.5e+300"` string, or plain `"150"` for small
 values (not an exact round trip) · a `valueOf` returning a number, which makes `a < b` work until
 ~1e308 and then silently compare `Infinity`.
+
+## D25 · A lint rule keeps React and Pixi out of `src/game/` — Accepted · 2026-09-24
+
+**Decision:** Game logic lives in `src/game/`. An oxlint `no-restricted-imports` rule, scoped
+to that folder in `.oxlintrc.json`, fails `npm run lint` on any import of `react`, `react-dom`,
+`pixi.js` or `@pixi/*`, including their subpaths and dynamic `import()`.
+
+**Why:** It enforces the structural rule with the linter we already have, and the error message
+says what to do instead.
+
+**Passed on:** dependency-cruiser or eslint-plugin-boundaries (new dependencies for one rule,
+D4) · a test that searches the source for imports (text matching misses cases).
+
+**Next:** a separate pull request adds a type check that runs `src/game/` without browser types
+(`window`, `localStorage`, `performance`, JSX), so the clock and storage have to be passed in.
