@@ -463,7 +463,7 @@ One step per branch → pull request → merge.
 | Step | What gets built | See |
 |---|---|---|
 | 1 ✅ | Scaffold: Vite, React, TypeScript, Vitest, oxlint | D12 |
-| 2 | `Big` class, plus the `src/game/` folder and a check that keeps React and Pixi out of it | D5, D6 |
+| 2 ✅ | `Big` class, plus the `src/game/` folder and a check that keeps React and Pixi out of it | D5, D6, D15, D24, D25 |
 | 3 | Game state and loop, with offline catch-up | D11, D14, D18 |
 | 4 | Coffee shop definition file and the engine that reads it | D9, D17, D19; *Inside a run* |
 | 5 | Portrait UI: money, upgrades, a gray box where the scene will go | *Constraints*, D20 |
