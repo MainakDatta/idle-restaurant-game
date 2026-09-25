@@ -10,6 +10,7 @@ entry, and always add one for a new dependency.
 - `npm run dev`: dev server
 - `npm test` / `npm run test:watch`: Vitest
 - `npm run typecheck` · `npm run lint` (oxlint) · `npm run build`
+- `npm run check`: lint, typecheck, tests and build in one go. Run it before every commit (D26).
 
 ## How we work
 

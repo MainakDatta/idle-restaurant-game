@@ -16,6 +16,7 @@ npm test            # unit tests
 npm run typecheck   # TypeScript type checking
 npm run lint        # oxlint
 npm run build       # production build into dist/
+npm run check       # lint, typecheck, tests and build: run before every push
 ```
 
 ## Docs
