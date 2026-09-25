@@ -273,6 +273,14 @@ session's agenda. The structure is settled in D11.
 **Passed on:** full words ("1.23 million"), which get long on phones and unwieldy at names like
 "quattuordecillion" · scientific notation by default, which reads like math to casual players.
 
+**Updated 2026-09-24 (the details):** `formatBig(value, 'short' | 'scientific')` in
+`src/game/format.ts` does this. Numbers always round **down**, so the screen never shows more
+money than you have: 999,999 is 999K, not 1.00M. With a suffix there are always three digits,
+zeros included: 1.00K, 10.0K, 100K. Below 1,000 both settings show the plain number with up to
+three significant digits and no padded zeros: 3.5, 12.3, 999, 0.05. The scientific setting
+looks like 1.23e45 and keeps its zeros (1.00e3). The two-letter codes run aa to zz (up to
+1e2064), and short mode switches to scientific after that.
+
 ## D16 · Phase 0 ends with one complete run loop — Accepted · 2026-09-23
 
 **Decision:** Phase 0 delivers a playable single run: earning, upgrading, the first active
