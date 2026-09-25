@@ -100,6 +100,14 @@ describe('mistakes fail loudly', () => {
     expect(() => price.mul('2' as never)).toThrow('Big.mul')
   })
 
+  // The colon matters: 'Big.gt' alone would also match an error that says 'Big.gte:'.
+  test.each(['cmp', 'eq', 'gt', 'gte', 'lt', 'lte', 'max', 'min'] as const)(
+    'Big.%s names itself in its errors',
+    (method) => {
+      expect(() => Big.fromValue(10)[method](-1)).toThrow(`Big.${method}:`)
+    },
+  )
+
   test('sub throws when the result would be negative', () => {
     expect(() => Big.fromValue(1500).sub(2000)).toThrow(/result would be negative/)
   })

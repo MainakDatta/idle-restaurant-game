@@ -123,24 +123,25 @@ export class Big {
     return compareNumbers(this.mantissa, b.mantissa)
   }
 
+  // Each converts its own argument, so an error names eq or gt rather than cmp.
   eq(other: BigSource): boolean {
-    return this.cmp(other) === 0
+    return this.cmp(Big.toBig(other, 'eq')) === 0
   }
 
   gt(other: BigSource): boolean {
-    return this.cmp(other) > 0
+    return this.cmp(Big.toBig(other, 'gt')) > 0
   }
 
   gte(other: BigSource): boolean {
-    return this.cmp(other) >= 0
+    return this.cmp(Big.toBig(other, 'gte')) >= 0
   }
 
   lt(other: BigSource): boolean {
-    return this.cmp(other) < 0
+    return this.cmp(Big.toBig(other, 'lt')) < 0
   }
 
   lte(other: BigSource): boolean {
-    return this.cmp(other) <= 0
+    return this.cmp(Big.toBig(other, 'lte')) <= 0
   }
 
   max(other: BigSource): Big {
