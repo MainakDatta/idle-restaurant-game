@@ -128,6 +128,8 @@ bigger numbers than we need).
 states), so `Big` throws if a result would go below zero. Display follows D15. The rest of the
 API is settled in Phase 0 step 2.
 
+**Updated 2026-09-24:** the full API is D24.
+
 ## D7 · Codename vs title — Accepted · 2026-09-22
 
 **Decision:** Folders, package name and storage keys use `idle-restaurant-game`. The display
@@ -271,6 +273,14 @@ session's agenda. The structure is settled in D11.
 **Passed on:** full words ("1.23 million"), which get long on phones and unwieldy at names like
 "quattuordecillion" · scientific notation by default, which reads like math to casual players.
 
+**Updated 2026-09-24 (the details):** `formatBig(value, 'short' | 'scientific')` in
+`src/game/format.ts` does this. Numbers always round **down**, so the screen never shows more
+money than you have: 999,999 is 999K, not 1.00M. With a suffix there are always three digits,
+zeros included: 1.00K, 10.0K, 100K. Below 1,000 both settings show the plain number with up to
+three significant digits and no padded zeros: 3.5, 12.3, 999, 0.05. The scientific setting
+looks like 1.23e45 and keeps its zeros (1.00e3). The two-letter codes run aa to zz (up to
+1e2064), and short mode switches to scientific after that.
+
 ## D16 · Phase 0 ends with one complete run loop — Accepted · 2026-09-23
 
 **Decision:** Phase 0 delivers a playable single run: earning, upgrading, the first active
@@ -407,3 +417,53 @@ simplicity. It also gives no reason to leave the app open.
 away (16× slower felt jarring, and 2–3× barely differed) · a cap of 3 (Mainak wanted players to
 come back to more) · caps of 20 or more (a 3-hour evening becomes rushes from start to finish) ·
 "rushes" as the name.
+
+## D24 · The `Big` API — Accepted · 2026-09-24
+
+**Decision:** `Big` (in `src/game/big.ts`) has 17 methods, named as in break_infinity.js:
+`fromValue`; `add`, `sub`, `mul`, `div`, `pow`; `cmp`, `eq`, `gt`, `gte`, `lt`, `lte`, `max`,
+`min`; `toNumber`, `toString`, `toJSON`. Plus `Big.ZERO`, `Big.ONE` and a `BigError` class.
+- **One way in:** `Big.fromValue` takes a Big, a number or a string. The constructor is private.
+  Numbers must be finite and not negative. Strings must look like `"1500"`, `"1.5"` or
+  `"1.5e300"`, with no commas, spaces or signs in front.
+- **Methods take a Big or a plain number, never a string.** Strings from saves and data files
+  are read once, where they load.
+- **Mistakes throw a `BigError` naming the operation:** a negative result from `sub`, dividing
+  by zero, 0 to a negative power, a non-finite power, and `toNumber` on a value too big for a
+  number. Checking `a.gte(b)` before `a.sub(b)` can never throw.
+- **Save format:** `toString()` is always mantissa `e` exponent (`"1.5e300"`, `"1.5e2"`,
+  `"0e0"`), and `toJSON()` returns the same string, so `JSON.stringify` writes Bigs as strings
+  (D10). Loading a saved string gives back exactly the same value.
+- **Read-only at runtime too:** fields are `readonly`, and each Big is frozen, so
+  `PRICE.mantissa = 9` throws.
+- **`valueOf()` throws.** TypeScript allows `a < b` between objects, and JavaScript would then
+  compare the strings: `"1.5e3" < "2e2"`, so 1500 < 200 would be true.
+- **Precision is a number's:** about 16 significant digits. Numbers with up to 15 significant
+  digits survive number → Big → number exactly. A full 17-digit number can come back off in
+  its last digit (18% of random doubles, by at most 3 parts in 10¹⁶), the same limit as
+  break_infinity. Calculated values are compared with `gte`/`lte`, not `eq`.
+- **Left out until a step needs them:** `log10` (for "buy max"), `floor`, `sqrt` and the rest.
+
+**Why:** Each rule closes one of D6's silent failures or keeps the class small enough to read.
+`toNumber` reads the Big's own string back rather than calculating `mantissa × 10^exponent`,
+because the calculation turns 0.11 into 0.11000000000000001.
+
+**Passed on:** accepting strings in every method (break_infinity does) · private fields with
+getters instead of freezing · break_infinity's `"1.5e+300"` string, or plain `"150"` for small
+values (not an exact round trip) · a `valueOf` returning a number, which makes `a < b` work until
+~1e308 and then silently compare `Infinity`.
+
+## D25 · A lint rule keeps React and Pixi out of `src/game/` — Accepted · 2026-09-24
+
+**Decision:** Game logic lives in `src/game/`. An oxlint `no-restricted-imports` rule, scoped
+to that folder in `.oxlintrc.json`, fails `npm run lint` on any import of `react`, `react-dom`,
+`pixi.js` or `@pixi/*`, including their subpaths and dynamic `import()`.
+
+**Why:** It enforces the structural rule with the linter we already have, and the error message
+says what to do instead.
+
+**Passed on:** dependency-cruiser or eslint-plugin-boundaries (new dependencies for one rule,
+D4) · a test that searches the source for imports (text matching misses cases).
+
+**Next:** a separate pull request adds a type check that runs `src/game/` without browser types
+(`window`, `localStorage`, `performance`, JSX), so the clock and storage have to be passed in.
