@@ -42,6 +42,13 @@ What earlier sessions learned that the design and decision docs don't say.
 **Starting work**
 - Where things stand: ✅ rows in the current phase's checklist are merged, and `gh pr list`
   shows open PRs.
+- Upcoming work is on Mainak's Todoist board, project "Idle Game": Backlog → Upcoming (the top
+  card is next) → In Progress → Done. Read it at the start of a session if the Todoist connector
+  is available. Finished cards are marked complete, so they're hidden unless completed tasks are
+  shown. Mainak moves the cards himself unless he asks you to.
+- A big step can be split into lettered tickets (`Step Na`, `Step Nb`, …), each with its own
+  branch (`step-Na/<topic>`) and PR, so each part is tested and shipped on its own. The
+  checklist row gets ✅ with the last one.
 - Before starting, update `main` and skim what changed in `docs/` since you last looked
   (`git diff <old>..origin/main -- docs/`). The design chat lands docs often, sometimes mid-step.
 - Take the next free decision number from `main`, and check again before your PR merges. If the
