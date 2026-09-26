@@ -21,13 +21,15 @@ entry, and always add one for a new dependency.
   of inventing an answer.
 - A dependency must solve a problem we've actually hit (D4). Propose it along with the
   hand-rolled alternative instead of just adding it.
-- Game logic imports nothing from React or Pixi. Every game quantity is a `Big` (D5, D6).
+- Game logic imports nothing from React or Pixi. Anything that can grow without limit (money,
+  costs, income) is a `Big`. Time, levels, counts, percentages and slots stay plain numbers
+  (D5, D6).
 - The title lives only in `.env` as `VITE_GAME_TITLE`. Never put it in identifiers or
   storage keys (D7).
 - No AI-generated art or audio. The repo is public, so check an asset's license before
   committing it, and never commit secrets (`VITE_*` values ship to players).
-- Work happens in numbered **steps** (Phase 0's are in the checklist in `docs/design.md`).
-  One step per branch → pull request → merge.
+- Work happens in numbered **steps**, listed in the current phase's checklist in
+  `docs/design.md` (under *Build phases*). One step per branch → pull request → merge.
 - Attribution is decided per commit and per PR: add the `Co-Authored-By: Claude` trailer
   when Claude wrote most of the change, leave it off when Mainak did, and ask when unclear.
 - When Mainak asks for something to pass to the design chat, save it as a markdown file in
@@ -38,7 +40,7 @@ entry, and always add one for a new dependency.
 What earlier sessions learned that the design and decision docs don't say.
 
 **Starting work**
-- Where things stand: the Phase 0 checklist in `docs/design.md` (✅ means merged). `gh pr list`
+- Where things stand: ✅ rows in the current phase's checklist are merged, and `gh pr list`
   shows open PRs.
 - Before starting, update `main` and skim what changed in `docs/` since you last looked
   (`git diff <old>..origin/main -- docs/`). The design chat lands docs often, sometimes mid-step.
@@ -58,10 +60,10 @@ What earlier sessions learned that the design and decision docs don't say.
 **Commits and PRs**
 - Commit verified work to the branch and push early. Review fixes go on as new commits. Open the
   PR only when Mainak says so.
-- A step's PR ticks its row ✅ in the design.md checklist and adds the new decision numbers to
-  the row's *See* column.
-- PR descriptions have *What changed*, *Testing* and *Notes for review* (see the step 2 PR, #4).
-  Under Testing, report what you broke on purpose and whether the tests caught it.
+- A step's PR ticks its row ✅ in the phase's checklist and adds the new decision numbers to the
+  row's *See* column.
+- PR descriptions have *What changed*, *Testing* and *Notes for review*; the PR that added `Big`
+  (#4) is a good example. Under Testing, report what you broke on purpose and what caught it.
 - PRs merge with merge commits, so a branch built on an unmerged branch works. After its base
   merges, merge `main` into it so GitHub's diff refreshes.
 - CI (`.github/workflows/check.yml`, shown as "Regression Test / check") runs `npm run check` on
