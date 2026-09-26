@@ -1,0 +1,13 @@
+{
+  /* Checks src/game again without the browser, so game logic can't use window, document,
+     timers, console or JSX (D25). Everything else comes from the app settings. */
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.game.tsbuildinfo",
+    "lib": ["ES2023"],
+    "types": [],
+    /* null switches off the app's JSX setting instead of replacing it */
+    "jsx": null
+  },
+  "include": ["src/game"]
+}

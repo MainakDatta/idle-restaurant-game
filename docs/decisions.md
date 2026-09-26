@@ -467,3 +467,32 @@ D4) · a test that searches the source for imports (text matching misses cases).
 
 **Next:** a separate pull request adds a type check that runs `src/game/` without browser types
 (`window`, `localStorage`, `performance`, JSX), so the clock and storage have to be passed in.
+
+**Updated 2026-09-25:** the type check is in. `tsconfig.game.json` checks `src/game/` a second
+time with only JavaScript's own types (`lib: ["ES2023"]`, `types: []`, JSX off), and
+`npm run typecheck` runs it. `window`, `document`, `localStorage`, `performance`, timers,
+`console` and JSX all fail there. One gap: `Date` is part of JavaScript itself, so `Date.now()`
+still passes.
+
+## D26 · One check command before every pull request — Accepted · 2026-09-25
+
+**Decision:** `npm run check` runs lint, the type check, the tests and the production build, in
+that order, and stops at the first failure. Run it after making changes and before pushing
+(about 3 seconds today). Lint warnings count as failures (`oxlint --deny-warnings`). A rule
+that's too noisy gets switched off in `.oxlintrc.json` rather than left warning.
+
+**Why:** One command catches regressions before a pull request, so nobody has to remember
+four. oxlint reports its built-in bug-finding rules (`no-debugger` and the rest) as warnings,
+which exit with success, so without the flag they could never fail the check.
+
+**Passed on:** a git pre-push hook (slows every push, is easy to skip, and husky would be a new
+dependency) · making GitHub block merges until the check passes (one person merges for now) · a
+formatter and a coverage threshold (no problem for them to solve yet, D4).
+
+**Next:** GitHub Actions runs `npm run check` on every pull request. Mainak is setting that up.
+
+**Updated 2026-09-25:** CI is in. `.github/workflows/check.yml` runs `npm ci` and then
+`npm run check` on every pull request into `main` and every push to `main`. It reads the Node
+version from `.nvmrc`, so CI and local runs match, and uses GitHub's own `actions/checkout` and
+`actions/setup-node`. GitHub's machines are free for public repositories. The result shows on
+each pull request, and merging isn't blocked.
