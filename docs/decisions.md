@@ -490,3 +490,9 @@ dependency) · making GitHub block merges until the check passes (one person mer
 formatter and a coverage threshold (no problem for them to solve yet, D4).
 
 **Next:** GitHub Actions runs `npm run check` on every pull request. Mainak is setting that up.
+
+**Updated 2026-09-25:** CI is in. `.github/workflows/check.yml` runs `npm ci` and then
+`npm run check` on every pull request into `main` and every push to `main`. It reads the Node
+version from `.nvmrc`, so CI and local runs match, and uses GitHub's own `actions/checkout` and
+`actions/setup-node`. GitHub's machines are free for public repositories. The result shows on
+each pull request, and merging isn't blocked.
