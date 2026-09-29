@@ -87,7 +87,7 @@ What earlier sessions learned that the design and decision docs don't say.
   is a plain number, because it's converted on every call. In hot loops, create constants once
   (`const GROWTH = Big.fromValue(1.26)`). "Buy max" needs a formula, not a loop.
 - Tests sit beside the code (`big.test.ts`). The pattern: table-driven `test.each`, seeded random
-  checks against plain-number math (`makeRandom`, copied in both test files; move it to a shared
-  helper if a third file needs it), and breaking the code on purpose to prove the tests catch it.
+  checks against plain-number math (`makeRandom`, shared from `src/game/test-utils.ts`), and
+  breaking the code on purpose to prove the tests catch it.
 - Node 24 runs `.ts` files directly (`node probe.ts`), handy for quick probes and benchmarks that
   import from `src/`.

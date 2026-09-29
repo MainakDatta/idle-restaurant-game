@@ -1,15 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { Big, BigError } from './big.ts'
-
-// A tiny seeded random generator (a linear congruential generator). The same seed always
-// gives the same sequence, so a failing random test fails the same way every run.
-function makeRandom(seed: number): () => number {
-  let state = seed
-  return () => {
-    state = (state * 1664525 + 1013904223) % 2 ** 32
-    return state / 2 ** 32
-  }
-}
+import { expectBigClose, makeRandom } from './test-utils.ts'
 
 /** A random number between 1 × 10^minExponent and 10 × 10^maxExponent. */
 function randomValue(random: () => number, minExponent: number, maxExponent: number): number {
@@ -22,11 +13,6 @@ function randomValue(random: () => number, minExponent: number, maxExponent: num
 // expected value, but the inputs for subtraction, which can cancel most of the digits.
 function expectClose(actual: number, expected: number, scale = expected): void {
   expect(Math.abs(actual - expected)).toBeLessThanOrEqual(1e-12 * Math.abs(scale))
-}
-
-/** For values past the number range: close if their ratio is close to 1. */
-function expectBigClose(actual: Big, expected: Big): void {
-  expectClose(actual.div(expected).toNumber(), 1)
 }
 
 describe('creating a Big', () => {
