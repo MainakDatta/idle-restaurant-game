@@ -13,7 +13,7 @@ export type GameStateStore = {
 }
 
 // Built from closures rather than a class: nothing uses `this`, so React can be handed
-// `store.subscribe` and `store.getState` on their own and call them later.
+// `gameStateStore.subscribe` and `gameStateStore.getState` on their own and call them later.
 export function createGameStateStore(initial: GameState): GameStateStore {
   let state = initial
   const listeners = new Set<() => void>()

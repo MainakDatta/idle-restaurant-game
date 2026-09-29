@@ -1,11 +1,11 @@
 import { useSyncExternalStore } from 'react'
 import { formatBig } from './game/format.ts'
-import type { GameStateStore } from './runtime/store.ts'
+import type { GameStateStore } from './runtime/game-state-store.ts'
 
-function App({ store }: { store: GameStateStore }) {
+function App({ gameStateStore }: { gameStateStore: GameStateStore }) {
   // React's hook for reading state kept outside React: it redraws App whenever the store
   // changes, which is every frame while money is going up.
-  const { money } = useSyncExternalStore(store.subscribe, store.getState)
+  const { money } = useSyncExternalStore(gameStateStore.subscribe, gameStateStore.getState)
 
   return (
     <main>

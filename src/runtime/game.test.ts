@@ -17,11 +17,11 @@ const MINUTE = 60 * SECOND
 function startTestGame() {
   const fake = makeFakeClock()
   const catchUps: CatchUp[] = []
-  const store = startGame(newGame(), {
+  const gameStateStore = startGame(newGame(), {
     clock: fake.clock,
     onCatchUp: (catchUp) => catchUps.push(catchUp),
   })
-  return { fake, store, catchUps }
+  return { fake, gameStateStore, catchUps }
 }
 
 /** Plays for `ms` milliseconds in 16 ms frames, as if the tab were open and visible. */
@@ -31,31 +31,31 @@ function play(fake: FakeClock, ms: number): void {
 
 describe('catch-up', () => {
   test('a minute of play, 10 minutes away, then a minute more: every second counts', () => {
-    const { fake, store } = startTestGame()
+    const { fake, gameStateStore } = startTestGame()
     play(fake, MINUTE)
     fake.frameAfter(10 * MINUTE) // the first frame back from a hidden tab
     play(fake, MINUTE)
     // 12 minutes in all, and the same money as one advance over the whole span.
-    expectBigClose(store.getState().money, advance(newGame(), 12 * 60).money)
+    expectBigClose(gameStateStore.getState().money, advance(newGame(), 12 * 60).money)
   })
 
   test('a week away counts in full, with no cap (D14)', () => {
-    const { fake, store } = startTestGame()
+    const { fake, gameStateStore } = startTestGame()
     play(fake, MINUTE)
-    const before = store.getState().money
+    const before = gameStateStore.getState().money
     fake.frameAfter(7 * 24 * 60 * MINUTE)
-    expectBigClose(store.getState().money, before.add(RATE.mul(7 * 24 * 60 * 60)))
+    expectBigClose(gameStateStore.getState().money, before.add(RATE.mul(7 * 24 * 60 * 60)))
   })
 
   test('a clock set back an hour while away loses nothing, and money keeps growing (D11)', () => {
-    const { fake, store, catchUps } = startTestGame()
+    const { fake, gameStateStore, catchUps } = startTestGame()
     play(fake, MINUTE)
-    const before = store.getState().money
+    const before = gameStateStore.getState().money
     fake.frameAfter(-60 * MINUTE)
-    expect(store.getState().money.eq(before)).toBe(true)
+    expect(gameStateStore.getState().money.eq(before)).toBe(true)
     expect(catchUps).toEqual([]) // no time passed, so there's nothing to report
     fake.frameAfter(SECOND)
-    expectBigClose(store.getState().money, before.add(RATE.mul(1)))
+    expectBigClose(gameStateStore.getState().money, before.add(RATE.mul(1)))
   })
 })
 
@@ -74,14 +74,14 @@ describe('catch-up reports', () => {
   test('the store already has the new money when the report goes out', () => {
     const fake = makeFakeClock()
     let moneyWhenReported: Big | undefined
-    const store = startGame(newGame(), {
+    const gameStateStore = startGame(newGame(), {
       clock: fake.clock,
       onCatchUp: () => {
-        moneyWhenReported = store.getState().money
+        moneyWhenReported = gameStateStore.getState().money
       },
     })
     fake.frameAfter(10 * MINUTE)
-    expect(moneyWhenReported?.eq(store.getState().money)).toBe(true)
+    expect(moneyWhenReported?.eq(gameStateStore.getState().money)).toBe(true)
   })
 
   test('ordinary frames report nothing, however many there are', () => {

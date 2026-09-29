@@ -504,7 +504,7 @@ each pull request, and merging isn't blocked.
   new state and never reads a clock. Live frames and catch-up both call it (D11). Any timer the
   state gains later (a rush, the Buzz refill) is a duration, such as "42 s left", never a clock
   time, so `advance` can split a long absence at the moment a rush ends.
-- **The state lives in a small store outside React** (`src/runtime/store.ts`). React reads it
+- **The state lives in a small store outside React** (`src/runtime/game-state-store.ts`). React reads it
   with `useSyncExternalStore`; the Pixi scene (Phase 2) and saves (step 6) will read the same
   store.
 - **The loop runs on `requestAnimationFrame` and the wall clock** (`src/runtime/loop.ts`). Each
