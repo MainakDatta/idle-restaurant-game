@@ -11,7 +11,7 @@ import { createGameStore, type GameStore } from './store.ts'
  */
 export const AWAY_AFTER_SECONDS = 1
 
-/** What happened while the player was away, for the welcome-back message. */
+/** What happened while the player was away. For now it's only logged, as a debugging aid. */
 export type CatchUp = {
   /** How long they were away. */
   seconds: number

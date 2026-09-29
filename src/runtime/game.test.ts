@@ -70,7 +70,7 @@ describe('catch-up reports', () => {
     expectBigClose(catchUp.earned, RATE.mul(600))
   })
 
-  // So a welcome-back message can show the new total alongside what was earned.
+  // So whatever reads the report sees the new total, not the one from before the gap.
   test('the store already has the new money when the report goes out', () => {
     const fake = makeFakeClock()
     let moneyWhenReported: Big | undefined
