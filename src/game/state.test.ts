@@ -1,16 +1,11 @@
 import { describe, expect, test } from 'vitest'
 import { Big } from './big.ts'
 import { PLACEHOLDER_INCOME_PER_SECOND, advance, newGame } from './state.ts'
-import { makeRandom } from './test-utils.ts'
+import { expectBigClose, makeRandom } from './test-utils.ts'
 
 // Expected money is worked out from the rate rather than assuming $1, so these tests still
 // pass when the rate is changed to try the game at a different speed.
 const RATE = PLACEHOLDER_INCOME_PER_SECOND
-
-/** Close if the ratio is within 1e-12 of 1. A ratio works for values past a number's range. */
-function expectBigClose(actual: Big, expected: Big): void {
-  expect(Math.abs(actual.div(expected).toNumber() - 1)).toBeLessThanOrEqual(1e-12)
-}
 
 describe('newGame', () => {
   test('starts with no money', () => {
