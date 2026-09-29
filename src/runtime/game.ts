@@ -3,7 +3,7 @@
 import type { Big } from '../game/big.ts'
 import { advance, type GameState } from '../game/state.ts'
 import { browserClock, createLoop, type Clock } from './loop.ts'
-import { createGameStore, type GameStore } from './store.ts'
+import { createGameStateStore, type GameStateStore } from './store.ts'
 
 /**
  * A frame longer than this means the player wasn't watching: the tab was hidden, the window
@@ -34,8 +34,8 @@ export type StartOptions = {
 export function startGame(
   initial: GameState,
   { onCatchUp, clock = browserClock }: StartOptions = {},
-): GameStore {
-  const store = createGameStore(initial)
+): GameStateStore {
+  const store = createGameStateStore(initial)
   createLoop((seconds) => {
     const before = store.getState()
     const after = advance(before, seconds)

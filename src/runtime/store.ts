@@ -3,7 +3,7 @@
 
 import type { GameState } from '../game/state.ts'
 
-export type GameStore = {
+export type GameStateStore = {
   /** The current state: the same object until something changes. */
   getState(): GameState
   /** Replaces the state and tells every listener, unless it's the same object as before. */
@@ -14,7 +14,7 @@ export type GameStore = {
 
 // Built from closures rather than a class: nothing uses `this`, so React can be handed
 // `store.subscribe` and `store.getState` on their own and call them later.
-export function createGameStore(initial: GameState): GameStore {
+export function createGameStateStore(initial: GameState): GameStateStore {
   let state = initial
   const listeners = new Set<() => void>()
 

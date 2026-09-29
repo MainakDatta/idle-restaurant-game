@@ -1,21 +1,21 @@
 import { describe, expect, test } from 'vitest'
 import { Big } from '../game/big.ts'
 import { newGame } from '../game/state.ts'
-import { createGameStore } from './store.ts'
+import { createGameStateStore } from './store.ts'
 
 const RICH = { money: Big.fromValue(100) }
 
-describe('createGameStore', () => {
+describe('createGameStateStore', () => {
   test('getState returns the latest state', () => {
     const start = newGame()
-    const store = createGameStore(start)
+    const store = createGameStateStore(start)
     expect(store.getState()).toBe(start)
     store.setState(RICH)
     expect(store.getState()).toBe(RICH)
   })
 
   test('each listener hears about each change once', () => {
-    const store = createGameStore(newGame())
+    const store = createGameStateStore(newGame())
     let a = 0
     let b = 0
     store.subscribe(() => a++)
@@ -26,7 +26,7 @@ describe('createGameStore', () => {
   })
 
   test('unsubscribing stops the calls', () => {
-    const store = createGameStore(newGame())
+    const store = createGameStateStore(newGame())
     let calls = 0
     const unsubscribe = store.subscribe(() => calls++)
     store.setState(RICH)
@@ -36,7 +36,7 @@ describe('createGameStore', () => {
   })
 
   test("subscribe, unsubscribe, subscribe (StrictMode's double effect) hears each change once", () => {
-    const store = createGameStore(newGame())
+    const store = createGameStateStore(newGame())
     let calls = 0
     const unsubscribe = store.subscribe(() => calls++)
     unsubscribe()
@@ -46,7 +46,7 @@ describe('createGameStore', () => {
   })
 
   test('setting the same object notifies nobody', () => {
-    const store = createGameStore(RICH)
+    const store = createGameStateStore(RICH)
     let calls = 0
     store.subscribe(() => calls++)
     store.setState(RICH)
