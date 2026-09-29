@@ -496,3 +496,35 @@ formatter and a coverage threshold (no problem for them to solve yet, D4).
 version from `.nvmrc`, so CI and local runs match, and uses GitHub's own `actions/checkout` and
 `actions/setup-node`. GitHub's machines are free for public repositories. The result shows on
 each pull request, and merging isn't blocked.
+
+## D27 · The game runs outside React, on one clock — Accepted · 2026-09-28
+
+**Decision:** how time moves while the game runs (step 3).
+- **One pure function moves time:** `advance(state, seconds)` in `src/game/state.ts` returns a
+  new state and never reads a clock. Live frames and catch-up both call it (D11). Any timer the
+  state gains later (a rush, the Buzz refill) is a duration, such as "42 s left", never a clock
+  time, so `advance` can split a long absence at the moment a rush ends.
+- **The state lives in a small store outside React** (`src/runtime/store.ts`). React reads it
+  with `useSyncExternalStore`; the Pixi scene (Phase 2) and saves (step 6) will read the same
+  store.
+- **The loop runs on `requestAnimationFrame` and the wall clock** (`src/runtime/loop.ts`). Each
+  frame gets the `Date.now()` time since the previous frame. A clock set backward counts as 0,
+  and counting resumes from the new time (D11). There's no upper limit on a frame (D14).
+- **Catch-up is the first frame back.** Browsers pause repaints in hidden tabs, so the first
+  frame after switching back carries the whole time away through `advance`. Catch-up when the
+  game opens needs to know when you left, so it arrives with saves (step 6).
+- **One loop:** `main.tsx` calls `startGame` once, outside React, so StrictMode's double effects
+  can't start a second, and `start()` does nothing if the loop is already running.
+- **The clock is passed in**, so tests run in Node with a fake one.
+
+**Why:** Saves need the state from a page-close handler and the Pixi scene isn't React, so the
+state can't live inside a component. `Date.now()` keeps counting while a device sleeps, and one
+clock for live play and catch-up means a gap is never counted twice or missed. A pure `advance`
+makes "an hour of frames equals one hour-long step" a test every later rule has to pass.
+
+**Passed on:** state in React with a loop started from an effect · `setInterval` (keeps running
+in hidden tabs, not tied to repaints) · the `performance.now()` timestamp rAF passes in (may stop
+while the device sleeps) · a store library such as Zustand (15 lines by hand, D4) · counting
+ticks (D11) · a separate `visibilitychange` catch-up (it would count the gap twice unless
+coordinated with the loop, and nothing needs "time away" apart from "time watching" until tips
+and special customers in Phase 1).
