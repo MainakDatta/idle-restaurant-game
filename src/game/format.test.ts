@@ -1,15 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { Big } from './big.ts'
 import { formatBig } from './format.ts'
-
-// The same seeded generator as big.test.ts: a failing random test fails the same way every run.
-function makeRandom(seed: number): () => number {
-  let state = seed
-  return () => {
-    state = (state * 1664525 + 1013904223) % 2 ** 32
-    return state / 2 ** 32
-  }
-}
+import { makeRandom } from './test-utils.ts'
 
 /**
  * A random Big with the given exponent. Half have long mantissas (1.2345678901234567), half
