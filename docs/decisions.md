@@ -513,6 +513,10 @@ each pull request, and merging isn't blocked.
 - **Catch-up is the first frame back.** Browsers pause repaints in hidden tabs, so the first
   frame after switching back carries the whole time away through `advance`. Catch-up when the
   game opens needs to know when you left, so it arrives with saves (step 6).
+- **Catch-ups are reported.** A frame longer than 1 s means the player wasn't watching (a normal
+  frame is about 0.016 s), so `startGame` calls `onCatchUp({ seconds, earned })` once the store
+  has the new state. For now `main.tsx` logs it to the browser console. A welcome-back message
+  can take over later; when it shows and what it says are design questions.
 - **One loop:** `main.tsx` calls `startGame` once, outside React, so StrictMode's double effects
   can't start a second, and `start()` does nothing if the loop is already running.
 - **The clock is passed in**, so tests run in Node with a fake one.
