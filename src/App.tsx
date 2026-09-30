@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react'
+import { economy } from './game/economy.ts'
 import { leveledUpgrades, type Franchise, type UpgradeItemId } from './game/franchise.ts'
 import { formatBig } from './game/format.ts'
 import type { GameState } from './game/state.ts'
@@ -11,6 +12,7 @@ function App({ franchise, gameStateStore }: AppProps) {
   // React's hook for reading state kept outside React: it redraws App whenever the store
   // changes, which is every frame while money is going up.
   const state = useSyncExternalStore(gameStateStore.subscribe, gameStateStore.getState)
+  const now = economy(franchise, state)
 
   // Buys from the store's latest state, which can be a frame newer than the one drawn.
   const buyUpgrade = (id: UpgradeItemId) =>
@@ -21,6 +23,11 @@ function App({ franchise, gameStateStore }: AppProps) {
       <h1>{import.meta.env.VITE_GAME_TITLE}</h1>
       {/* Temporary, to try the loop and buying. Step 5 builds the real screen. */}
       <p>Money: ${formatBig(state.money, 'short')}</p>
+      <p>Income: ${formatBig(now.incomePerSecond, 'short')}/s</p>
+      <p>
+        Demand {formatBig(now.demand, 'short')}/min · Service {formatBig(now.service, 'short')}/min
+        · Spend ${formatBig(now.spend, 'short')}
+      </p>
       <ul className="upgrades">
         {upgradeButtons(franchise, state).map(({ id, label }) => (
           <li key={id}>
