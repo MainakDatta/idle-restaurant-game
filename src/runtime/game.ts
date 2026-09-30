@@ -1,6 +1,7 @@
 // Starts a game: a store for its state, and the one loop that moves it forward in time (D27).
 
 import type { Big } from '../game/big.ts'
+import type { Franchise } from '../game/franchise.ts'
 import { advance, type GameState } from '../game/state.ts'
 import { browserClock, createLoop, type Clock } from './loop.ts'
 import { createGameStateStore, type GameStateStore } from './game-state-store.ts'
@@ -32,13 +33,14 @@ export type StartOptions = {
  * main.tsx calls this once, outside React, so StrictMode can't start a second loop.
  */
 export function startGame(
+  franchise: Franchise,
   initial: GameState,
   { onCatchUp, clock = browserClock }: StartOptions = {},
 ): GameStateStore {
   const gameStateStore = createGameStateStore(initial)
   createLoop((seconds) => {
     const before = gameStateStore.getState()
-    const after = advance(before, seconds)
+    const after = advance(franchise, before, seconds)
     gameStateStore.setState(after)
     if (onCatchUp !== undefined && seconds > AWAY_AFTER_SECONDS) {
       onCatchUp({ seconds, earned: after.money.sub(before.money) })

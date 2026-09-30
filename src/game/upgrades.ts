@@ -97,7 +97,8 @@ function findLeveledUpgrade(franchise: Franchise, id: UpgradeItemId): LeveledUpg
   return upgrade
 }
 
-function levelOf(state: GameState, id: UpgradeItemId): number {
+/** An upgrade's current level. A missing one is a bug: newGame gives every leveled upgrade one. */
+export function levelOf(state: GameState, id: UpgradeItemId): number {
   const level = state.levels[id]
   if (level === undefined) throw new Error(`The game state has no level for "${id}"`)
   return level
