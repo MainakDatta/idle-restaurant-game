@@ -13,7 +13,7 @@ describe('newGame', () => {
     expect(newGame(COFFEE_SHOP).money.eq(0)).toBe(true)
   })
 
-  test('starts every line at its level from the file, with later menu items locked', () => {
+  test('starts every leveled upgrade at its level from the file, with later menu items locked', () => {
     const game = newGame(COFFEE_SHOP)
     expect(game.levels).toEqual({
       tables: 1,

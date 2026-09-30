@@ -12,7 +12,7 @@ body {
   text-align: center;
 }
 
-/* The temporary buy buttons, one per line (step 4a). */
+/* The temporary buy buttons, one per row (step 4a). */
 .upgrades {
   list-style: none;
   padding: 0;

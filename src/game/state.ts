@@ -4,14 +4,14 @@
 // has passed and calls advance, and coming back after time away goes through the same call.
 
 import { Big } from './big.ts'
-import type { Franchise, UpgradeId } from './franchise.ts'
+import type { Franchise, UpgradeType } from './franchise.ts'
 
 /**
- * Each line's current level, by id: { tables: 3, baristas: 2, latte: 0 }. 0 means a menu item
- * that isn't unlocked yet. `Record<K, V>` is TypeScript's type for an object used as a
- * dictionary; a plain object rather than a Map, because it has to save as JSON (step 6).
+ * Each leveled upgrade's current level, by type: { tables: 3, baristas: 2, latte: 0 }. 0 means
+ * a menu item that isn't unlocked yet. `Record<K, V>` is TypeScript's type for an object used
+ * as a dictionary; a plain object rather than a Map, because it has to save as JSON (step 6).
  */
-export type UpgradeLevels = Readonly<Record<UpgradeId, number>>
+export type UpgradeLevels = Readonly<Record<UpgradeType, number>>
 
 /**
  * Everything about a game in progress. It's never changed in place, only replaced, so a new
@@ -24,7 +24,7 @@ export type GameState = {
   /** Tables, Baristas and each menu item. */
   readonly levels: UpgradeLevels
   /** The one-time global upgrades bought so far: ["chalkboard-sign"]. */
-  readonly globalUpgradesBought: readonly UpgradeId[]
+  readonly globalUpgradesBought: readonly UpgradeType[]
 }
 
 /**
@@ -34,9 +34,9 @@ export type GameState = {
  */
 export const PLACEHOLDER_INCOME_PER_SECOND: Big = Big.ONE
 
-/** A new game: no money, and every line at its starting level from the franchise file. */
+/** A new game: no money, and every leveled upgrade at its starting level from the file. */
 export function newGame(franchise: Franchise): GameState {
-  const levels: Record<UpgradeId, number> = {
+  const levels: Record<UpgradeType, number> = {
     [franchise.demand.id]: franchise.demand.startLevel,
     [franchise.staff.id]: franchise.staff.startLevel,
   }

@@ -540,21 +540,24 @@ and special customers in Phase 1).
 `coffee-shop.json`. `loadFranchise` in `src/game/franchise.ts` reads it when the game starts (D9).
 - **Checked when it loads.** Hand-written checks cover every field (nothing missing, nothing
   unknown, numbers in range) and whether the setup makes sense: ids are unique, a global
-  upgrade's requirement names a real line at a level under the max, and something is on the menu
-  at the start. An error names the file and the field:
+  upgrade's requirement names a real leveled upgrade at a level under the max, and something is
+  on the menu at the start. An error names the file and the field:
   `coffee-shop.json: menu[2].popularity must be above 0, got -1`.
 - **Dollar amounts are plain JSON numbers**, read into `Big` once, at load (D24). Levels,
   popularity, seconds and shares stay plain numbers (D5).
 - **Tuning lives in the file**, so Phase 1 can try variants without code changes. That covers bonus
   levels (a listed sequence with a multiplier each, a repeating step, or both, shared by every
-  line), a max level (one per franchise, `null` for none, 50 as a placeholder) and each global
-  upgrade's multiplier.
+  leveled upgrade), a max level (one per franchise, `null` for none, 50 as a placeholder) and
+  each global upgrade's multiplier.
 - **Names:** `globalUpgrades` for design.md's lever boosts, and `popularity` for D19's order
-  weight. A menu item with `"unlock": null` starts at level 1; the others start locked, at 0.
-- **The game state** keeps each line's level by id (`levels`) and the global upgrades bought
+  weight. An upgrade's id (`"tables"`, `"latte"`) has the type `UpgradeType`. Anything with
+  levels (Tables, Baristas, each menu item) is a *leveled upgrade*, so "line" only ever means the
+  queue of customers. A menu item with `"unlock": null` starts at level 1; the others start
+  locked, at 0.
+- **The game state** keeps each leveled upgrade's level (`levels`) and the global upgrades bought
   (`globalUpgradesBought`). In `src/game/upgrades.ts`, each level costs
   `firstCost × costGrowth^(level − 1)`. An unlock costs its own price and puts its item at level 1.
-  A global upgrade can be bought once, after its line reaches the level it needs.
+  A global upgrade can be bought once, after the upgrade it requires reaches its level.
 - **One staff role** for now. Several roles need rules the design docs don't have yet.
 - Mobile ordering, Local influencer visit and Barista training are left out until they're
   priced.

@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'vitest'
 import { Big } from './big.ts'
-import { COFFEE_SHOP, type UpgradeId } from './franchise.ts'
+import { COFFEE_SHOP, type UpgradeType } from './franchise.ts'
 import { newGame, type GameState } from './state.ts'
 import { expectBigClose } from './test-utils.ts'
 import { buy, canBuy, nextCost, requirementMet } from './upgrades.ts'
 
 /** A coffee shop game with some levels changed from the start, and some money. */
-function gameWith(levels: Record<UpgradeId, number>, money = 0): GameState {
+function gameWith(levels: Record<UpgradeType, number>, money = 0): GameState {
   const start = newGame(COFFEE_SHOP)
   return { ...start, money: Big.fromValue(money), levels: { ...start.levels, ...levels } }
 }
@@ -55,7 +55,7 @@ describe('what the next level costs', () => {
   })
 })
 
-describe('global upgrades wait for their line', () => {
+describe('global upgrades wait for the upgrade they require', () => {
   test.each([
     [9, false],
     [10, true],
@@ -66,7 +66,7 @@ describe('global upgrades wait for their line', () => {
     expect(canBuy(COFFEE_SHOP, game, 'chalkboard-sign')).toBe(available)
   })
 
-  test('lines have no requirement', () => {
+  test('leveled upgrades have no requirement', () => {
     expect(requirementMet(COFFEE_SHOP, newGame(COFFEE_SHOP), 'tables')).toBe(true)
   })
 })

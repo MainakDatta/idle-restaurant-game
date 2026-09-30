@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { COFFEE_SHOP, FranchiseFileError, leveledLines, loadFranchise } from './franchise.ts'
+import { COFFEE_SHOP, FranchiseFileError, leveledUpgrades, loadFranchise } from './franchise.ts'
 import coffeeShopFile from './franchises/coffee-shop.json' with { type: 'json' }
 
 /**
@@ -32,8 +32,8 @@ describe('the coffee shop file', () => {
     ])
   })
 
-  test('lists the lines you level up in display order', () => {
-    expect(leveledLines(COFFEE_SHOP).map((line) => line.id)).toEqual([
+  test('lists the leveled upgrades in display order', () => {
+    expect(leveledUpgrades(COFFEE_SHOP).map((upgrade) => upgrade.id)).toEqual([
       'tables',
       'baristas',
       'drip-coffee',
