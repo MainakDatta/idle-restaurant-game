@@ -533,3 +533,40 @@ while the device sleeps) · a store library such as Zustand (15 lines by hand, D
 ticks (D11) · a separate `visibilitychange` catch-up (it would count the gap twice unless
 coordinated with the loop, and nothing needs "time away" apart from "time watching" until tips
 and special customers in Phase 1).
+
+## D28 · Franchise files: JSON, checked when they load — Accepted · 2026-09-29
+
+**Decision:** Each franchise is a JSON file in `src/game/franchises/`; the coffee shop is
+`coffee-shop.json`. `loadFranchise` in `src/game/franchise.ts` reads it when the game starts (D9).
+- **Checked when it loads.** Hand-written checks cover every field (nothing missing, nothing
+  unknown, numbers in range) and whether the setup makes sense: ids are unique, a global
+  upgrade's requirement names a real leveled upgrade at a level under the max, and something is
+  on the menu at the start. An error names the file and the field:
+  `coffee-shop.json: menu[2].popularity must be above 0, got -1`.
+- **Dollar amounts are plain JSON numbers**, read into `Big` once, at load (D24). Levels,
+  popularity, seconds and shares stay plain numbers (D5).
+- **Tuning lives in the file**, so Phase 1 can try variants without code changes. That covers bonus
+  levels (a listed sequence with a multiplier each, a repeating step, or both, shared by every
+  leveled upgrade), a max level (one per franchise, `null` for none, 50 as a placeholder) and
+  each global upgrade's multiplier.
+- **Names:** `globalUpgrades` for design.md's lever boosts, and `popularity` for D19's order
+  weight. An upgrade's id (`"tables"`, `"latte"`) has the type `UpgradeItemId`. Anything with
+  levels (Tables, Baristas, each menu item) is a *leveled upgrade*, so "line" only ever means the
+  queue of customers. A menu item with `"unlock": null` starts at level 1; the others start
+  locked, at 0.
+- **The game state** keeps each leveled upgrade's level (`levels`) and the global upgrades bought
+  (`globalUpgradesBought`). In `src/game/upgrades.ts`, each level costs
+  `firstCost × costGrowth^(level − 1)`. An unlock costs its own price and puts its item at level 1.
+  A global upgrade can be bought once, after the upgrade it requires reaches its level.
+- **One staff role** for now. Several roles need rules the design docs don't have yet.
+- Mobile ordering, Local influencer visit and Barista training are left out until they're
+  priced.
+
+**Why:** Franchises are data (D9), and the Phase 4 server has to read the same numbers, so the
+files are JSON rather than TypeScript. A mistake in a data file should stop the game at once with
+a clear message, not turn up later as a strange number (D6).
+
+**Passed on:** TypeScript checking the imported JSON on its own (it can't check ranges or
+cross-references) · zod (a new dependency, D4) · a version number (the file ships with the code
+that reads it, unlike a save, D10) · a list of staff roles now (their rules aren't designed yet) ·
+TypeScript files instead of JSON.

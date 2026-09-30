@@ -1,0 +1,95 @@
+{
+  "id": "coffee-shop",
+  "name": "Coffee shop",
+  "maxLevel": 50,
+  "costGrowth": 1.26,
+  "bonusLevels": {
+    "at": [
+      { "level": 10, "multiplier": 2 },
+      { "level": 25, "multiplier": 2 },
+      { "level": 50, "multiplier": 2 },
+      { "level": 100, "multiplier": 2 }
+    ],
+    "thenEvery": { "levels": 50, "multiplier": 2 }
+  },
+  "priceRisePerLevel": 0.1,
+  "spillover": { "acrossRoles": 0.2 },
+  "selfServe": 0.2,
+  "demand": {
+    "id": "tables",
+    "name": "Tables",
+    "customersPerMinute": 6,
+    "startLevel": 1,
+    "firstCost": 2
+  },
+  "staff": {
+    "id": "baristas",
+    "name": "Baristas",
+    "startLevel": 1,
+    "firstCost": 8
+  },
+  "menu": [
+    {
+      "id": "drip-coffee",
+      "name": "Drip coffee",
+      "price": 3,
+      "prepSeconds": 8,
+      "popularity": 5,
+      "firstCost": 6,
+      "unlock": null
+    },
+    {
+      "id": "latte",
+      "name": "Latte",
+      "price": 51,
+      "prepSeconds": 12,
+      "popularity": 4,
+      "firstCost": 150,
+      "unlock": { "name": "Espresso machine", "cost": 1440 }
+    },
+    {
+      "id": "muffin",
+      "name": "Muffin",
+      "price": 195,
+      "prepSeconds": 4,
+      "popularity": 3,
+      "firstCost": 3600,
+      "unlock": { "name": "Pastry case", "cost": 36000 }
+    },
+    {
+      "id": "pumpkin-spice-latte",
+      "name": "Pumpkin spice latte",
+      "price": 8500,
+      "prepSeconds": 14,
+      "popularity": 2,
+      "firstCost": 36000000,
+      "unlock": { "name": "Seasonal specials", "cost": 373000000 }
+    }
+  ],
+  "globalUpgrades": [
+    {
+      "id": "chalkboard-sign",
+      "name": "Chalkboard sign",
+      "lever": "demand",
+      "multiplier": 2,
+      "requires": { "upgrade": "tables", "level": 10 },
+      "cost": 4800
+    },
+    {
+      "id": "second-grinder",
+      "name": "Second grinder",
+      "lever": "service",
+      "multiplier": 2,
+      "requires": { "upgrade": "baristas", "level": 25 },
+      "cost": 615000
+    },
+    {
+      "id": "loyalty-cards",
+      "name": "Loyalty cards",
+      "lever": "demand",
+      "multiplier": 2,
+      "requires": { "upgrade": "tables", "level": 50 },
+      "cost": 49700000
+    }
+  ]
+}

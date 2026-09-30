@@ -3,6 +3,7 @@
 
 import { describe, expect, test } from 'vitest'
 import type { Big } from '../game/big.ts'
+import { COFFEE_SHOP } from '../game/franchise.ts'
 import { PLACEHOLDER_INCOME_PER_SECOND, advance, newGame } from '../game/state.ts'
 import { expectBigClose } from '../game/test-utils.ts'
 import { AWAY_AFTER_SECONDS, startGame, type CatchUp } from './game.ts'
@@ -17,7 +18,7 @@ const MINUTE = 60 * SECOND
 function startTestGame() {
   const fake = makeFakeClock()
   const catchUps: CatchUp[] = []
-  const gameStateStore = startGame(newGame(), {
+  const gameStateStore = startGame(newGame(COFFEE_SHOP), {
     clock: fake.clock,
     onCatchUp: (catchUp) => catchUps.push(catchUp),
   })
@@ -36,7 +37,7 @@ describe('catch-up', () => {
     fake.frameAfter(10 * MINUTE) // the first frame back from a hidden tab
     play(fake, MINUTE)
     // 12 minutes in all, and the same money as one advance over the whole span.
-    expectBigClose(gameStateStore.getState().money, advance(newGame(), 12 * 60).money)
+    expectBigClose(gameStateStore.getState().money, advance(newGame(COFFEE_SHOP), 12 * 60).money)
   })
 
   test('a week away counts in full, with no cap (D14)', () => {
@@ -74,7 +75,7 @@ describe('catch-up reports', () => {
   test('the store already has the new money when the report goes out', () => {
     const fake = makeFakeClock()
     let moneyWhenReported: Big | undefined
-    const gameStateStore = startGame(newGame(), {
+    const gameStateStore = startGame(newGame(COFFEE_SHOP), {
       clock: fake.clock,
       onCatchUp: () => {
         moneyWhenReported = gameStateStore.getState().money

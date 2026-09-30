@@ -11,3 +11,11 @@ body {
   place-items: center;
   text-align: center;
 }
+
+/* The temporary buy buttons, one per row (step 4a). */
+.upgrades {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
