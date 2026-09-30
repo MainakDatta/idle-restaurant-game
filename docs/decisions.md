@@ -534,6 +534,10 @@ ticks (D11) · a separate `visibilitychange` catch-up (it would count the gap tw
 coordinated with the loop, and nothing needs "time away" apart from "time watching" until tips
 and special customers in Phase 1).
 
+**Updated 2026-09-30:** `advance(franchise, state, seconds)` now takes the franchise and earns the
+income `economy.ts` works out for the state (D29), and `startGame(franchise, initial, options)`
+passes it through. The $1/s stand-in is gone.
+
 ## D28 · Franchise files: JSON, checked when they load — Accepted · 2026-09-29
 
 **Decision:** Each franchise is a JSON file in `src/game/franchises/`; the coffee shop is
@@ -570,3 +574,44 @@ a clear message, not turn up later as a strange number (D6).
 cross-references) · zod (a new dependency, D4) · a version number (the file ships with the code
 that reads it, unlike a save, D10) · a list of staff roles now (their rules aren't designed yet) ·
 TypeScript files instead of JSON.
+
+## D29 · The economy engine: levels in, income out — Proposed · 2026-09-30
+
+**Decision:** `economy(franchise, state)` in `src/game/economy.ts` works out the shop's levers,
+customers and income from its levels, as rates (D18). It's our reading of D17, D19 and design.md's
+*Inside a run*, with every number from the franchise file (D28). The design chat is confirming it.
+- **Bonus levels** multiply all of a leveled upgrade's output, and stack: Tables' customers,
+  Baristas' service, and a menu item's speed (its prep time is divided by the multiplier).
+- **Demand** (customers/min) = customers per table × tables × bonus × the Demand global
+  upgrades bought.
+- **The menu:** each level adds `priceRisePerLevel` (10%) of an item's starting price. Spend and
+  the average prep time are averaged over the unlocked items, weighted by popularity.
+- **Service** (customers/min) = baristas × bonus × 60 ÷ the average prep time × the Service
+  global upgrades bought.
+- **The bottleneck:** idle baristas bring in `spillover.acrossRoles` (20%) of their spare capacity
+  as extra customers. With a line, the baristas serve all they can, and `selfServe` (20%) of the
+  rest serve themselves at the cheapest unlocked item's current price. "100% within the role" has
+  no effect with one role.
+- **Income per second** = (served × Spend + self-serve × that price) ÷ 60. `advance` earns it
+  for every second, which is exact because income only changes when something is bought.
+- **Levers, prices, prep times and income are `Big`**, because bonus levels and global upgrades
+  stack without limit (D5). Levels, popularity and shares stay plain numbers.
+- **A pacing test** (`pacing.test.ts`) plays a player who always buys the most income per dollar
+  through the real engine, and checks design.md's placeholder milestones within a range. When
+  Phase 1 retunes the numbers, design.md and the test change together.
+
+**Found while building:** under this reading, an unlock can lower income in two ways. Unlocked out
+of order, a cheaper item lowers Spend. With far more baristas than customers, a slow new item cuts
+the idle capacity that spillover turns into customers (6 tables, 35 baristas and drip coffee at 34:
+Latte takes income from $187/s to $144/s). Along the simulated player's path every unlock raises
+income, as D19 promises. Also, a franchise without self-serve gets nothing from an extra table while
+there's a line. Both are questions for the design chat.
+
+**Why:** One pure function from the state means income is never stale after a purchase, and
+catch-up stays a single multiplication. The simulated player reproduces design.md's milestones:
+first purchase at 6.4 s (6 s), first bonus at 2.1 min (2 min), unlocks at 4.5 min, 6.5 min and
+2.6 h (6 min, 8 min and 2.4 h).
+
+**Passed on:** keeping income in the game state (a copy to keep in step after every purchase, to
+save a few microseconds a frame) · self-serve at the average Spend (Mainak chose the cheapest item
+for now, pending the design chat) · plain numbers for the levers (they stack without limit, D5).
