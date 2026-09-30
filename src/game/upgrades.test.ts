@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'vitest'
 import { Big } from './big.ts'
-import { COFFEE_SHOP, type UpgradeType } from './franchise.ts'
+import { COFFEE_SHOP, type UpgradeItemId } from './franchise.ts'
 import { newGame, type GameState } from './state.ts'
 import { expectBigClose } from './test-utils.ts'
 import { buy, canBuy, nextCost, requirementMet } from './upgrades.ts'
 
 /** A coffee shop game with some levels changed from the start, and some money. */
-function gameWith(levels: Record<UpgradeType, number>, money = 0): GameState {
+function gameWith(levels: Record<UpgradeItemId, number>, money = 0): GameState {
   const start = newGame(COFFEE_SHOP)
   return { ...start, money: Big.fromValue(money), levels: { ...start.levels, ...levels } }
 }

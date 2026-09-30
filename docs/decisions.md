@@ -550,7 +550,7 @@ and special customers in Phase 1).
   leveled upgrade), a max level (one per franchise, `null` for none, 50 as a placeholder) and
   each global upgrade's multiplier.
 - **Names:** `globalUpgrades` for design.md's lever boosts, and `popularity` for D19's order
-  weight. An upgrade's id (`"tables"`, `"latte"`) has the type `UpgradeType`. Anything with
+  weight. An upgrade's id (`"tables"`, `"latte"`) has the type `UpgradeItemId`. Anything with
   levels (Tables, Baristas, each menu item) is a *leveled upgrade*, so "line" only ever means the
   queue of customers. A menu item with `"unlock": null` starts at level 1; the others start
   locked, at 0.

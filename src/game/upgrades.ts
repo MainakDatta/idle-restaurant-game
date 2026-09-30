@@ -12,7 +12,7 @@ import {
   type Franchise,
   type GlobalUpgrade,
   type LeveledUpgrade,
-  type UpgradeType,
+  type UpgradeItemId,
 } from './franchise.ts'
 import type { GameState } from './state.ts'
 
@@ -20,7 +20,7 @@ import type { GameState } from './state.ts'
  * What buying `id` costs right now, or null if there's nothing left to buy: it's at the
  * max level, or the global upgrade is already bought.
  */
-export function nextCost(franchise: Franchise, state: GameState, id: UpgradeType): Big | null {
+export function nextCost(franchise: Franchise, state: GameState, id: UpgradeItemId): Big | null {
   const global = findGlobalUpgrade(franchise, id)
   if (global !== undefined) return state.globalUpgradesBought.includes(id) ? null : global.cost
 
@@ -42,13 +42,13 @@ export function nextCost(franchise: Franchise, state: GameState, id: UpgradeType
  * Whether a global upgrade's required upgrade has reached its level. Always true for leveled
  * upgrades, which have no requirement.
  */
-export function requirementMet(franchise: Franchise, state: GameState, id: UpgradeType): boolean {
+export function requirementMet(franchise: Franchise, state: GameState, id: UpgradeItemId): boolean {
   const global = findGlobalUpgrade(franchise, id)
   return global === undefined || levelOf(state, global.requires.upgrade) >= global.requires.level
 }
 
 /** Whether `id` can be bought now: something left to buy, its requirement met, and the money. */
-export function canBuy(franchise: Franchise, state: GameState, id: UpgradeType): boolean {
+export function canBuy(franchise: Franchise, state: GameState, id: UpgradeItemId): boolean {
   return 'cost' in checkPurchase(franchise, state, id)
 }
 
@@ -56,7 +56,7 @@ export function canBuy(franchise: Franchise, state: GameState, id: UpgradeType):
  * Buys the next level of `id` (or the global upgrade) and returns the new state. Throws if it
  * can't be bought, because the screen only offers it when canBuy says yes.
  */
-export function buy(franchise: Franchise, state: GameState, id: UpgradeType): GameState {
+export function buy(franchise: Franchise, state: GameState, id: UpgradeItemId): GameState {
   const purchase = checkPurchase(franchise, state, id)
   if ('problem' in purchase) throw new Error(`buy: can't buy "${id}": ${purchase.problem}`)
   // checkPurchase made sure the money covers the cost, so this sub can't go below zero.
@@ -70,7 +70,7 @@ export function buy(franchise: Franchise, state: GameState, id: UpgradeType): Ga
 /** Either what it costs, or why it can't be bought. */
 type Purchase = { readonly cost: Big } | { readonly problem: string }
 
-function checkPurchase(franchise: Franchise, state: GameState, id: UpgradeType): Purchase {
+function checkPurchase(franchise: Franchise, state: GameState, id: UpgradeItemId): Purchase {
   const cost = nextCost(franchise, state, id)
   const global = findGlobalUpgrade(franchise, id)
   if (cost === null) {
@@ -87,17 +87,17 @@ function checkPurchase(franchise: Franchise, state: GameState, id: UpgradeType):
   return { cost }
 }
 
-function findGlobalUpgrade(franchise: Franchise, id: UpgradeType): GlobalUpgrade | undefined {
+function findGlobalUpgrade(franchise: Franchise, id: UpgradeItemId): GlobalUpgrade | undefined {
   return franchise.globalUpgrades.find((upgrade) => upgrade.id === id)
 }
 
-function findLeveledUpgrade(franchise: Franchise, id: UpgradeType): LeveledUpgrade {
+function findLeveledUpgrade(franchise: Franchise, id: UpgradeItemId): LeveledUpgrade {
   const upgrade = leveledUpgrades(franchise).find((candidate) => candidate.id === id)
   if (upgrade === undefined) throw new Error(`"${id}" isn't an upgrade in ${franchise.name}`)
   return upgrade
 }
 
-function levelOf(state: GameState, id: UpgradeType): number {
+function levelOf(state: GameState, id: UpgradeItemId): number {
   const level = state.levels[id]
   if (level === undefined) throw new Error(`The game state has no level for "${id}"`)
   return level

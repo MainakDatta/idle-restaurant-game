@@ -10,7 +10,7 @@ import coffeeShopFile from './franchises/coffee-shop.json' with { type: 'json' }
  * Which upgrade: its id from the franchise file, such as "tables", "latte" or
  * "chalkboard-sign".
  */
-export type UpgradeType = string
+export type UpgradeItemId = string
 
 /** The levers a global upgrade can multiply (D17). */
 export type Lever = 'demand' | 'service'
@@ -50,7 +50,7 @@ export type BonusLevels = {
 }
 
 export type DemandUpgrade = {
-  readonly id: UpgradeType
+  readonly id: UpgradeItemId
   readonly name: string
   /** Customers each level brings in per minute, before bonus levels. */
   readonly customersPerMinute: number
@@ -61,14 +61,14 @@ export type DemandUpgrade = {
 
 /** Each level is one more member of staff. */
 export type StaffUpgrade = {
-  readonly id: UpgradeType
+  readonly id: UpgradeItemId
   readonly name: string
   readonly startLevel: number
   readonly firstCost: Big
 }
 
 export type MenuItem = {
-  readonly id: UpgradeType
+  readonly id: UpgradeItemId
   readonly name: string
   /** The price at level 1. */
   readonly price: Big
@@ -86,18 +86,18 @@ export type MenuItem = {
 export type Unlock = { readonly name: string; readonly cost: Big }
 
 export type GlobalUpgrade = {
-  readonly id: UpgradeType
+  readonly id: UpgradeItemId
   readonly name: string
   readonly lever: Lever
   readonly multiplier: number
   /** It can only be bought once this leveled upgrade reaches this level: Tables 10. */
-  readonly requires: { readonly upgrade: UpgradeType; readonly level: number }
+  readonly requires: { readonly upgrade: UpgradeItemId; readonly level: number }
   readonly cost: Big
 }
 
 /** Anything you level up (Tables, Baristas or a menu item), in the shape they have in common. */
 export type LeveledUpgrade = {
-  readonly id: UpgradeType
+  readonly id: UpgradeItemId
   readonly name: string
   readonly firstCost: Big
   /** null if it's there from the start. */
@@ -264,15 +264,15 @@ function checkSetup(franchise: Franchise): void {
   const { maxLevel } = franchise
 
   // Every id is unique, so an id always means one thing in saves and in the code.
-  const idPaths: [UpgradeType, string][] = [
+  const idPaths: [UpgradeItemId, string][] = [
     [franchise.demand.id, 'demand.id'],
     [franchise.staff.id, 'staff.id'],
-    ...franchise.menu.map((item, i): [UpgradeType, string] => [item.id, `menu[${i}].id`]),
+    ...franchise.menu.map((item, i): [UpgradeItemId, string] => [item.id, `menu[${i}].id`]),
     ...franchise.globalUpgrades.map(
-      (upgrade, i): [UpgradeType, string] => [upgrade.id, `globalUpgrades[${i}].id`],
+      (upgrade, i): [UpgradeItemId, string] => [upgrade.id, `globalUpgrades[${i}].id`],
     ),
   ]
-  const firstPath = new Map<UpgradeType, string>()
+  const firstPath = new Map<UpgradeItemId, string>()
   for (const [id, path] of idPaths) {
     const earlier = firstPath.get(id)
     if (earlier !== undefined) fail(path, `"${id}" is already used by ${earlier}`)
@@ -293,11 +293,11 @@ function checkSetup(franchise: Franchise): void {
   }
 
   // A global upgrade's requirement names a leveled upgrade, at a level you can reach.
-  const leveledTypes = leveledUpgrades(franchise).map((upgrade) => upgrade.id)
+  const leveledIds = leveledUpgrades(franchise).map((upgrade) => upgrade.id)
   franchise.globalUpgrades.forEach((upgrade, i) => {
     const path = `globalUpgrades[${i}].requires`
-    if (!leveledTypes.includes(upgrade.requires.upgrade)) {
-      const choices = leveledTypes.join(', ')
+    if (!leveledIds.includes(upgrade.requires.upgrade)) {
+      const choices = leveledIds.join(', ')
       fail(`${path}.upgrade`, `must be one of ${choices}, got "${upgrade.requires.upgrade}"`)
     }
     if (maxLevel !== null && upgrade.requires.level > maxLevel) {
@@ -351,7 +351,7 @@ function readText(value: unknown, path: string): string {
 }
 
 /** Ids are lowercase words joined by hyphens, like "drip-coffee", so they're safe as save keys. */
-function readId(value: unknown, path: string): UpgradeType {
+function readId(value: unknown, path: string): UpgradeItemId {
   const id = readText(value, path)
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id)) {
     fail(path, `must be lowercase words joined by hyphens, like "drip-coffee", got "${id}"`)

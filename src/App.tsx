@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import { leveledUpgrades, type Franchise, type UpgradeType } from './game/franchise.ts'
+import { leveledUpgrades, type Franchise, type UpgradeItemId } from './game/franchise.ts'
 import { formatBig } from './game/format.ts'
 import type { GameState } from './game/state.ts'
 import { buy, canBuy, nextCost, requirementMet } from './game/upgrades.ts'
@@ -13,7 +13,7 @@ function App({ franchise, gameStateStore }: AppProps) {
   const state = useSyncExternalStore(gameStateStore.subscribe, gameStateStore.getState)
 
   // Buys from the store's latest state, which can be a frame newer than the one drawn.
-  const buyUpgrade = (id: UpgradeType) =>
+  const buyUpgrade = (id: UpgradeItemId) =>
     gameStateStore.setState(buy(franchise, gameStateStore.getState(), id))
 
   return (
@@ -38,7 +38,7 @@ function App({ franchise, gameStateStore }: AppProps) {
   )
 }
 
-type UpgradeButton = { id: UpgradeType; label: string }
+type UpgradeButton = { id: UpgradeItemId; label: string }
 
 /** A label for every upgrade on offer. Global upgrades drop off the list once bought. */
 function upgradeButtons(franchise: Franchise, state: GameState): UpgradeButton[] {
@@ -61,9 +61,9 @@ function upgradeButtons(franchise: Franchise, state: GameState): UpgradeButton[]
       if (requirementMet(franchise, state, upgrade.id)) {
         return { id: upgrade.id, label: `${name} · $${formatBig(upgrade.cost, 'short')}` }
       }
-      const { upgrade: requiredType, level } = upgrade.requires
-      const required = leveled.find((candidate) => candidate.id === requiredType)
-      return { id: upgrade.id, label: `${name} · needs ${required?.name ?? requiredType} ${level}` }
+      const { upgrade: requiredId, level } = upgrade.requires
+      const required = leveled.find((candidate) => candidate.id === requiredId)
+      return { id: upgrade.id, label: `${name} · needs ${required?.name ?? requiredId} ${level}` }
     })
   return [...leveledButtons, ...globalButtons]
 }
