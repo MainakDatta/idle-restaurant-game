@@ -4,26 +4,45 @@
 // has passed and calls advance, and coming back after time away goes through the same call.
 
 import { Big } from './big.ts'
+import type { Franchise, UpgradeId } from './franchise.ts'
+
+/**
+ * Each line's current level, by id: { tables: 3, baristas: 2, latte: 0 }. 0 means a menu item
+ * that isn't unlocked yet. `Record<K, V>` is TypeScript's type for an object used as a
+ * dictionary; a plain object rather than a Map, because it has to save as JSON (step 6).
+ */
+export type UpgradeLevels = Readonly<Record<UpgradeId, number>>
 
 /**
  * Everything about a game in progress. It's never changed in place, only replaced, so a new
- * object means something happened. Step 4 adds the coffee shop and step 7 the rush and Buzz.
- * Any timer added here is a duration ("42 s left"), never a clock time, so advance can move
- * it forward like everything else.
+ * object means something happened. Step 7 adds the rush and Buzz. Any timer added here is a
+ * duration ("42 s left"), never a clock time, so advance can move it forward like everything
+ * else.
  */
 export type GameState = {
   readonly money: Big
+  /** Tables, Baristas and each menu item. */
+  readonly levels: UpgradeLevels
+  /** The one-time global upgrades bought so far: ["chalkboard-sign"]. */
+  readonly globalUpgradesBought: readonly UpgradeId[]
 }
 
 /**
- * A stand-in income until step 4 builds the coffee shop's economy (D17, D19). At $1 a second,
- * money equals the seconds since the page opened, which is easy to check with a stopwatch.
+ * A stand-in income until step 4b wires in the coffee shop's economy (D17, D19). At $1 a
+ * second, money equals the seconds since the page opened, which is easy to check with a
+ * stopwatch.
  */
 export const PLACEHOLDER_INCOME_PER_SECOND: Big = Big.ONE
 
-/** A new game: no money yet. */
-export function newGame(): GameState {
-  return { money: Big.ZERO }
+/** A new game: no money, and every line at its starting level from the franchise file. */
+export function newGame(franchise: Franchise): GameState {
+  const levels: Record<UpgradeId, number> = {
+    [franchise.demand.id]: franchise.demand.startLevel,
+    [franchise.staff.id]: franchise.staff.startLevel,
+  }
+  // A menu item starts at level 1 if it's on the menu from the start, and locked (0) otherwise.
+  for (const item of franchise.menu) levels[item.id] = item.unlock === null ? 1 : 0
+  return { money: Big.ZERO, levels, globalUpgradesBought: [] }
 }
 
 /**
