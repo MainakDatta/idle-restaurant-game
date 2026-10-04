@@ -18,7 +18,7 @@ the line above its heading. The links point at those anchors, so they keep worki
 status changes.
 
 1. [**Web stack, not a game engine**](#d1): a TypeScript + React web client and a Python backend. Godot is saved for a later project.
-2. [**PixiJS, not Phaser**](#d2): Pixi draws the animated scene: a renderer, not a framework competing with React.
+2. [**PixiJS, not Phaser**](#d2): Pixi draws the animated scene: a renderer, not a framework competing with React. Updated by D38.
 3. [**Mobile via Capacitor, not React Native**](#d3): a PWA first, then Capacitor ships the same web app to the app stores.
 4. [**Dependencies must earn their place**](#d4): add one only for a problem we've actually hit, and give it an entry here.
 5. [**Big numbers from day one**](#d5): anything that can grow without limit is a `Big`; time, levels and counts stay plain numbers.
@@ -29,12 +29,12 @@ status changes.
 10. [**Saves built for the PWA now and app stores later**](#d10): one storage module, export/import, versioned JSON and an iPhone install hint.
 11. [**Offline progress is calculated in the browser**](#d11): from real elapsed time, on the device; the Phase 4 server only double-checks it.
 12. [**Phase 0 foundation dependencies**](#d12): Vite's React + TypeScript starter, each package justified; TypeScript pinned to 6.0.
-13. [**Public repository**](#d13): public with no license; no secrets in git, asset licenses checked, AI disclosed in the README.
+13. [**Public repository**](#d13): public with no license; no secrets in git, asset licenses checked, AI disclosed in the README. Updated by D39.
 14. [**No cap on offline progress**](#d14): idle progress keeps building however long you're away.
 15. [**Numbers shown with short suffixes**](#d15): 1.23K, 45.6M and so on, three digits, rounded down; scientific notation is a setting.
-16. [**Phase 0 ends with one complete run loop**](#d16): earning, upgrading, the first active mechanic, saves and offline progress.
+16. [**Phase 0 ends with one complete run loop**](#d16): earning, upgrading, the first active mechanic, saves and offline progress, with the scene in basic shapes (D38).
 17. [**A bottleneck economy with spillover**](#d17): income = customers served × Spend; served = the lower of Demand and Service, plus spillover. Updated by D31, D32.
-18. [**Rates now, live customers in Phase 2**](#d18): the economy runs on rates; Phase 2's live customers must average within 5% of them.
+18. [**Rates now, live customers in Phase 2**](#d18): the economy runs on rates; Phase 2's live customers must average within 5% of them. At scale, each visible customer stands for a group.
 19. [**A real menu with per-item upgrades**](#d19): a price, cook time and popularity per item, one level per item; unlocks cost money only. Speed and the tier rule are replaced by D33 and D36.
 20. [**Buttons show an upgrade's own effect**](#d20): "Service 24 → 36/min", never income previews; the scene shows the bottleneck. Updated by D31.
 21. [**Three active mechanics: tips, Rush Hour, special customers**](#d21): the pour starts a rush and costs Buzz; tips and visitors are free.
@@ -54,6 +54,10 @@ status changes.
 35. [**Max level 100 for every upgrade, each with its own price growth**](#d35): upgrades finish one after another, the last near the end of the run.
 36. [**Each menu unlock about doubles income; D19's promise becomes a guiding principle**](#d36): bought in cost order, upgrades should raise income, now or later.
 37. [**A 4–6 hour coffee shop run for now, with one-time upgrades spread across it**](#d37): late global upgrades paired in time and priced at about a minute of income.
+38. [**The scene comes early: basic shapes in Phase 0, placeholder sprites first in Phase 1**](#d38): Phase 2 brings the final art, animation and live customers.
+39. [**Where AI-generated content is allowed**](#d39): never in-game art or music; UX elements yes; sound effects real first; discussion visuals anything.
+40. [**Simulated players: the human-like player is the reference**](#d40): it goes by what the screen shows; optimizers only for special cases.
+41. [**Times shown with their two largest units**](#d41): 42s, 2m 41s, 1h 23m, 2d 4h.
 
 ---
 
@@ -96,6 +100,9 @@ on its own, because Capacitor already covers it. It's just a good moment to re-c
 control of the page; Pixi is smaller and does one job.
 
 **Passed on:** Phaser.
+
+**Updated 2026-10-04:** the scene now starts in Phase 0, as basic shapes (D38). Whether PixiJS draws
+it from the start is the call of the step that builds it.
 
 <a id="d3"></a>
 ## D3 · Mobile via Capacitor, not React Native — Accepted · 2026-09-21
@@ -307,6 +314,8 @@ macOS runners, so iOS builds won't require owning a Mac.
 **Updated 2026-09-22:** every asset gets a row in `CREDITS.md` (source, license, required
 attribution).
 
+**Updated 2026-10-04:** where AI-generated content is allowed is D39.
+
 <a id="d14"></a>
 ## D14 · No cap on offline progress — Accepted · 2026-09-22
 
@@ -353,6 +362,8 @@ come later.
 **Passed on:** a minimal tech demo · including a basic sale, which needs session B's currency and
 knee decisions first.
 
+**Updated 2026-10-04:** instead of gray boxes, Phase 0's scene shows the shop in basic shapes (D38).
+
 <a id="d17"></a>
 ## D17 · A bottleneck economy with spillover — Accepted · 2026-09-23
 
@@ -392,6 +403,11 @@ customers at balance. A patient line of 50 with moderate randomness lost 0.1%.
 
 **Passed on:** Eatventure's approach (a live simulation plus a capped, deliberately weaker offline
 estimate), which punishes absence (pillars 1 and 4, D14).
+
+**Updated 2026-10-04 (scale):** within an hour the shop serves hundreds of customers a second, too
+many to simulate or draw one by one. So each visible customer stands for a group that grows with
+the shop (1, then 10, then 100…). The randomness applies to each visible customer, and the 5% rule
+still holds. How the group size grows is a Phase 2 open question.
 
 <a id="d19"></a>
 ## D19 · A real menu with per-item upgrades — Accepted · 2026-09-23
@@ -846,3 +862,87 @@ for more than about 20 minutes.
 **Passed on:** a first run of 1–2 days for now · a test-speed setting instead (long runs, with time
 running faster for playtests) · the influencer at ×3 · pricing the late upgrades by hand (a high
 price kept mobile ordering out of reach for an hour after its requirement was met).
+
+<a id="d38"></a>
+## D38 · The scene comes early: basic shapes in Phase 0, placeholder sprites first in Phase 1 — Accepted · 2026-10-04
+
+**Decision:** Phase 0 ends with a real scene drawn in basic shapes, not a gray box: the counter, the
+baristas, the line, the tables, the sign and baristas outside with samples, all driven by the rates.
+It takes up more of the screen than the first wireframe. Upgrades sit either on the scene itself
+(tap the sign for Signage) or in a condensed menu under it; Mainak will try both. **The first step
+of Phase 1 swaps the shapes for placeholder sprites** from a licensed pack, before anyone else
+plays. Phase 2 brings the final art and animation, live customers (D18) and asset loading. Whether
+PixiJS draws the shapes scene from the start is the call of the step that builds it (D2).
+
+**Why:** Playtesters need something real to look at, and so does Mainak: seeing the game early keeps
+the project going. design.md had put everything visual in Phase 2, while Phase 1's tips, special
+customers and tuning for fun already assumed a scene.
+
+**Passed on:** a gray box until Phase 2 · real sprites already in Phase 0.
+
+<a id="d39"></a>
+## D39 · Where AI-generated content is allowed — Accepted · 2026-10-04
+
+**Decision:**
+
+| Content | AI-generated? |
+|---|---|
+| In-game art: sprites, backgrounds, icons, the logo and app icon | Never, including AI edits of licensed art |
+| Music | Never |
+| Sound effects | Real ones first, after a good-faith search; AI if that takes too long |
+| UX elements: buttons, panels, menu layouts, a main or pause menu | Yes, and they can ship as is |
+| Art drawn with code | Shapes and effects (steam, confetti) are fine; drawings count as art |
+| In-game writing | Yes, with Mainak's review |
+| Visuals for design discussions (mockups, wireframes, sample screenshots) | Anything, since they never go into the game. They stay out of the repo |
+
+Placeholders come only from licensed packs. Prompts for anything that ships describe what we want
+rather than naming another game. AI-made UX elements and sound effects are marked in `CREDITS.md`.
+
+**Why:** Mainak's line is the art and music players experience as the game's own. UX elements are
+fine, and discussion visuals help the design chat and Mainak stay on the same page. Good free sound
+effects have been hard for him to find before, and he'll be particular about them. Marking AI-made
+assets keeps an honest record for the disclosure he wants if the game ships, and some stores ask
+(Steam does). Purely AI-generated work generally can't be copyrighted in the US, so AI-made UX isn't
+protected the way his own work is; that's fine for this project.
+
+**Passed on:** no AI-generated images at all, the earlier rule, which also ruled out UX elements and
+discussion mockups.
+
+<a id="d40"></a>
+## D40 · Simulated players: the human-like player is the reference — Accepted · 2026-10-04
+
+**Decision:** Pacing is judged with a **human-like** simulated player. It decides by what the screen
+shows, never by income math:
+- It sees the shop's state (overstaffed, balanced or backed up), whether every seat is full, and the
+  upgrade buttons.
+- It loves unlocks, ×2 upgrades and maxing things out, likes reaching bonus levels, and prefers
+  cheap things.
+- It never saves up for more than about 3 minutes of income.
+- It judges by gut feel: a random nudge of up to ±40% on each option, with a fixed seed so a run
+  repeats exactly.
+
+Players that maximize income per dollar are for special cases only: an upper bound for a min-maxer,
+and a player that always buys the cheapest thing, to check D36's cost-order principle. The design
+chat's simulator uses the human-like player, and the pacing test switches to it.
+
+**Why:** Real players can't see what a purchase does to income (D20), so optimizing players aren't
+realistic, and they misled the design: a 99-minute wait around the 1-hour mark and "the Espresso
+machine never gets bought" were both optimizer behavior. With the human-like player, the wait was
+about 2 minutes, and the Espresso machine raised income. Its limits: its tastes are guesses, it's
+one personality with some noise, and how often a real player checks in moves results the most.
+Phase 1 playtests are the real check.
+
+**Passed on:** the best-value player as the reference (today's pacing test) · a player that also
+weighs buying two things together · a player that always buys the cheapest thing.
+
+<a id="d41"></a>
+## D41 · Times shown with their two largest units — Accepted · 2026-10-04
+
+**Decision:** Durations show their two largest units, kept short: 42s, 2m 41s, 1h 23m, 2d 4h. Rush
+Hour's timer, the Buzz refill countdown and a future welcome-back message all use it. (Decided
+2026-10-01; recorded here.)
+
+**Why:** It's compact on a phone, like the number suffixes (D15), and two units are enough to plan
+by.
+
+**Passed on:** a clock format (2:14:00) · full words (2 hours 14 minutes).

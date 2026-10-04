@@ -27,8 +27,10 @@ list at the top of the file, and an anchor above its heading (the file explains 
   (D5, D6).
 - The title lives only in `.env` as `VITE_GAME_TITLE`. Never put it in identifiers or
   storage keys (D7).
-- No AI-generated art or audio. The repo is public, so check an asset's license before
-  committing it, and never commit secrets (`VITE_*` values ship to players).
+- No AI-generated in-game art or music (sprites, backgrounds, icons, logos, or AI edits of real
+  art). AI-made UX elements are fine, and sound effects are real ones first (D39). The repo is
+  public, so check an asset's license before committing it, and never commit secrets (`VITE_*`
+  values ship to players).
 - Work happens in numbered **steps**, listed in the current phase's checklist in
   `docs/design.md` (under *Build phases*). One step per branch → pull request → merge.
 - Attribution is decided per commit and per PR: add the `Co-Authored-By: Claude` trailer
