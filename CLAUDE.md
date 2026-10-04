@@ -3,7 +3,8 @@
 A cozy idle game (working title "Under New Management"), built as a learning project.
 Before changing anything, read `docs/design.md` (what the game is) and `docs/decisions.md`
 (why it's built this way). Record every real decision in `decisions.md` as a new numbered
-entry, and always add one for a new dependency.
+entry, and always add one for a new dependency. Each entry also gets a one-line summary in the
+list at the top of the file, and an anchor above its heading (the file explains how).
 
 ## Commands
 

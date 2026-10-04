@@ -10,8 +10,45 @@ its replacement.
 
 Adding a dependency always gets an entry (see D4).
 
+## At a glance
+
+One line per decision. The numbers are the D-numbers, and each title links to the full entry.
+**Adding or changing a decision:** update its line here too, and keep an `<a id="dN"></a>` anchor on
+the line above its heading. The links point at those anchors, so they keep working when a heading's
+status changes.
+
+1. [**Web stack, not a game engine**](#d1): a TypeScript + React web client and a Python backend. Godot is saved for a later project.
+2. [**PixiJS, not Phaser**](#d2): Pixi draws the animated scene: a renderer, not a framework competing with React.
+3. [**Mobile via Capacitor, not React Native**](#d3): a PWA first, then Capacitor ships the same web app to the app stores.
+4. [**Dependencies must earn their place**](#d4): add one only for a problem we've actually hit, and give it an entry here.
+5. [**Big numbers from day one**](#d5): anything that can grow without limit is a `Big`; time, levels and counts stay plain numbers.
+6. [**Big-number implementation: our own `Big` class**](#d6): small, read-only and fails loudly, with break_infinity.js's method names.
+7. [**Codename vs title**](#d7): code and save keys say `idle-restaurant-game`; the display title lives only in `.env`.
+8. [**PostgreSQL in Phase 4**](#d8): Postgres from the backend's start, with raw SQL before any ORM.
+9. [**Franchises are data; mechanics are a code library**](#d9): a new franchise that reuses a mechanic is only data and sprites.
+10. [**Saves built for the PWA now and app stores later**](#d10): one storage module, export/import, versioned JSON and an iPhone install hint.
+11. [**Offline progress is calculated in the browser**](#d11): from real elapsed time, on the device; the Phase 4 server only double-checks it.
+12. [**Phase 0 foundation dependencies**](#d12): Vite's React + TypeScript starter, each package justified; TypeScript pinned to 6.0.
+13. [**Public repository**](#d13): public with no license; no secrets in git, asset licenses checked, AI disclosed in the README.
+14. [**No cap on offline progress**](#d14): idle progress keeps building however long you're away.
+15. [**Numbers shown with short suffixes**](#d15): 1.23K, 45.6M and so on, three digits, rounded down; scientific notation is a setting.
+16. [**Phase 0 ends with one complete run loop**](#d16): earning, upgrading, the first active mechanic, saves and offline progress.
+17. [**A bottleneck economy with spillover**](#d17): income = customers served × Spend; served = the lower of Demand and Service, plus spillover.
+18. [**Rates now, live customers in Phase 2**](#d18): the economy runs on rates; Phase 2's live customers must average within 5% of them.
+19. [**A real menu with per-item upgrades**](#d19): each item's price rises every level and its speed doubles at bonus levels; unlocks cost money only.
+20. [**Buttons show an upgrade's own effect**](#d20): "Service 24 → 36/min", never income previews; the scene shows the bottleneck.
+21. [**Three active mechanics: tips, Rush Hour, special customers**](#d21): the pour starts a rush and costs Buzz; tips and visitors are free.
+22. [**Rush Hour rolls one lever at ×3**](#d22): Demand or Service at random, for 3 minutes (4.5 after a Perfect pour), one rush at a time.
+23. [**Buzz: one refill rate, a small cap**](#d23): 1 charge every 10 minutes, in the shop or away, up to 6.
+24. [**The `Big` API**](#d24): 17 methods; one way in (`fromValue`), strings only where data loads, mistakes throw a `BigError`.
+25. [**A lint rule keeps React and Pixi out of `src/game/`**](#d25): plus a type check that runs game code without browser types.
+26. [**One check command before every pull request**](#d26): `npm run check` runs lint, types, tests and the build; CI runs it too.
+27. [**The game runs outside React, on one clock**](#d27): a pure `advance(state, seconds)` moves time; catch-up is the first frame back.
+28. [**Franchise files: JSON, checked when they load**](#d28): a mistake names the file and the field; tuning numbers live in the file.
+
 ---
 
+<a id="d1"></a>
 ## D1 · Web stack, not a game engine — Accepted · 2026-09-21
 
 **Decision:** TypeScript + React web client, Python backend. Godot saved for a later project.
@@ -41,6 +78,7 @@ can't provide · animated scenes get too complex to build comfortably in code ·
 performance becomes a real problem in testing. Moving to the app stores is *not* a trigger
 on its own, because Capacitor already covers it. It's just a good moment to re-check this list.
 
+<a id="d2"></a>
 ## D2 · PixiJS, not Phaser — Accepted · 2026-09-21
 
 **Decision:** PixiJS for the animated scene layer (Phase 2).
@@ -50,6 +88,7 @@ control of the page; Pixi is smaller and does one job.
 
 **Passed on:** Phaser.
 
+<a id="d3"></a>
 ## D3 · Mobile via Capacitor, not React Native — Accepted · 2026-09-21
 
 **Decision:** PWA first, then Capacitor to reach the app stores.
@@ -59,6 +98,7 @@ modified fork with no canvas text rendering). Capacitor ships the existing web a
 
 **Cost accepted:** WebView overhead versus native; no console targets.
 
+<a id="d4"></a>
 ## D4 · Dependencies must earn their place — Accepted · 2026-09-22
 
 **Decision:** Add a dependency only when it solves a problem we've actually hit. Each one gets
@@ -70,6 +110,7 @@ convention.
 **Consequence:** Phase 0 runtime dependencies: React only. Tailwind cut. Zustand, SQLAlchemy,
 Alembic, Howler deferred.
 
+<a id="d5"></a>
 ## D5 · Big numbers from day one — Accepted · 2026-09-22
 
 **Decision:** Every game quantity uses a big-number type from the first line of game logic.
@@ -88,6 +129,7 @@ percentages (including Potential) and slots. `Big`'s methods accept plain number
 arguments, so `cost.mul(1.15)` is fine. Use `null` for "unlimited" (e.g. `maxSlots`), because
 JSON saves `Infinity` as `null`.
 
+<a id="d6"></a>
 ## D6 · Big-number implementation: our own `Big` class — Accepted · 2026-09-22
 
 **Decision:** A ~200-line class storing `mantissa × 10^exponent`, using break_infinity.js's
@@ -130,6 +172,7 @@ API is settled in Phase 0 step 2.
 
 **Updated 2026-09-24:** the full API is D24.
 
+<a id="d7"></a>
 ## D7 · Codename vs title — Accepted · 2026-09-22
 
 **Decision:** Folders, package name and storage keys use `idle-restaurant-game`. The display
@@ -142,6 +185,7 @@ contain the title**, because renaming would silently orphan every player's save.
 `index.html` reads it as `%VITE_GAME_TITLE%`, and code reads it as
 `import.meta.env.VITE_GAME_TITLE`.
 
+<a id="d8"></a>
 ## D8 · PostgreSQL in Phase 4 — Accepted · 2026-09-22
 
 **Decision:** Postgres from the start of Phase 4 (not SQLite first).
@@ -152,6 +196,7 @@ contain the title**, because renaming would silently orphan every player's save.
 **Default, to revisit in Phase 4:** raw SQL through a driver before any ORM, so we learn
 Postgres itself rather than an ORM's abstraction of it (per D4).
 
+<a id="d9"></a>
 ## D9 · Franchises are data; mechanics are a code library — Accepted · 2026-09-22
 
 **Decision:** Franchise definitions are data files. Active mechanics are a small library of
@@ -160,6 +205,7 @@ code modules, and each franchise picks one by ID.
 **Why:** Five franchises must not mean five codebases. A new franchise that reuses a mechanic
 is only data plus sprites.
 
+<a id="d10"></a>
 ## D10 · Saves built for the PWA now and app stores later — Accepted · 2026-09-22
 
 **Decision:** four rules for saves. All are Phase 0 except the install hint, which ships with
@@ -190,6 +236,7 @@ seriously before Phase 4, bring cloud saves forward.
 
 **Note:** Mainak accepted this gap as a fair trade for playtesting before Phase 4.
 
+<a id="d11"></a>
 ## D11 · Offline progress is calculated in the browser — Accepted · 2026-09-22
 
 **Decision:** When the game opens, the browser calculates what was earned while it was closed,
@@ -209,6 +256,7 @@ again. If the clock moves backward, elapsed time counts as zero, so progress is 
 **Updated 2026-09-23:** once Phase 2 adds live customers (D18), live play and catch-up follow
 **the same rules** rather than the same code. A test keeps them within 5% of each other.
 
+<a id="d12"></a>
 ## D12 · Phase 0 foundation dependencies — Accepted · 2026-09-22
 
 **Decision:** The scaffold is hand-written from Vite's official `react-ts` starter
@@ -226,6 +274,7 @@ again. If the clock moves backward, elapsed time counts as zero, so progress is 
 
 **Passed on:** using the generated starter as-is, which comes with demo files we'd delete.
 
+<a id="d13"></a>
 ## D13 · Public repository — Accepted · 2026-09-22
 
 **Decision:** The repo is public from the first commit, with no license.
@@ -249,6 +298,7 @@ macOS runners, so iOS builds won't require owning a Mac.
 **Updated 2026-09-22:** every asset gets a row in `CREDITS.md` (source, license, required
 attribution).
 
+<a id="d14"></a>
 ## D14 · No cap on offline progress — Accepted · 2026-09-22
 
 **Decision:** Idle progress keeps building however long the game is closed.
@@ -263,6 +313,7 @@ leaderboard.
 **Still open:** how the knee's slowdown is applied during catch-up is on the next design
 session's agenda. The structure is settled in D11.
 
+<a id="d15"></a>
 ## D15 · Numbers shown with short suffixes — Accepted · 2026-09-22
 
 **Decision:** 1.23K, 45.6M, 789B, 1.23T, then Qa, Qi, Sx, Sp, Oc, No, Dc, then two-letter codes
@@ -281,6 +332,7 @@ three significant digits and no padded zeros: 3.5, 12.3, 999, 0.05. The scientif
 looks like 1.23e45 and keeps its zeros (1.00e3). The two-letter codes run aa to zz (up to
 1e2064), and short mode switches to scientific after that.
 
+<a id="d16"></a>
 ## D16 · Phase 0 ends with one complete run loop — Accepted · 2026-09-23
 
 **Decision:** Phase 0 delivers a playable single run: earning, upgrading, the first active
@@ -292,6 +344,7 @@ come later.
 **Passed on:** a minimal tech demo · including a basic sale, which needs session B's currency and
 knee decisions first.
 
+<a id="d17"></a>
 ## D17 · A bottleneck economy with spillover — Accepted · 2026-09-23
 
 **Decision:** Three levers: Demand, Service and Spend. Income = customers served × Spend.
@@ -312,6 +365,7 @@ this: removing it left the simulated shop's growth unchanged, so it's optional f
 bottleneck alone · a soft congestion formula (loses ~16% at perfect balance, which live customers
 wouldn't reproduce) · universal spillover (any role helps with any job).
 
+<a id="d18"></a>
 ## D18 · Rates now, live customers in Phase 2 — Accepted · 2026-09-23
 
 **Decision:** The economy runs on rates; customers on screen only illustrate them. Phase 2 adds
@@ -326,6 +380,7 @@ customers at balance. A patient line of 50 with moderate randomness lost 0.1%.
 **Passed on:** Eatventure's approach (a live simulation plus a capped, deliberately weaker offline
 estimate), which punishes absence (pillars 1 and 4, D14).
 
+<a id="d19"></a>
 ## D19 · A real menu with per-item upgrades — Accepted · 2026-09-23
 
 **Decision:** Menu items have a price, a barista time and an order weight. One level per item:
@@ -343,6 +398,7 @@ unlocks pace the same as level-gated ones, because price already does the gating
 **Passed on:** one "Recipes" upgrade for the whole menu · shop-wide speed only (gentler unlocks) ·
 level-gated menu unlocks.
 
+<a id="d20"></a>
 ## D20 · Buttons show an upgrade's own effect — Accepted · 2026-09-23
 
 **Decision:** An upgrade button shows what it changes ("Service 24 → 36/min"), never derived stats
@@ -353,6 +409,7 @@ is ever useless anyway.
 
 **Passed on:** showing "+$X/s right now" on every button.
 
+<a id="d21"></a>
 ## D21 · Three active mechanics: tips, Rush Hour, special customers — Accepted · 2026-09-24
 
 **Decision:** The coffee shop gets three active mechanics. **Tips** pile up while you watch, and
@@ -376,6 +433,7 @@ can fail · the critic's pour for a free rush (on ice: edge cases such as a rush
 · a "never do the staff's job" rule. Doing a barista's job is fine when tuned, but one barista is
 under 1% of income by hour 1, so such a mechanic should be sized as a share of the crew.
 
+<a id="d22"></a>
 ## D22 · Rush Hour rolls one lever at ×3 — Accepted · 2026-09-24
 
 **Decision:** Each rush rolls Demand or Service at random (50/50) and multiplies it by 3 for 3
@@ -396,6 +454,7 @@ end would need rushes nonstop.
 **Passed on:** Demand and Service ×2 together · the player choosing the lever · ×2 per roll ·
 overlapping rushes (a double rush running nonstop gives 3.3×, well past the target).
 
+<a id="d23"></a>
 ## D23 · Buzz: one refill rate, a small cap — Accepted · 2026-09-24
 
 **Decision:** Rush Hour costs one charge of **Buzz**. Buzz refills at a single rate, 1 charge
@@ -418,6 +477,7 @@ away (16× slower felt jarring, and 2–3× barely differed) · a cap of 3 (Main
 come back to more) · caps of 20 or more (a 3-hour evening becomes rushes from start to finish) ·
 "rushes" as the name.
 
+<a id="d24"></a>
 ## D24 · The `Big` API — Accepted · 2026-09-24
 
 **Decision:** `Big` (in `src/game/big.ts`) has 17 methods, named as in break_infinity.js:
@@ -453,6 +513,7 @@ getters instead of freezing · break_infinity's `"1.5e+300"` string, or plain `"
 values (not an exact round trip) · a `valueOf` returning a number, which makes `a < b` work until
 ~1e308 and then silently compare `Infinity`.
 
+<a id="d25"></a>
 ## D25 · A lint rule keeps React and Pixi out of `src/game/` — Accepted · 2026-09-24
 
 **Decision:** Game logic lives in `src/game/`. An oxlint `no-restricted-imports` rule, scoped
@@ -474,6 +535,7 @@ time with only JavaScript's own types (`lib: ["ES2023"]`, `types: []`, JSX off),
 `console` and JSX all fail there. One gap: `Date` is part of JavaScript itself, so `Date.now()`
 still passes.
 
+<a id="d26"></a>
 ## D26 · One check command before every pull request — Accepted · 2026-09-25
 
 **Decision:** `npm run check` runs lint, the type check, the tests and the production build, in
@@ -497,6 +559,7 @@ version from `.nvmrc`, so CI and local runs match, and uses GitHub's own `action
 `actions/setup-node`. GitHub's machines are free for public repositories. The result shows on
 each pull request, and merging isn't blocked.
 
+<a id="d27"></a>
 ## D27 · The game runs outside React, on one clock — Accepted · 2026-09-28
 
 **Decision:** how time moves while the game runs (step 3).
@@ -534,6 +597,7 @@ ticks (D11) · a separate `visibilitychange` catch-up (it would count the gap tw
 coordinated with the loop, and nothing needs "time away" apart from "time watching" until tips
 and special customers in Phase 1).
 
+<a id="d28"></a>
 ## D28 · Franchise files: JSON, checked when they load — Accepted · 2026-09-29
 
 **Decision:** Each franchise is a JSON file in `src/game/franchises/`; the coffee shop is
