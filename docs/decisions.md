@@ -33,10 +33,10 @@ status changes.
 14. [**No cap on offline progress**](#d14): idle progress keeps building however long you're away.
 15. [**Numbers shown with short suffixes**](#d15): 1.23K, 45.6M and so on, three digits, rounded down; scientific notation is a setting.
 16. [**Phase 0 ends with one complete run loop**](#d16): earning, upgrading, the first active mechanic, saves and offline progress.
-17. [**A bottleneck economy with spillover**](#d17): income = customers served × Spend; served = the lower of Demand and Service, plus spillover.
+17. [**A bottleneck economy with spillover**](#d17): income = customers served × Spend; served = the lower of Demand and Service, plus spillover. Updated by D31, D32.
 18. [**Rates now, live customers in Phase 2**](#d18): the economy runs on rates; Phase 2's live customers must average within 5% of them.
-19. [**A real menu with per-item upgrades**](#d19): each item's price rises every level and its speed doubles at bonus levels; unlocks cost money only.
-20. [**Buttons show an upgrade's own effect**](#d20): "Service 24 → 36/min", never income previews; the scene shows the bottleneck.
+19. [**A real menu with per-item upgrades**](#d19): a price, cook time and popularity per item, one level per item; unlocks cost money only. Speed and the tier rule are replaced by D33 and D36.
+20. [**Buttons show an upgrade's own effect**](#d20): "Service 24 → 36/min", never income previews; the scene shows the bottleneck. Updated by D31.
 21. [**Three active mechanics: tips, Rush Hour, special customers**](#d21): the pour starts a rush and costs Buzz; tips and visitors are free.
 22. [**Rush Hour rolls one lever at ×3**](#d22): Demand or Service at random, for 3 minutes (4.5 after a Perfect pour), one rush at a time.
 23. [**Buzz: one refill rate, a small cap**](#d23): 1 charge every 10 minutes, in the shop or away, up to 6.
@@ -44,7 +44,16 @@ status changes.
 25. [**A lint rule keeps React and Pixi out of `src/game/`**](#d25): plus a type check that runs game code without browser types.
 26. [**One check command before every pull request**](#d26): `npm run check` runs lint, types, tests and the build; CI runs it too.
 27. [**The game runs outside React, on one clock**](#d27): a pure `advance(state, seconds)` moves time; catch-up is the first frame back.
-28. [**Franchise files: JSON, checked when they load**](#d28): a mistake names the file and the field; tuning numbers live in the file.
+28. [**Franchise files: JSON, checked when they load**](#d28): a mistake names the file and the field; tuning numbers live in the file. Updated by D34, D35.
+29. **The economy engine** is D29, on the step 4b branch until that pull request merges.
+30. [**The coffee shop is counter service: Signage brings customers in, Tables seat them**](#d30): seated customers spend 1.5×; Chalkboard sign becomes Free Wi-Fi.
+31. [**Purchases may pay later**](#d31): a purchase can earn nothing until the rest of the shop catches up; D17's "never does nothing" is dropped.
+32. [**Samples: at most 3 baristas outside; self-serve removed**](#d32): each one brings in 10% more customers; idle baristas beyond 3 stay inside.
+33. [**Menu items: cook time shrinks gradually; bonus levels raise the price and add machines**](#d33): half the starting time by level 25; 2nd and 3rd machines at 50 and 100.
+34. [**Bonus levels vary by level and by upgrade; a finished shop must balance**](#d34): Signage ×3, ×3, ×3, ×6 leads; a maxed shop's Service ÷ Demand lands around 1.1.
+35. [**Max level 100 for every upgrade, each with its own price growth**](#d35): upgrades finish one after another, the last near the end of the run.
+36. [**Each menu unlock about doubles income; D19's promise becomes a guiding principle**](#d36): bought in cost order, upgrades should raise income, now or later.
+37. [**A 4–6 hour coffee shop run for now, with one-time upgrades spread across it**](#d37): late global upgrades paired in time and priced at about a minute of income.
 
 ---
 
@@ -365,6 +374,10 @@ this: removing it left the simulated shop's growth unchanged, so it's optional f
 bottleneck alone · a soft congestion formula (loses ~16% at perfect balance, which live customers
 wouldn't reproduce) · universal spillover (any role helps with any job).
 
+**Updated 2026-10-04:** purchases may pay later, so "never leaves a purchase doing nothing" is no
+longer a goal (D31). Samples become at most 3 baristas outside, each bringing in 10% more customers,
+and self-serve from the line is removed (D32).
+
 <a id="d18"></a>
 ## D18 · Rates now, live customers in Phase 2 — Accepted · 2026-09-23
 
@@ -398,6 +411,12 @@ unlocks pace the same as level-gated ones, because price already does the gating
 **Passed on:** one "Recipes" upgrade for the whole menu · shop-wide speed only (gentler unlocks) ·
 level-gated menu unlocks.
 
+**Updated 2026-10-04:** speed doubling at bonus levels and the tier rule are replaced. An item's
+cook time now shrinks gradually to half by level 25, and its bonus levels raise the price and add
+machines (D33). Each unlock should about double income when it typically happens, and "every
+unlock raises income" becomes a guiding principle (D36). "Order weight" is now *popularity*, as in
+the code (D28).
+
 <a id="d20"></a>
 ## D20 · Buttons show an upgrade's own effect — Accepted · 2026-09-23
 
@@ -408,6 +427,9 @@ like income previews. The scene shows the bottleneck.
 is ever useless anyway.
 
 **Passed on:** showing "+$X/s right now" on every button.
+
+**Updated 2026-10-04:** with purchases allowed to pay later (D31), a purchase can be useless for a
+while. The scene is what shows the player what to buy next.
 
 <a id="d21"></a>
 ## D21 · Three active mechanics: tips, Rush Hour, special customers — Accepted · 2026-09-24
@@ -634,3 +656,193 @@ a clear message, not turn up later as a strange number (D6).
 cross-references) · zod (a new dependency, D4) · a version number (the file ships with the code
 that reads it, unlike a save, D10) · a list of staff roles now (their rules aren't designed yet) ·
 TypeScript files instead of JSON.
+
+**Updated 2026-10-04:** bonus-level multipliers and price growth now differ for each leveled
+upgrade, and the max level is 100 (D34, D35). How the file holds them is up to the next step's
+pull request.
+
+<a id="d30"></a>
+## D30 · The coffee shop is counter service: Signage brings customers in, Tables seat them — Accepted · 2026-10-04
+
+**Decision:** Customers line up at the counter to order. **Signage** replaces Tables as Demand's
+leveled upgrade, with the same math (+6 customers a minute per level). Every franchise shares the
+name, and each bonus level brings a bigger sign (chalkboard → painted → lit → neon). **Tables become
+dine-in seats:** a served customer sits if a seat is free and spends 1.5× the usual order;
+otherwise they take it to go. Nobody waits for a seat. Each Tables level adds seats, counted as
+seated customers a minute. The Chalkboard sign global upgrade becomes **Free Wi-Fi** (×2 Demand).
+The lever keeps the name Demand in the docs and code; players see "Customers" for now.
+
+**Why:** Tables bringing customers in felt off. Signage names what the upgrade does (it tells
+people you're there) and what you see, and it fits a food truck or a beach bar as well as a coffee
+shop. Dine-in gives tables a real job: customers who sit spend more than those who take it to go.
+It's in Phase 0 because Phase 0 delivers the whole run and Phase 1 tunes it; an upgrade added
+after tuning would mean tuning twice.
+
+**Passed on:** Storefront and Curb appeal (awkward for a truck or a beach) · Reputation and
+Marketing (nothing to see) · Hype (too close to Buzz) · tables as decoration only · tables as
+capacity, with customers sitting first (Mainak's pattern for full-service franchises, parked for
+the multi-role session) · tips from seated customers (tips only come while you watch, so tables
+would do nothing for idle play).
+
+<a id="d31"></a>
+## D31 · Purchases may pay later — Accepted · 2026-10-04
+
+**Decision:** A purchase doesn't have to raise income the moment it's bought. A table bought while
+seats sit empty, or Signage bought while the baristas can't keep up, earns nothing until the rest
+of the shop catches up. D17's "never leaves a purchase doing nothing" is dropped as a goal;
+spillover stays as the safety net it was meant to be.
+
+**Why:** Chasing "every purchase pays at once" would discourage planning ahead (Mainak). D17's own
+simulation showed that players who upgrade stations together escape the strict bottleneck, and
+spillover was added for those who don't. This also settles a question from step 4: in a franchise
+without self-serve, more customers during a line earn nothing for a while, and that's fine.
+
+**Passed on:** a spillover for empty seats (empty tables drawing people in), which would work like
+samples, and samples were already too strong.
+
+<a id="d32"></a>
+## D32 · Samples: at most 3 baristas outside; self-serve removed — Accepted · 2026-10-04
+
+**Decision:** When the baristas can serve more customers than arrive, up to **3** idle baristas step
+outside with sample trays. Each one brings in **10% more customers** (10% of Demand), never more
+than the idle baristas can serve. Idle baristas beyond the 3 stay behind the counter and earn
+nothing. Sampled customers join the back of the line like everyone else, pay the usual order and sit
+if a seat is free. Both numbers are franchise settings. **Self-serve from the line is removed** for
+now; it's on the *Later* list in design.md.
+
+**Why:** Under the old rule (20% of the idle capacity), a shop with far too many baristas got 96% of
+its customers from samples, with dozens of baristas outside: immersion-breaking. Mainak's limit on
+how many baristas go outside fixes the picture. Basing what each one brings in on Demand (the people
+walking past) rather than on their serving speed fixes the numbers: samples bring in about 23% of
+customers on a typical run and in that lopsided shop alike. Walking out and back takes time; the
+10% is an average that includes it, and Phase 2's live baristas get tuned to match (D18).
+Self-serve rarely triggered, because the shop was almost never backed up; in a shop that is, it was
+worth about 3% of income. It also needed a grab-and-go item for each franchise, the Pastry case
+requirement and a rule for dine-in. It's easy to bring back.
+
+**Passed on:** 20% of the idle capacity (the runaway above) · capping samples at +50% of Demand
+(invisible on screen) · removing samples (with today's numbers, extra baristas would stop paying) ·
+a smaller share, such as 5–10% (still runs away in a lopsided shop) · self-serve customers buying a
+set grab-and-go item (the muffin).
+
+<a id="d33"></a>
+## D33 · Menu items: cook time shrinks gradually; bonus levels raise the price and add machines — Accepted · 2026-10-04
+
+**Decision:** An item's cook time falls a little every level until it reaches **half its starting
+time at level 25** (drip coffee: 8 s → 4 s), and it never gets faster than that. An item's bonus
+levels raise its **price** instead (×2, ×2, ×3, ×5 at levels 10, 25, 50 and 100; see D34), and
+levels 50 and 100 add a **2nd and 3rd machine**: two machines make twice the drinks, three make
+three times. The price still rises every level by 10% of the starting price. The minimum (half)
+and the level it's reached at are franchise settings.
+
+**Why:** With an item's speed doubling at every bonus level (D19), Service grew two ways (baristas,
+and every item) while Demand grew one way, so the simulated shop sat overstaffed 98% of the time
+and the bottleneck never swung. Mainak wants it to swing: each purchase can tip the shop, so the
+scene always shows what to buy next. A minimum cook time (his idea) caps how much faster items get.
+At half, the shop stays balanced; at a quarter or an eighth, it overstaffs again. Reaching the
+minimum gradually by level 25, rather than all at once at level 10, kept the balance and made
+pacing much less dependent on play style: both simulated players unlocked Pumpkin spice at the same
+time instead of 1.2 h vs 3.5 h. Machines double the drinks rather than shortening the cook, which
+is what a second machine really does (Mainak). They need customers to grow faster to match (D34).
+
+**Passed on:** ×1.5 speed at each bonus level · alternating speed and price · price only, never
+faster · reaching the minimum at level 10 · minimums of a quarter or an eighth.
+
+<a id="d34"></a>
+## D34 · Bonus levels vary by level and by upgrade; a finished shop must balance — Accepted · 2026-10-04
+
+**Decision:** Each leveled upgrade has its own multipliers at bonus levels 10, 25, 50 and 100
+(placeholders):
+
+| Upgrade | 10 | 25 | 50 | 100 |
+|---|---|---|---|---|
+| Signage | ×3 customers | ×3 | ×3 | ×6 |
+| Baristas | ×2 service | ×2 | ×3 | ×3 |
+| Tables | ×3 seats | ×3 | ×3 | ×6 |
+| Menu items | ×2 price | ×2 | ×3 price, 2nd machine | ×5 price, 3rd machine |
+
+The set stays the same within a franchise; other franchises get their own. **Tuning rule:** with
+every upgrade at max level and every global upgrade bought, Service ÷ Demand should land around 1.1,
+inside the balanced band.
+
+**Why:** Mainak wanted multipliers that aren't always ×2, with bigger jumps later, varying by both
+level and upgrade. Machines add drinks, so Signage needs bigger jumps than Baristas to keep
+customers coming, and they have to start early, because machines start arriving early: drip
+coffee's 2nd machine comes within the first half hour. A Signage ladder that saved its big jump for
+the end (×2, ×3, ×3, ×6) left the shop overstaffed for up to 20 hours. The finished-shop check
+catches that kind of mismatch by hand, since a shop that ends unbalanced stays stuck that way
+through its last hours. Tables use Signage's multipliers so seats keep up with customers: a third to
+a half of customers sit for the first 3 hours, and dine-in is about 9% of income. On screen, big
+seating multipliers show as stages (bigger tables, a patio, a second room, a rooftop), not counts.
+Signage's ×6 at level 100 pairs with Barista training (D37).
+
+**Passed on:** ×2 everywhere · Signage at ×2, ×3, ×3, ×6 (overstaffed for hours) or ×2, ×3, ×4, ×6
+(backed up once everything is maxed) · Tables on Baristas' multipliers (seats fall behind customers,
+and dine-in is only 4% of income).
+
+<a id="d35"></a>
+## D35 · Max level 100 for every upgrade, each with its own price growth — Accepted · 2026-10-04
+
+**Decision:** Every leveled upgrade maxes out at level **100**, a bonus level. Each one's price rises
+by its own percentage per level (placeholders from 8% to 40%), chosen so upgrades finish one after
+another through the run, the last near its end: drip coffee first, Signage and Baristas together
+near the end (they balance each other), Pumpkin spice last. Players only ever see each level's price.
+
+**Why:** A max gives each upgrade a "quest completed" moment. Idle Brewery had none, and Mainak
+liked that least about it. One max for everything is one rule to remember, and ending on a bonus
+level makes the last level special. With one shared price growth, completions bunch up, or menu
+items never finish; a price growth for each upgrade spreads them out. With the previous placeholder
+(max 50 and 26% per level), Signage, Baristas and Tables all maxed out in the first 10 minutes.
+
+**Passed on:** max 50 · a different max for each upgrade (60 or 90 aren't bonus levels, and there'd
+be more to keep track of) · no max.
+
+<a id="d36"></a>
+## D36 · Each menu unlock about doubles income; D19's promise becomes a guiding principle — Accepted · 2026-10-04
+
+**Decision:** Two principles replace D19's "every unlock raises income" and its tier rule:
+- **When bought in cost order, every upgrade should raise income, right away or once the rest of the
+  shop catches up. Exceptions can happen and get discussed as they come up.**
+- **Each menu unlock should about double income when it typically happens.** A new item's starting
+  price is set for that, and its unlock price for when it should arrive.
+
+Unlocks stay cost-only and visible from the start. Buying them out of order is a legitimate choice.
+
+**Why:** The old tier rule (a new item worth about 3× the previous one per second of barista time,
+at the point it typically unlocks) broke once bonus levels raised prices and added machines: a
+leveled muffin earned 25× what a new Pumpkin spice latte did, so unlocking it cut income by 36%.
+Re-applying 3× gave 6–15× income jumps and wouldn't settle in tuning. "About doubles income" is what
+a player feels, and it tunes cleanly. Two cases can still lower income: unlocking out of order (a
+cheaper item joins the menu), and unlocking late, after the old items have grown far ahead. The
+human-like simulated player never hit either. A player who strictly buys the cheapest thing first
+still loses about half its income when it buys the Espresso machine late.
+
+**Passed on:** the 3× tier rule · unlocks that must happen in menu order.
+
+<a id="d37"></a>
+## D37 · A 4–6 hour coffee shop run for now, with one-time upgrades spread across it — Accepted · 2026-10-04
+
+**Decision:** For Phase 0 and Phase 1's first tests, a full coffee shop run (every upgrade maxed)
+takes **4–6 hours**. Session B decides the real first-run length, together with the sale and the
+knee. One-time upgrades spread across the run: the menu unlocks come at about 2.5 min, 15 min and
+1 h, and the three late global upgrades get requirements a run reaches, plus prices:
+- **Local influencer visit:** ×2 Demand, needs Signage 75.
+- **Mobile ordering:** ×2 Service, needs Baristas 75.
+- **Barista training:** ×1.5 Service, needs Baristas 100.
+
+**Tuning rules:** boosts to Demand and Service arrive in pairs: the influencer with mobile ordering
+around the 1-hour mark, and training with Signage's ×6 at level 100 around 3 hours. A late global
+upgrade costs about a minute of income when its requirement is typically met, so the requirement
+sets the timing.
+
+**Why:** The earlier target (a first run of 1–2 days, so upgrades kept finishing up to 36 hours in)
+felt far too long, and Phase 1's first tests need faster loops (Mainak). The three earlier global
+upgrades were all bought in the first 15 minutes; the late three now fill the rest of the run.
+Their old requirements (Baristas 200, Signage 150) were above the max. A boost with nothing to match
+it on the other side leaves the shop stuck: an influencer at ×3, matched only two hours later, left
+it backed up for up to 2 hours. With the pairs, the shop is balanced 83% of the time and never stuck
+for more than about 20 minutes.
+
+**Passed on:** a first run of 1–2 days for now · a test-speed setting instead (long runs, with time
+running faster for playtests) · the influencer at ×3 · pricing the late upgrades by hand (a high
+price kept mobile ordering out of reach for an hour after its requirement was met).

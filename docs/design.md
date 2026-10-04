@@ -59,41 +59,67 @@ cook; full service is host → waiter → chef. See *Inside a run*.
 
 ## Inside a run: the economy
 
-*Settled in design session A, 2026-09-23. Rationale in D16–D20.*
+*Settled in design session A, 2026-09-23 (D16–D20), and revised in the October 2026 design round
+(D30–D37).*
 
 ### Three levers
 
 | Lever | Means | Raised by |
 |---|---|---|
-| **Demand** | Customers arriving per minute | Tables, marketing boosts |
-| **Service** | Customers served per minute | Baristas, equipment, each item's speed |
-| **Spend** | Average spend per customer | Each item's price, new menu items |
+| **Demand** | Customers arriving per minute (players see "Customers" for now) | Signage, marketing global upgrades |
+| **Service** | Customers the staff can serve per minute | Baristas, each item's cook time and machines, service global upgrades |
+| **Spend** | Average spend per customer | Each item's price, new menu items, dine-in seats |
 
 **Income = customers served × Spend.** Customers served is set by the bottleneck:
 
 - **Strict at the core:** served = the lower of Demand and Service.
-- **Spillover:** idle staff help 100% within their role and 20% across roles. Idle baristas
-  stepping outside with samples counts as cross-role help (it raises Demand).
-- *Optional per franchise:* a line converts a share of its surplus into self-serve spend (people
-  grab a pastry while waiting). It's off wherever self-serve isn't realistic, and growth doesn't
-  depend on it.
+- **Samples:** when the baristas can serve more customers than arrive, up to 3 idle baristas step
+  outside with sample trays, and each one brings in 10% more customers (D32). Sampled customers
+  join the back of the line like everyone else. Idle baristas beyond the 3 stay behind the counter.
+- **Spillover across roles,** for franchises with several staff roles: idle staff help 100%
+  within their role and 20% across roles (D17).
+- **Purchases may pay later** (D31): a table bought while seats sit empty, or Signage bought while
+  the baristas can't keep up, earns nothing until the rest of the shop catches up.
 - **Off-balance opening:** a run starts with Service a little above Demand, so the first purchases
   have an obvious target.
 - **Templates define the roles.** The coffee shop has one (barista). Kitchen: cashier → cook. Full
   service: host → waiter → chef.
 
+**The shop's three states,** which the scene shows:
+
+| State | What you see | What helps |
+|---|---|---|
+| **Overstaffed** | Baristas idle behind the counter, beyond the 3 outside | Signage |
+| **Balanced** | Everyone busy, up to 3 baristas outside with samples, a short line | Either |
+| **Backed up** | A line out the door, and nobody free to hand out samples | Baristas, faster items |
+
+The bottleneck should swing: each purchase can tip the shop one way or the other, so the scene
+always shows what to buy next.
+
+### Counter service: the coffee shop
+
+Customers line up at the counter to order (D30).
+
+- **Signage brings customers in:** +6 customers a minute per level, and each bonus level brings a
+  bigger sign (chalkboard → painted → lit → neon).
+- **Tables are dine-in seats:** a served customer sits if a seat is free and spends 1.5× the usual
+  order; otherwise they take it to go. Nobody waits for a seat.
+- *Full-service franchises (later):* customers sit first and a line forms when every table is
+  taken, so tables are capacity. Parked for the multi-role session.
+
 ### The menu is real
 
-Each item has a price, a barista time to make it, and an order weight. Spend is the weighted
-average price, and the weighted average barista time sets how many customers the baristas serve.
+Each item has a price, a **cook time** (a barista's time to make one; `prepSeconds` in the file)
+and a **popularity**. Spend is the popularity-weighted average price, and the popularity-weighted
+average cook time sets how many customers the baristas serve.
 
-- **One level per item:** its price rises every level. At bonus levels its production speed
-  doubles, arriving as visible equipment (a second machine, a bigger oven).
-- **The whole menu is visible from the start** and items unlock by **cost only**, priced so an
-  unlock pays for itself in a reasonable time.
-- **Tier rule:** a new item starts at about 3× the previous item's value *at the point it
-  typically unlocks*, measured per second of barista time (price ÷ time). Every unlock raises
-  income, and because the new item starts slow, it also shakes up the balance: the line grows.
+- **One level per item:** its price rises every level by 10% of its starting price, and its cook
+  time falls a little every level until it reaches **half its starting time at level 25** (D33).
+- **Bonus levels raise the price** (×2, ×2, ×3, ×5 at levels 10, 25, 50, 100), and levels 50 and
+  100 add a **2nd and 3rd machine**: two machines make twice the drinks, three make three times.
+- **The whole menu is visible from the start** and items unlock by **cost only**.
+- **Each unlock should about double income** when it typically happens (D36). Buying out of order
+  is allowed, and can lower income for a while.
 - Every item keeps its share of orders, so a neglected item costs twice (a low price on its share,
   slow production). Players naturally spread their upgrades.
 - *Advanced franchise trait (later):* a fully unlocked menu from day one.
@@ -102,12 +128,16 @@ average price, and the weighted average barista time sets how many customers the
 
 | Kind | Examples | Rule |
 |---|---|---|
-| **Leveled** | Tables, Baristas, each menu item | Each level costs more; output doubles at levels 10, 25, 50, 100, then every 50 |
+| **Leveled** | Signage, Baristas, Tables, each menu item | Max level 100. Each level costs more, at the upgrade's own rate (D35). Bonus levels at 10, 25, 50 and 100 multiply its output by amounts that vary by level and by upgrade (D34) |
 | **Menu unlocks** | Espresso machine → Latte | Visible from the start; cost is the only gate |
-| **Lever boosts** | Chalkboard sign (×2 Demand), Second grinder (×2 Service) | Visible from the start; buyable once a bonus level is reached; staggered by lever |
+| **Global upgrades** | Free Wi-Fi (×2 Demand), Second grinder (×2 Service) | Visible from the start; buyable once an upgrade reaches a level. Boosts to Demand and Service come in pairs (D37) |
 
 Buttons show the upgrade's **own effect** ("Service 24 → 36/min"), never a derived income preview.
 The scene shows the bottleneck: a line out the door, or baristas with nothing to do.
+
+**Guiding principle (D36):** when bought in cost order, every upgrade should raise income, right
+away or once the rest of the shop catches up. Exceptions can happen and get discussed as they come
+up.
 
 ### Rates now, live customers later
 
@@ -117,47 +147,71 @@ is exact. Phase 2 adds live customers with randomness, and their long-run averag
 
 ### Pacing targets
 
-Phase 1 tunes toward these:
+*For a 4–6 hour coffee shop run (D37). Phase 1 tunes toward these.*
 
 | Moment | Target |
 |---|---|
 | First purchase | Within about 10 seconds |
-| First level bonus | 2–5 minutes |
-| First one-time upgrade | 5–15 minutes |
+| First bonus level | 1–3 minutes |
+| First one-time upgrade | 2–5 minutes |
 | One-time upgrades | Spread across the whole run |
-| Wait between purchases | 1–5 min around the 1-hour mark; 20–40 min around the 8-hour mark |
+| Each menu unlock | About doubles income |
+| Upgrades maxing out | One after another through the run, the last near its end |
+| Wait between purchases | 1–5 min around the 1-hour mark; 5–10 min around the 3-hour mark |
+| A full run, every upgrade maxed | 4–6 hours, for now |
+| The bottleneck | Balanced most of the time, and never stuck overstaffed or backed up for long |
 
-### Placeholder numbers: coffee shop (for step 4)
+**Tuning rules** (D34, D37):
+- With every upgrade maxed and every global upgrade bought, Service ÷ Demand should land around
+  1.1, inside the balanced band.
+- Boosts to Demand and Service arrive in pairs, close together in time.
+- A late global upgrade costs about a minute of income when its requirement is typically met, so
+  the requirement sets the timing.
 
-Tested in simulation; Phase 1 tunes them. Costs rise **26% per level**. A run starts with 1 table,
-1 barista and drip coffee. Self-serve from the line: 20%, since a pastry case suits a coffee shop.
+### Placeholder numbers: coffee shop
 
-| Leveled upgrade | Each level | First level costs |
-|---|---|---|
-| Tables | +6 customers/min | $2 |
-| Baristas | +1 barista | $8 |
-| Drip coffee | Price +10% of $3 | $6 |
-| Latte | Price +10% of $51 | $150 |
-| Muffin | Price +10% of $195 | $3.6K |
-| Pumpkin spice latte | Price +10% of $8.5K | $36M |
+Tested in simulation with a human-like player; Phase 1 tunes them. A run starts with Signage,
+Baristas and Tables at level 1, and drip coffee. Every leveled upgrade maxes out at level 100.
+Samples: up to 3 baristas outside, +10% customers each. Seated customers spend 1.5×. No self-serve.
 
-| Menu item | Starting price | Barista time | Order weight | Unlocked by |
+| Leveled upgrade | Each level | First level costs | Each level costs more by |
+|---|---|---|---|
+| Signage | +6 customers/min | $2 | 39.5% |
+| Baristas | +1 barista | $8 | 37.5% |
+| Tables | +8 seated customers/min | $4 | 28.0% |
+| Drip coffee | Price +10% of $3 | $6 | 7.7% |
+| Latte | Price +10% of $84 | $194 | 20.1% |
+| Muffin | Price +10% of $25.7K | $9.31M | 12.4% |
+| Pumpkin spice latte | Price +10% of $15.2M | $16.3B | 13.1% |
+
+| Bonus level | 10 | 25 | 50 | 100 |
 |---|---|---|---|---|
-| Drip coffee | $3 | 8 s | 5 | Start |
-| Latte | $51 | 12 s | 4 | Espresso machine, $1.44K |
-| Muffin | $195 | 4 s | 3 | Pastry case, $36K |
-| Pumpkin spice latte | $8.5K | 14 s | 2 | Seasonal specials, $373M |
+| Signage | ×3 customers | ×3 | ×3 | ×6 |
+| Baristas | ×2 service | ×2 | ×3 | ×3 |
+| Tables | ×3 seats | ×3 | ×3 | ×6 |
+| Each menu item | ×2 price | ×2 | ×3 price, 2nd machine | ×5 price, 3rd machine |
 
-| Lever boost (×2) | Buyable at | Cost |
-|---|---|---|
-| Chalkboard sign (Demand) | Tables 10 | $4.8K |
-| Second grinder (Service) | Baristas 25 | $615K |
-| Loyalty cards (Demand) | Tables 50 | $49.7M |
-| Mobile ordering (Service), Local influencer visit (Demand), Barista training (Service) | Baristas 100, Tables 150, Baristas 200 | ⚠️ Not reached in 24 h of simulation. Lower these in Phase 1 |
+| Menu item | Starting price | Cook time (start → from level 25) | Popularity | Unlocked by |
+|---|---|---|---|---|
+| Drip coffee | $3 | 8 s → 4 s | 5 | Start |
+| Latte | $84 | 12 s → 6 s | 4 | Espresso machine, $1.94K |
+| Muffin | $25.7K | 4 s → 2 s | 3 | Pastry case, $93.1M |
+| Pumpkin spice latte | $15.2M | 14 s → 7 s | 2 | Seasonal specials, $163B |
 
-Simulated: first purchase at 6 s, first bonus at 2 min, menu unlocks at 6 min, 8 min and 2.4 h.
-Waits between purchases were under a minute around the 1-hour mark and 43 min around the 8-hour
-mark, both a little outside the targets.
+| Global upgrade | Does | Needs | Costs |
+|---|---|---|---|
+| Free Wi-Fi | ×2 Demand | Signage 10 | $4.8K |
+| Second grinder | ×2 Service | Baristas 25 | $615K |
+| Loyalty cards | ×2 Demand | Signage 50 | $49.7M |
+| Local influencer visit | ×2 Demand | Signage 75 | $60.9B |
+| Mobile ordering | ×2 Service | Baristas 75 | $124B |
+| Barista training | ×1.5 Service | Baristas 100 | $106T |
+
+Simulated with a human-like player (3 runs): first purchase at 4 s and first bonus level at
+1.4–1.9 min. Latte, Muffin and Pumpkin spice unlock at about 2.5 min, 15 min and 1.1 h, each about
+doubling income. Upgrades max out from drip coffee at about 8 min to Pumpkin spice at about 4.4 h.
+The shop is balanced 83% of the time, and waits between purchases are about 2.5 min around the
+1-hour mark and 7 min around the 3-hour mark.
 
 ## Drafting: listings
 
@@ -186,12 +240,12 @@ bar (4).
 **Why it exists:** every sale makes you permanently stronger. If drafted businesses stayed the
 same size, runs would shrink run after run until you're flipping coffee carts in minutes — the
 exact collapse the pacing floor forbids. Tiers make **targets grow alongside power**: listings
-unlock upward as meta-progression grows. Higher tiers also bring *more* — staff roles, upgrade
-lines, on-screen activity — so later runs are richer, not just longer.
+unlock upward as meta-progression grows. Higher tiers also bring *more* — staff roles, leveled
+upgrades, on-screen activity — so later runs are richer, not just longer.
 
 **Open, and the earlier lean is in doubt.** The lean was to make tier part of the location, so
-every franchise type stays in play all game. But tiers add new systems (staff roles, upgrade
-lines), while locations are meant to be light modifiers, and the ladder above mixes business
+every franchise type stays in play all game. But tiers add new systems (staff roles, leveled
+upgrades), while locations are meant to be light modifiers, and the ladder above mixes business
 sizes with a location (the airport). Likely answer: tier is the business's *size*, its own
 part of a listing. To revisit in a design session.
 
@@ -207,6 +261,9 @@ part of a listing. To revisit in a design session.
 
 The draft is the payoff; a run you never inhabited makes the choice meaningless. Tiers hold
 the floor.
+
+*For now, a full coffee shop run takes 4–6 hours (D37). Session B decides the real first-run
+length, together with the sale and the knee.*
 
 ## Active play
 
@@ -386,15 +443,17 @@ customer requests, surprise visits.
 ## First build: coffee shop
 
 Fast customer cycle keeps the screen visibly busy, so early playtesting feels alive. One staff
-role (barista). The menu starts with drip coffee, with latte, muffin and pumpkin spice latte to
+role (barista). Counter service: customers line up at the counter, and tables are dine-in seats
+(D30). The menu starts with drip coffee, with latte, muffin and pumpkin spice latte to
 unlock (placeholders; see *Inside a run*). Its active mechanics (tips, Rush Hour, special
 customers) set the template later franchises reuse.
 
 ## Visible growth & asset loading
 
-More tables, more staff sprites bustling, longer queues as you invest. Each item's bonus levels
-arrive as new equipment (a second machine). Idle baristas step outside with sample trays, and a
-long line snakes out the door with a counter ("+37 waiting").
+As you invest, the sign grows (chalkboard → painted → lit → neon), seating grows in stages
+(bigger tables, a patio, a second room, a rooftop), more staff bustle, and each menu item gains a
+2nd and 3rd machine at levels 50 and 100. Up to 3 idle baristas step outside with sample trays,
+and when the shop is backed up a long line snakes out the door with a counter ("+37 waiting").
 
 Performance plan (Phase 2, a deliberate learning area):
 - **Per-franchise asset bundles** — only the current franchise is loaded.
@@ -498,13 +557,6 @@ One step per branch → pull request → merge.
       long absence. The structure is settled in D11.
 - [ ] **What a tier is** (see *Tiers*: probably business size, not location).
 
-### Phase 1 tuning
-
-- [ ] **The bottleneck doesn't swing in simulation.** The shop leans one way for the whole run:
-      idle baristas with today's placeholder numbers, and a permanent line if item speed doesn't
-      double. *Inside a run* expects each unlock to shake up the balance. Check what real play
-      does before tuning around it.
-
 ### Later
 
 - [ ] Title: "Under New Management" is a working title
@@ -522,7 +574,11 @@ One step per branch → pull request → merge.
       shift the balance rather than just cutting income.
 - [ ] **Featured item:** a player-chosen item that gets ordered more often.
 - [ ] **Realistic-looking prices** (Phase 1 or 2): how the menu could show believable price
-      points while the tier rule still holds.
+      points while each unlock still about doubles income.
+- [ ] **A player-facing name for Demand:** players see "Customers" for now (D30). Find something
+      better.
+- [ ] **Self-serve from the line** (removed for now, D32): waiting customers grab a pastry. Bring
+      it back if Signage feels pointless while the shop is backed up.
 - [ ] **More rush types** (Mainak's idea): Rush Hour rolls from a bigger set of random boosts,
       which echoes the draft's randomness.
 - [ ] **Latte art sketchbook:** each Perfect pour adds a design to a collection. Cosmetic only.
