@@ -146,6 +146,11 @@ The economy runs on **rates**, and customers on screen only illustrate them, so 
 is exact. Phase 2 adds live customers with randomness, and their long-run average must stay within
 5% of the rates (D18).
 
+**At scale,** each visible customer stands for a group that grows with the shop (1, then 10, then
+100…). Within an hour the shop serves hundreds of customers a second, too many to simulate or draw
+one by one. The randomness applies to each visible customer, and the 5% rule still holds.
+Furniture works the same way: the scene shows stages (a patio, a second room), not counts.
+
 ### Pacing targets
 
 *For a 4–6 hour coffee shop run (D37). Phase 1 tunes toward these.*
@@ -214,6 +219,22 @@ Simulated with a human-like player (3 runs): first purchase at 4 s and first bon
 doubling income. Upgrades max out from drip coffee at about 8 min to Pumpkin spice at about 4.4 h.
 The shop is balanced 83% of the time, and waits between purchases are about 2.5 min around the
 1-hour mark and 7 min around the 3-hour mark.
+
+### Simulated players
+
+Pacing is judged with a **human-like** simulated player (D40). It decides by what the screen shows,
+never by income math:
+
+- It sees the shop's state (overstaffed, balanced or backed up), whether every seat is full, and the
+  upgrade buttons.
+- It loves unlocks, ×2 upgrades and maxing things out, likes reaching bonus levels, and prefers
+  cheap things.
+- It never saves up for more than about 3 minutes of income.
+- It judges by gut feel: a random nudge on each option, with a fixed seed so a run repeats.
+
+Players that maximize income per dollar are for special cases only: an upper bound for a min-maxer,
+and a cheapest-first player that checks D36's cost-order principle. How often a real player checks
+in moves the results the most, and Phase 1 playtests are the real check.
 
 ## Drafting: listings
 
@@ -288,8 +309,8 @@ length, together with the sale and the knee.*
 - Letting go anywhere starts the rush. A wide sweet spot adds "Perfect!", latte art and a longer
   rush (4.5 minutes).
 - **Latte art** is a little drawing on the cup: a treat for the player, with no effect on the
-  economy. It's art, so it arrives with Phase 2's sprites (hand-drawn or from a licensed pack,
-  never AI-generated). Until then, a Perfect pour just says "Perfect!".
+  economy. It's art, so it arrives with the sprites (hand-drawn or from a licensed pack, never
+  AI-generated, D39). Until then, a Perfect pour just says "Perfect!".
 - One rush runs at a time, and a rush that's running finishes on its own after you close the app
   (offline catch-up counts it).
 
@@ -372,6 +393,11 @@ Carries across runs:
 - **Royalties** — sold franchises pay a small permanent trickle. v1: uncapped. Later: a
   slotted **portfolio**. Model as a *list of holdings* with `maxSlots = ∞` from day one; never a
   single aggregate number.
+
+**Out of reach, for now** (Mainak): once runs carry over, it's fine, even good, if a franchise's
+latest upgrades are out of reach on its first run. Reaching one that was impossible last time is
+the payoff of meta-progression. Phase 0's placeholders make everything reachable in one run, since
+there's no meta-progression yet.
 
 ## The sale
 
@@ -472,7 +498,9 @@ Performance plan (Phase 2, a deliberate learning area):
 - **Numbers use short suffixes:** 1.23K, 45.6M, 789B, 1.23T, then Qa, Qi, Sx, Sp, Oc, No, Dc,
   then two-letter codes (aa, ab, …). Three significant digits, and a setting for scientific
   notation (D15).
-- **Reserve the scene region in the layout from day one**, even as a gray box.
+- **Times show their two largest units:** 42s, 2m 41s, 1h 23m, 2d 4h (D41).
+- **The scene region is in the layout from day one,** showing the shop in basic shapes from
+  Phase 0 (D38).
 - **Saves must survive.** Losing progress breaks pillar 1: export/import and an iPhone install
   hint first, then cloud saves (D10).
 
@@ -491,7 +519,7 @@ entry when its phase adopts it.
 | **Numbers** | **Our own `Big` class**, used from day one (D5, D6) | 0 |
 | Save | localStorage behind one swappable module · export/import (D10) | 0 |
 | Test | Vitest | 0 |
-| Graphics | PixiJS v8 | 2 |
+| Graphics | PixiJS v8 | 2, or earlier for Phase 0's shapes scene (D38) |
 | Audio | TBD at Phase 3 | 3 |
 | Backend | Python 3.14 + FastAPI | 4 |
 | Database | **PostgreSQL** | 4 |
@@ -509,9 +537,9 @@ behind one storage module (D10) · live play and offline catch-up run the same c
 
 | Phase | Deliverable |
 |---|---|
-| **0** | `Big` class, game loop with offline catch-up, coffee shop from a definition file, portrait layout with placeholder art, save system (versioned, export/import), Rush Hour with Buzz. See the checklist below |
-| **1** | Tips and special customers. Tune curves until genuinely fun. CI. Deploy to Cloudflare Pages, installable (manifest + iPhone install hint) for playtesters |
-| **2** | PixiJS scene, real sprites, visible growth, asset loading, live customers (D18) |
+| **0** | `Big` class, game loop with offline catch-up, coffee shop from a definition file, portrait layout with the scene in basic shapes, save system (versioned, export/import), Rush Hour with Buzz. See the checklist below |
+| **1** | **First, placeholder sprites** from a licensed pack, before anyone else plays (D38). Then tips and special customers. Tune curves until genuinely fun. CI. Deploy to Cloudflare Pages, installable (manifest + iPhone install hint) for playtesters |
+| **2** | Final art and animation, visible growth, asset loading, live customers (D18) |
 | **3** | Audio — lofi, unobtrusive over hours, persistent mute |
 | **4** | Python + Postgres: accounts, cloud saves, server-checked progress, leaderboard |
 | **5** | Offline support (service worker), polish, share widely |
@@ -527,16 +555,29 @@ One step per branch → pull request → merge.
 | 2 ✅ | `Big` class, plus the `src/game/` folder and a check that keeps React and Pixi out of it | D5, D6, D15, D24, D25 |
 | 3 ✅ | Game state and loop, with offline catch-up | D11, D14, D18, D27 |
 | 4 | Coffee shop definition file and the engine that reads it | D9, D17, D19, D28; *Inside a run* |
-| 5 | Portrait UI: money, upgrades, a gray box where the scene will go | *Constraints*, D20 |
+| 5 | Portrait UI: money, upgrades, and the scene in basic shapes. Try upgrades on the scene itself (tap the sign) and in a condensed menu under it | *Constraints*, D20, D38 |
 | 6 | Save system: one storage module, versioned JSON, export/import | D10 |
 | 7 | Rush Hour: the pour, the random rush, and Buzz (placeholder numbers) | *Active play*, D21–D23 |
 
 ## Assets & audio
 
-- Free/cheap packs to start (Kenney, itch.io). **No AI-generated images.** Pixel art by hand is
-  a maybe-later.
+- Free/cheap packs to start (Kenney, itch.io). Pixel art by hand is a maybe-later.
+- **AI-generated content** (D39):
+
+  | Content | AI-generated? |
+  |---|---|
+  | In-game art: sprites, backgrounds, icons, the logo and app icon | Never, including AI edits of licensed art |
+  | Music | Never |
+  | Sound effects | Real ones first, after a good-faith search; AI if that takes too long |
+  | UX elements: buttons, panels, menu layouts, a main or pause menu | Yes, and they can ship as is |
+  | Art drawn with code | Shapes and effects (steam, confetti) are fine; drawings count as art |
+  | In-game writing | Yes, with Mainak's review |
+  | Visuals for design discussions | Anything; they never go into the game and stay out of the repo |
+
+  Placeholders come only from licensed packs. Prompts for anything that ships describe what we want
+  rather than naming another game.
 - **Every asset gets a row in `CREDITS.md`:** where it came from, its license, and any required
-  attribution text. Assets that require attribution also appear on an in-game credits screen.
+  attribution text. AI-made UX elements and sound effects are marked there. Assets that require attribution also appear on an in-game credits screen.
 - Audio is relaxing lofi that survives hours of looping. Persistent mute. Browsers block
   autoplay until the first interaction.
 
@@ -558,10 +599,26 @@ One step per branch → pull request → merge.
 - [ ] **How the knee works in practice:** the exact curve, and how catch-up applies it after a
       long absence. The structure is settled in D11.
 - [ ] **What a tier is** (see *Tiers*: probably business size, not location).
+- [ ] **How long a first run should be:** 4–6 hours for now (D37). Decide it together with the
+      sale and the knee, keeping in mind that late upgrades may stay out of reach until
+      meta-progression (see *Meta-progression*).
+
+### Phase 2
+
+- [ ] **Live customers at scale:** how many real customers one visible customer stands for, and
+      how that group size grows with the shop (D18).
 
 ### Later
 
 - [ ] Title: "Under New Management" is a working title
+- [ ] **Welcome-back message** (not Phase 0): how long away before it shows, a modal or something
+      lighter, what it reports (time away and money today; later Buzz refilled, a finished rush,
+      new listings), whether earnings wait for a "Collect" tap (an engine change), and the wording.
+      Times use D41's format.
+- [ ] **Franchises with several staff roles** (before the first one): the path through the roles
+      and what sets Service, item times per role, which roles help which and in what order, whose
+      idle time hands out samples, upgrades and boosts per role, where the line forms, which
+      franchises use which template, and sit-first service where tables are capacity (D30).
 - [ ] How many listings arrive per run? (start: 4, at 25 / 50 / 75 / 100%)
 - [ ] Is the 100% listing special (e.g. the only tier-up)?
 - [ ] Selling before the first listing arrives: have a listing waiting from the start, or unlock
