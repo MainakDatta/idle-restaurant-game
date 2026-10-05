@@ -1,6 +1,6 @@
 # Notes for Claude
 
-A cozy idle game (working title "Under New Management"), built as a learning project.
+A cozy idle game, built as a learning project.
 Before changing anything, read `docs/design.md` (what the game is) and `docs/decisions.md`
 (why it's built this way). Record every new decision in `decisions.md` as a numbered entry,
 and always add one for a new dependency. When a decision changes, rewrite its entry so it always

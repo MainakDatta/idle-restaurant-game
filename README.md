@@ -1,6 +1,6 @@
 # idle-restaurant-game
 
-Working title: **Under New Management**, a cozy idle game about starting, growing and selling
+**Grand Re-opening** is a cozy idle game about starting, growing and selling
 eating establishments, then choosing what to run next.
 
 **Status:** Phase 0 (foundations). Not playable yet.
