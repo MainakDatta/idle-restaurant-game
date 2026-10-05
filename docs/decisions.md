@@ -67,6 +67,7 @@ changes.
 39. [**Where AI-generated content is allowed**](#d39): never in-game art or music; UX elements yes; sound effects real first; discussion visuals anything.
 40. [**Simulated players: the human-like player is the reference**](#d40): it goes by what the screen shows; optimizers only for special cases.
 41. [**Times shown with their two largest units**](#d41): 42s, 2m 41s, 1h 23m, 2d 4h.
+42. [**The title is Grand Reopening**](#d42): every run reopens a place under a new owner; the title lives in `.env`, so it stays easy to change.
 
 ---
 
@@ -199,14 +200,12 @@ API is settled in Phase 0 step 2.
 ## D7 · Codename vs title — Accepted · 2026-09-22
 
 **Decision:** Folders, package name and storage keys use `idle-restaurant-game`. The display
-title lives in exactly one constant plus the HTML `<title>`.
+title lives in exactly one place, `VITE_GAME_TITLE` in `.env`: `index.html` reads it as
+`%VITE_GAME_TITLE%`, and code reads it as `import.meta.env.VITE_GAME_TITLE`. The title itself is
+D42.
 
 **Why:** Renaming the game must never touch code. In particular, **save keys must never
 contain the title**, because renaming would silently orphan every player's save.
-
-**Updated 2026-09-22:** the title now lives in exactly one place, `VITE_GAME_TITLE` in `.env`.
-`index.html` reads it as `%VITE_GAME_TITLE%`, and code reads it as
-`import.meta.env.VITE_GAME_TITLE`.
 
 <a id="d8"></a>
 ## D8 · PostgreSQL in Phase 4 — Accepted · 2026-09-22
@@ -926,3 +925,20 @@ Hour's timer, the Buzz refill countdown and a future welcome-back message all us
 by.
 
 **Passed on:** a clock format (2:14:00) · full words (2 hours 14 minutes).
+
+<a id="d42"></a>
+## D42 · The title is Grand Reopening — Accepted · 2026-10-05
+
+**Decision:** The game is called **Grand Reopening**. It stays easy to change: code reads it from
+`.env` (D7), and the docs name it only in design.md's heading and the README.
+
+**Why:** Every run takes over a place and opens it again under a new owner, and it was Mainak's
+favorite. Checked on 2026-10-05: no app in Apple's or Google's stores uses it. On Google it competes
+with real stores' reopenings, and an upcoming restaurant game on Steam uses it as a subtitle
+(*Frieseria: The Grand Reopening*). That matters most once the web version is shared widely; in the
+app stores it stands out.
+
+**Passed on:** Under New Management (the working title; it doesn't roll off the tongue) · Dishes to
+Riches (easy to find on Google, but look-alike "… to Riches" business games in the app stores) ·
+Kitchen Takeover (a Food Network show about taking over failing restaurants) · Opening Night
+(crowded by Gamescom's Opening Night Live, and it reads as theater).

@@ -1,7 +1,7 @@
-# Under New Management — Design Doc
+# Grand Reopening — Design Doc
 
-*Working title, for display only. Code, folders, packages and storage keys use the neutral
-codename `idle-restaurant-game` — see `decisions.md` D7.*
+*The title is for display only (D42). Code, folders, packages and storage keys use the neutral
+codename `idle-restaurant-game` (D7), so the title can change without touching them.*
 *Status: Phase 0 in progress (see the checklist under *Build phases*). Technical rationale lives in
 `decisions.md`; this doc is about the game.*
 
@@ -610,7 +610,6 @@ One step per branch → pull request → merge.
 
 ### Later
 
-- [ ] Title: "Under New Management" is a working title
 - [ ] **Welcome-back message** (not Phase 0): how long away before it shows, a modal or something
       lighter, what it reports (time away and money today; later Buzz refilled, a finished rush,
       new listings), whether earnings wait for a "Collect" tap (an engine change), and the wording.
