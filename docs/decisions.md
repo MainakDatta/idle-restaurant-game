@@ -2,16 +2,76 @@
 
 One entry per real choice: what we decided, why, and what we passed on. Newest last.
 
-**Status:** Accepted · Proposed (awaiting a call) · Superseded (kept for history — never delete).
+**Status:** Accepted · Proposed (awaiting a call) · Superseded (no longer applies at all; the entry
+keeps its heading and one line naming what replaced it).
 
-**Changing a decision:** a clarification that doesn't reverse it gets a dated *Updated* note on
-the entry. A reversal gets a new entry, and the old one is marked Superseded with a pointer to
-its replacement.
+**Each rule lives in one entry, always in its current version.** Other entries point to it ("cook
+time: see D33") instead of restating it. **To change a rule,** rewrite its entry, or move the rule
+to a new entry when the change is big and point to it from the old one. A replaced version that was
+a real choice goes to *Passed on* with why it changed, and a changed entry's heading ends with
+"changed" and the date, like D19's. Git history keeps the earlier versions. Numbers are never
+reused.
 
 Adding a dependency always gets an entry (see D4).
 
+**Franchise names and numbers** appear in an entry only as examples, as they stood when it was
+written. The current ones live in design.md's placeholder numbers (later, in the franchise files),
+so changing them needs no new entry; changing a rule does. That keeps tuning and new franchises
+from growing this file.
+
+## At a glance
+
+One line per decision. The numbers are the D-numbers, and each title links to the full entry.
+**Adding or changing a decision:** update its line here too, and keep an `<a id="dN"></a>` anchor on
+the line above its heading. The links point at those anchors, so they keep working when a heading
+changes.
+
+1. [**Web stack, not a game engine**](#d1): a TypeScript + React web client and a Python backend. Godot is saved for a later project.
+2. [**PixiJS, not Phaser**](#d2): Pixi draws the animated scene: a renderer, not a framework competing with React.
+3. [**Mobile via Capacitor, not React Native**](#d3): a PWA first, then Capacitor ships the same web app to the app stores.
+4. [**Dependencies must earn their place**](#d4): add one only for a problem we've actually hit, and give it an entry here.
+5. [**Big numbers from day one**](#d5): anything that can grow without limit is a `Big`; time, levels and counts stay plain numbers.
+6. [**Big-number implementation: our own `Big` class**](#d6): small, read-only and fails loudly, with break_infinity.js's method names.
+7. [**Codename vs title**](#d7): code and save keys say `idle-restaurant-game`; the display title lives only in `.env`.
+8. [**PostgreSQL in Phase 4**](#d8): Postgres from the backend's start, with raw SQL before any ORM.
+9. [**Franchises are data; mechanics are a code library**](#d9): a new franchise that reuses a mechanic is only data and sprites.
+10. [**Saves built for the PWA now and app stores later**](#d10): one storage module, export/import, versioned JSON and an iPhone install hint.
+11. [**Offline progress is calculated in the browser**](#d11): from real elapsed time, on the device; the Phase 4 server only double-checks it.
+12. [**Phase 0 foundation dependencies**](#d12): Vite's React + TypeScript starter, each package justified; TypeScript pinned to 6.0.
+13. [**Public repository**](#d13): public with no license; no secrets in git, asset licenses checked, AI disclosed in the README.
+14. [**No cap on offline progress**](#d14): idle progress keeps building however long you're away.
+15. [**Numbers shown with short suffixes**](#d15): 1.23K, 45.6M and so on, three digits, rounded down; scientific notation is a setting.
+16. [**Phase 0 ends with one complete run loop**](#d16): earning, upgrading, the first active mechanic, saves and offline progress, with the scene in basic shapes (D38).
+17. [**A bottleneck economy with spillover**](#d17): income = customers served × Spend; served = the lower of Demand and Service, plus spillover.
+18. [**Rates now, live customers in Phase 2**](#d18): the economy runs on rates; Phase 2's live customers must average within 5% of them. At scale, each visible customer stands for a group.
+19. [**A real menu with per-item upgrades**](#d19): a price, cook time and popularity per item, one level per item; the whole menu is visible, and unlocks cost money only.
+20. [**Buttons show an upgrade's own effect**](#d20): "Service 24 → 36/min", never income previews; the scene shows the bottleneck.
+21. [**Three active mechanics: tips, Rush Hour, special customers**](#d21): the pour starts a rush and costs Buzz; tips and visitors are free.
+22. [**Rush Hour rolls one lever at ×3**](#d22): Demand or Service at random, for 3 minutes (4.5 after a Perfect pour), one rush at a time.
+23. [**Buzz: one refill rate, a small cap**](#d23): 1 charge every 10 minutes, in the shop or away, up to 6.
+24. [**The `Big` API**](#d24): 17 methods; one way in (`fromValue`), strings only where data loads, mistakes throw a `BigError`.
+25. [**A lint rule keeps React and Pixi out of `src/game/`**](#d25): plus a type check that runs game code without browser types.
+26. [**One check command before every pull request**](#d26): `npm run check` runs lint, types, tests and the build; CI runs it too.
+27. [**The game runs outside React, on one clock**](#d27): a pure `advance(state, seconds)` moves time; catch-up is the first frame back.
+28. [**Franchise files: JSON, checked when they load**](#d28): a mistake names the file and the field; tuning numbers live in the file.
+29. **The economy engine** is D29, on the step 4b branch until that pull request merges.
+30. [**The coffee shop is counter service: Signage brings customers in, Tables seat them**](#d30): seated customers spend 1.5×; the first ×2 Demand global upgrade is Free Wi-Fi.
+31. [**Purchases may pay later**](#d31): a purchase can earn nothing until the rest of the shop catches up, and that's fine.
+32. [**Samples: at most 3 baristas outside; no self-serve for now**](#d32): each one brings in 10% more customers; idle baristas beyond 3 stay inside.
+33. [**Menu items: cook time shrinks gradually; bonus levels raise the price and add machines**](#d33): half the starting time by level 25; 2nd and 3rd machines at 50 and 100.
+34. [**Bonus levels are set per franchise, with multipliers by level and by upgrade; a finished shop must balance**](#d34): the coffee shop's are 10, 25, 50 and 100; later jumps are bigger, and a maxed shop's Service ÷ Demand lands around 1.1.
+35. [**One max level per franchise, on a bonus level; each upgrade has its own price growth**](#d35): 100 in the coffee shop; upgrades finish one after another, the last near the end of the run.
+36. [**Each menu unlock about doubles income; upgrades bought in cost order should raise income**](#d36): right away or once the shop catches up; exceptions get discussed.
+37. [**A 4–6 hour coffee shop run for now, with one-time upgrades spread across it**](#d37): late global upgrades paired in time and priced at about a minute of income.
+38. [**The scene comes early: basic shapes in Phase 0, placeholder sprites first in Phase 1**](#d38): Phase 2 brings the final art, animation and live customers.
+39. [**Where AI-generated content is allowed**](#d39): never in-game art or music; UX elements yes; sound effects real first; discussion visuals anything.
+40. [**Simulated players: the human-like player is the reference**](#d40): it goes by what the screen shows; optimizers only for special cases.
+41. [**Times shown with their two largest units**](#d41): 42s, 2m 41s, 1h 23m, 2d 4h.
+42. [**The title is Grand Reopening**](#d42): every run reopens a place under a new owner; the title lives in `.env`, so it stays easy to change.
+
 ---
 
+<a id="d1"></a>
 ## D1 · Web stack, not a game engine — Accepted · 2026-09-21
 
 **Decision:** TypeScript + React web client, Python backend. Godot saved for a later project.
@@ -41,15 +101,18 @@ can't provide · animated scenes get too complex to build comfortably in code ·
 performance becomes a real problem in testing. Moving to the app stores is *not* a trigger
 on its own, because Capacitor already covers it. It's just a good moment to re-check this list.
 
-## D2 · PixiJS, not Phaser — Accepted · 2026-09-21
+<a id="d2"></a>
+## D2 · PixiJS, not Phaser — Accepted · 2026-09-21 · changed 2026-10-04
 
-**Decision:** PixiJS for the animated scene layer (Phase 2).
+**Decision:** PixiJS for the animated scene layer. When the scene arrives: see D38. Whether PixiJS
+draws its first, basic-shapes version is the call of the step that builds it.
 
 **Why:** We need a renderer, not a framework. Phaser's scene lifecycle competes with React for
 control of the page; Pixi is smaller and does one job.
 
 **Passed on:** Phaser.
 
+<a id="d3"></a>
 ## D3 · Mobile via Capacitor, not React Native — Accepted · 2026-09-21
 
 **Decision:** PWA first, then Capacitor to reach the app stores.
@@ -59,6 +122,7 @@ modified fork with no canvas text rendering). Capacitor ships the existing web a
 
 **Cost accepted:** WebView overhead versus native; no console targets.
 
+<a id="d4"></a>
 ## D4 · Dependencies must earn their place — Accepted · 2026-09-22
 
 **Decision:** Add a dependency only when it solves a problem we've actually hit. Each one gets
@@ -70,6 +134,7 @@ convention.
 **Consequence:** Phase 0 runtime dependencies: React only. Tailwind cut. Zustand, SQLAlchemy,
 Alembic, Howler deferred.
 
+<a id="d5"></a>
 ## D5 · Big numbers from day one — Accepted · 2026-09-22
 
 **Decision:** Every game quantity uses a big-number type from the first line of game logic.
@@ -88,6 +153,7 @@ percentages (including Potential) and slots. `Big`'s methods accept plain number
 arguments, so `cost.mul(1.15)` is fine. Use `null` for "unlimited" (e.g. `maxSlots`), because
 JSON saves `Infinity` as `null`.
 
+<a id="d6"></a>
 ## D6 · Big-number implementation: our own `Big` class — Accepted · 2026-09-22
 
 **Decision:** A ~200-line class storing `mantissa × 10^exponent`, using break_infinity.js's
@@ -130,18 +196,18 @@ API is settled in Phase 0 step 2.
 
 **Updated 2026-09-24:** the full API is D24.
 
+<a id="d7"></a>
 ## D7 · Codename vs title — Accepted · 2026-09-22
 
 **Decision:** Folders, package name and storage keys use `idle-restaurant-game`. The display
-title lives in exactly one constant plus the HTML `<title>`.
+title lives in exactly one place, `VITE_GAME_TITLE` in `.env`: `index.html` reads it as
+`%VITE_GAME_TITLE%`, and code reads it as `import.meta.env.VITE_GAME_TITLE`. The title itself is
+D42.
 
 **Why:** Renaming the game must never touch code. In particular, **save keys must never
 contain the title**, because renaming would silently orphan every player's save.
 
-**Updated 2026-09-22:** the title now lives in exactly one place, `VITE_GAME_TITLE` in `.env`.
-`index.html` reads it as `%VITE_GAME_TITLE%`, and code reads it as
-`import.meta.env.VITE_GAME_TITLE`.
-
+<a id="d8"></a>
 ## D8 · PostgreSQL in Phase 4 — Accepted · 2026-09-22
 
 **Decision:** Postgres from the start of Phase 4 (not SQLite first).
@@ -152,6 +218,7 @@ contain the title**, because renaming would silently orphan every player's save.
 **Default, to revisit in Phase 4:** raw SQL through a driver before any ORM, so we learn
 Postgres itself rather than an ORM's abstraction of it (per D4).
 
+<a id="d9"></a>
 ## D9 · Franchises are data; mechanics are a code library — Accepted · 2026-09-22
 
 **Decision:** Franchise definitions are data files. Active mechanics are a small library of
@@ -160,6 +227,7 @@ code modules, and each franchise picks one by ID.
 **Why:** Five franchises must not mean five codebases. A new franchise that reuses a mechanic
 is only data plus sprites.
 
+<a id="d10"></a>
 ## D10 · Saves built for the PWA now and app stores later — Accepted · 2026-09-22
 
 **Decision:** four rules for saves. All are Phase 0 except the install hint, which ships with
@@ -190,6 +258,7 @@ seriously before Phase 4, bring cloud saves forward.
 
 **Note:** Mainak accepted this gap as a fair trade for playtesting before Phase 4.
 
+<a id="d11"></a>
 ## D11 · Offline progress is calculated in the browser — Accepted · 2026-09-22
 
 **Decision:** When the game opens, the browser calculates what was earned while it was closed,
@@ -209,6 +278,7 @@ again. If the clock moves backward, elapsed time counts as zero, so progress is 
 **Updated 2026-09-23:** once Phase 2 adds live customers (D18), live play and catch-up follow
 **the same rules** rather than the same code. A test keeps them within 5% of each other.
 
+<a id="d12"></a>
 ## D12 · Phase 0 foundation dependencies — Accepted · 2026-09-22
 
 **Decision:** The scaffold is hand-written from Vite's official `react-ts` starter
@@ -226,7 +296,8 @@ again. If the clock moves backward, elapsed time counts as zero, so progress is 
 
 **Passed on:** using the generated starter as-is, which comes with demo files we'd delete.
 
-## D13 · Public repository — Accepted · 2026-09-22
+<a id="d13"></a>
+## D13 · Public repository — Accepted · 2026-09-22 · changed 2026-10-04
 
 **Decision:** The repo is public from the first commit, with no license.
 
@@ -236,19 +307,19 @@ macOS runners, so iOS builds won't require owning a Mac.
 **Rules that come with it:**
 - **Secrets never enter git,** because history is permanent. They live in gitignored `*.local`
   files. `VITE_*` values are public by design.
-- **Check every art and audio license before committing.** Packs that forbid redistribution
-  stay out of the repo.
+- **Check every art and audio license before committing,** and give every asset a row in
+  `CREDITS.md` (source, license, required attribution). Packs that forbid redistribution stay out
+  of the repo.
 - **AI disclosure:** one sentence in the README. Commit and PR attribution is decided per
-  change: the `Co-Authored-By` trailer goes on when Claude wrote most of it.
+  change: the `Co-Authored-By` trailer goes on when Claude wrote most of it. Where AI-generated
+  content is allowed at all: see D39.
 - **No license:** default copyright applies, so the code can be read but not reused. GitHub's
   Terms still let users view the repo and fork it on GitHub.
 - **Personal details stay out of the repo.** Project instructions for Claude live in
   `CLAUDE.md`; personal preferences and machine setup live in `~/.claude/CLAUDE.md`, which is
   never committed.
 
-**Updated 2026-09-22:** every asset gets a row in `CREDITS.md` (source, license, required
-attribution).
-
+<a id="d14"></a>
 ## D14 · No cap on offline progress — Accepted · 2026-09-22
 
 **Decision:** Idle progress keeps building however long the game is closed.
@@ -263,6 +334,7 @@ leaderboard.
 **Still open:** how the knee's slowdown is applied during catch-up is on the next design
 session's agenda. The structure is settled in D11.
 
+<a id="d15"></a>
 ## D15 · Numbers shown with short suffixes — Accepted · 2026-09-22
 
 **Decision:** 1.23K, 45.6M, 789B, 1.23T, then Qa, Qi, Sx, Sp, Oc, No, Dc, then two-letter codes
@@ -281,78 +353,86 @@ three significant digits and no padded zeros: 3.5, 12.3, 999, 0.05. The scientif
 looks like 1.23e45 and keeps its zeros (1.00e3). The two-letter codes run aa to zz (up to
 1e2064), and short mode switches to scientific after that.
 
-## D16 · Phase 0 ends with one complete run loop — Accepted · 2026-09-23
+<a id="d16"></a>
+## D16 · Phase 0 ends with one complete run loop — Accepted · 2026-09-23 · changed 2026-10-04
 
 **Decision:** Phase 0 delivers a playable single run: earning, upgrading, the first active
-mechanic, saves and offline progress. Gray boxes are fine. Selling and everything between runs
-come later.
+mechanic, saves and offline progress. How the scene looks by then: see D38. Selling and everything
+between runs come later.
 
 **Why:** It's the smallest thing Phase 1 can tune for fun.
 
 **Passed on:** a minimal tech demo · including a basic sale, which needs session B's currency and
 knee decisions first.
 
-## D17 · A bottleneck economy with spillover — Accepted · 2026-09-23
+<a id="d17"></a>
+## D17 · A bottleneck economy with spillover — Accepted · 2026-09-23 · changed 2026-10-04
 
-**Decision:** Three levers: Demand, Service and Spend. Income = customers served × Spend.
-Customers served = the lower of Demand and Service, plus spillover: staff help 100% within their
-role and 20% across roles (idle staff handing out samples counts as cross-role). Optionally, per
-franchise, a line converts a share of its surplus into self-serve spend (people grab a pastry
-while waiting). It stays off wherever self-serve isn't realistic. Runs open slightly off balance,
-with Service above Demand. Franchise templates define the roles.
+**Decision:** Three levers: Demand, Service and Spend. Income = customers served × Spend (seated
+customers spend more, D30). Customers served = the lower of Demand and Service, plus spillover:
+when the shop is overstaffed, idle baristas bring in extra customers with samples (D32). With
+several staff roles, staff help 100% within their role and 20% across roles; the rest of those
+rules wait for their own design session. Runs open slightly off balance, with Service above
+Demand. Franchise templates define the roles.
 
 **Why:** Every purchase is a real choice, and the screen shows the bottleneck. In simulation, a
-strict bottleneck alone traps a one-purchase-at-a-time player: at balance, a single table or
-barista earns $0, so everything goes into the menu. Players who upgrade stations together escape
-it, and spillover is the safety net for those who don't. It keeps growth even, never leaves a
-purchase doing nothing, and holds with three staff roles. Self-serve isn't needed for any of
-this: removing it left the simulated shop's growth unchanged, so it's optional flavor.
+strict bottleneck alone traps a one-purchase-at-a-time player: at balance, a single Demand or
+Service upgrade earns $0, so everything goes into the menu. Players who upgrade stations together
+escape it, and spillover is the safety net for those who don't. It keeps growth even and holds
+with three staff roles.
 
 **Passed on:** stacking producers (the only decision becomes best income per dollar) · a strict
 bottleneck alone · a soft congestion formula (loses ~16% at perfect balance, which live customers
 wouldn't reproduce) · universal spillover (any role helps with any job).
 
-## D18 · Rates now, live customers in Phase 2 — Accepted · 2026-09-23
+<a id="d18"></a>
+## D18 · Rates now, live customers in Phase 2 — Accepted · 2026-09-23 · changed 2026-10-04
 
 **Decision:** The economy runs on rates; customers on screen only illustrate them. Phase 2 adds
 live customers: irregular arrivals (gaps 60–140% of the average, service times ±20%), weighted
 random orders, and a patient line capped around 50 ("come back later"). Their long-run average
-must stay within 5% of the rate formula, enforced by a test that simulates hours of play.
+must stay within 5% of the rate formula, enforced by a test that simulates hours of play. **At
+scale,** each visible customer stands for a group that grows with the shop (1, then 10, then
+100…). The randomness applies to each visible customer, and the 5% rule still holds. How the group
+size grows is a Phase 2 open question.
 
 **Why:** Offline catch-up stays exact while live play gets a restaurant's randomness. In
 simulation with 3 baristas, fully random arrivals and a 10-person line turned away 7.7% of
-customers at balance. A patient line of 50 with moderate randomness lost 0.1%.
+customers at balance. A patient line of 50 with moderate randomness lost 0.1%. Groups are needed
+because within an hour the shop serves hundreds of customers a second, too many to simulate or
+draw one by one.
 
 **Passed on:** Eatventure's approach (a live simulation plus a capped, deliberately weaker offline
 estimate), which punishes absence (pillars 1 and 4, D14).
 
-## D19 · A real menu with per-item upgrades — Accepted · 2026-09-23
+<a id="d19"></a>
+## D19 · A real menu with per-item upgrades — Accepted · 2026-09-23 · changed 2026-10-04
 
-**Decision:** Menu items have a price, a barista time and an order weight. One level per item:
-the price rises every level, and production speed doubles at bonus levels, arriving as visible
-equipment. The whole menu is visible from the start, and items unlock by cost only. New items
-follow the tier rule: about 3× the previous item's value per barista-second at the point it
-typically unlocks.
+**Decision:** Menu items have a price, a cook time and a popularity. One level per item: the price
+rises every level, and the cook time falls (see D33, along with what bonus levels do). The whole
+menu is visible from the start, and items unlock by cost only. How much an unlock should raise
+income: see D36.
 
 **Why:** It's how restaurant idle games feel, and fixed order shares push players to spread their
-upgrades. In simulation, new items were never unlocked until the tier rule was measured per
-barista-second. With it, every unlock raises income. Per-item speed makes unlocks a shake-up
-(pumpkin spice: customers served −61%, income +182%), which we treat as a feature. Cost-only
-unlocks pace the same as level-gated ones, because price already does the gating.
+upgrades. Per-item cook times mean an unlock changes how fast the baristas serve as well as what
+customers pay, a shake-up we treat as a feature. Cost-only unlocks pace the same as level-gated
+ones, because price already does the gating.
 
 **Passed on:** one "Recipes" upgrade for the whole menu · shop-wide speed only (gentler unlocks) ·
 level-gated menu unlocks.
 
-## D20 · Buttons show an upgrade's own effect — Accepted · 2026-09-23
+<a id="d20"></a>
+## D20 · Buttons show an upgrade's own effect — Accepted · 2026-09-23 · changed 2026-10-04
 
 **Decision:** An upgrade button shows what it changes ("Service 24 → 36/min"), never derived stats
-like income previews. The scene shows the bottleneck.
+like income previews. The scene shows the bottleneck, which tells the player what to buy next.
 
-**Why:** Mainak prefers game-like readability over spreadsheet stats. With spillover, no purchase
-is ever useless anyway.
+**Why:** Mainak prefers game-like readability over spreadsheet stats. A purchase can earn nothing
+for a while (D31), and the scene shows why: empty seats, or a line out the door.
 
 **Passed on:** showing "+$X/s right now" on every button.
 
+<a id="d21"></a>
 ## D21 · Three active mechanics: tips, Rush Hour, special customers — Accepted · 2026-09-24
 
 **Decision:** The coffee shop gets three active mechanics. **Tips** pile up while you watch, and
@@ -376,6 +456,7 @@ can fail · the critic's pour for a free rush (on ice: edge cases such as a rush
 · a "never do the staff's job" rule. Doing a barista's job is fine when tuned, but one barista is
 under 1% of income by hour 1, so such a mechanic should be sized as a share of the crew.
 
+<a id="d22"></a>
 ## D22 · Rush Hour rolls one lever at ×3 — Accepted · 2026-09-24
 
 **Decision:** Each rush rolls Demand or Service at random (50/50) and multiplies it by 3 for 3
@@ -396,6 +477,7 @@ end would need rushes nonstop.
 **Passed on:** Demand and Service ×2 together · the player choosing the lever · ×2 per roll ·
 overlapping rushes (a double rush running nonstop gives 3.3×, well past the target).
 
+<a id="d23"></a>
 ## D23 · Buzz: one refill rate, a small cap — Accepted · 2026-09-24
 
 **Decision:** Rush Hour costs one charge of **Buzz**. Buzz refills at a single rate, 1 charge
@@ -418,6 +500,7 @@ away (16× slower felt jarring, and 2–3× barely differed) · a cap of 3 (Main
 come back to more) · caps of 20 or more (a 3-hour evening becomes rushes from start to finish) ·
 "rushes" as the name.
 
+<a id="d24"></a>
 ## D24 · The `Big` API — Accepted · 2026-09-24
 
 **Decision:** `Big` (in `src/game/big.ts`) has 17 methods, named as in break_infinity.js:
@@ -453,6 +536,7 @@ getters instead of freezing · break_infinity's `"1.5e+300"` string, or plain `"
 values (not an exact round trip) · a `valueOf` returning a number, which makes `a < b` work until
 ~1e308 and then silently compare `Infinity`.
 
+<a id="d25"></a>
 ## D25 · A lint rule keeps React and Pixi out of `src/game/` — Accepted · 2026-09-24
 
 **Decision:** Game logic lives in `src/game/`. An oxlint `no-restricted-imports` rule, scoped
@@ -474,6 +558,7 @@ time with only JavaScript's own types (`lib: ["ES2023"]`, `types: []`, JSX off),
 `console` and JSX all fail there. One gap: `Date` is part of JavaScript itself, so `Date.now()`
 still passes.
 
+<a id="d26"></a>
 ## D26 · One check command before every pull request — Accepted · 2026-09-25
 
 **Decision:** `npm run check` runs lint, the type check, the tests and the production build, in
@@ -497,6 +582,7 @@ version from `.nvmrc`, so CI and local runs match, and uses GitHub's own `action
 `actions/setup-node`. GitHub's machines are free for public repositories. The result shows on
 each pull request, and merging isn't blocked.
 
+<a id="d27"></a>
 ## D27 · The game runs outside React, on one clock — Accepted · 2026-09-28
 
 **Decision:** how time moves while the game runs (step 3).
@@ -538,7 +624,8 @@ and special customers in Phase 1).
 income `economy.ts` works out for the state (D29), and `startGame(franchise, initial, options)`
 passes it through. The $1/s stand-in is gone.
 
-## D28 · Franchise files: JSON, checked when they load — Accepted · 2026-09-29
+<a id="d28"></a>
+## D28 · Franchise files: JSON, checked when they load — Accepted · 2026-09-29 · changed 2026-10-04
 
 **Decision:** Each franchise is a JSON file in `src/game/franchises/`; the coffee shop is
 `coffee-shop.json`. `loadFranchise` in `src/game/franchise.ts` reads it when the game starts (D9).
@@ -549,22 +636,20 @@ passes it through. The $1/s stand-in is gone.
   `coffee-shop.json: menu[2].popularity must be above 0, got -1`.
 - **Dollar amounts are plain JSON numbers**, read into `Big` once, at load (D24). Levels,
   popularity, seconds and shares stay plain numbers (D5).
-- **Tuning lives in the file**, so Phase 1 can try variants without code changes. That covers bonus
-  levels (a listed sequence with a multiplier each, a repeating step, or both, shared by every
-  leveled upgrade), a max level (one per franchise, `null` for none, 50 as a placeholder) and
-  each global upgrade's multiplier.
-- **Names:** `globalUpgrades` for design.md's lever boosts, and `popularity` for D19's order
-  weight. An upgrade's id (`"tables"`, `"latte"`) has the type `UpgradeItemId`. Anything with
-  levels (Tables, Baristas, each menu item) is a *leveled upgrade*, so "line" only ever means the
-  queue of customers. A menu item with `"unlock": null` starts at level 1; the others start
-  locked, at 0.
+- **Tuning lives in the file**, so Phase 1 can try variants without code changes. That covers the
+  franchise's bonus levels and max level (D34, D35), each leveled upgrade's price growth and
+  bonus-level multipliers, and each global upgrade's multiplier. How the file holds the
+  per-upgrade values is step 4b's call.
+- **Names:** `globalUpgrades` (one-time boosts to a lever) and `popularity` (how often customers
+  order an item), the terms the docs use too. An upgrade's id (`"tables"`, `"latte"`) has the type
+  `UpgradeItemId`. Anything with levels (Signage, Baristas, Tables, each menu item) is a *leveled
+  upgrade*, so "line" only ever means the queue of customers. A menu item with `"unlock": null`
+  starts at level 1; the others start locked, at 0.
 - **The game state** keeps each leveled upgrade's level (`levels`) and the global upgrades bought
   (`globalUpgradesBought`). In `src/game/upgrades.ts`, each level costs
   `firstCost × costGrowth^(level − 1)`. An unlock costs its own price and puts its item at level 1.
   A global upgrade can be bought once, after the upgrade it requires reaches its level.
 - **One staff role** for now. Several roles need rules the design docs don't have yet.
-- Mobile ordering, Local influencer visit and Barista training are left out until they're
-  priced.
 
 **Why:** Franchises are data (D9), and the Phase 4 server has to read the same numbers, so the
 files are JSON rather than TypeScript. A mistake in a data file should stop the game at once with
@@ -575,6 +660,7 @@ cross-references) · zod (a new dependency, D4) · a version number (the file sh
 that reads it, unlike a save, D10) · a list of staff roles now (their rules aren't designed yet) ·
 TypeScript files instead of JSON.
 
+<a id="d29"></a>
 ## D29 · The economy engine: levels in, income out — Proposed · 2026-09-30
 
 **Decision:** `economy(franchise, state)` in `src/game/economy.ts` works out the shop's levers,
@@ -615,3 +701,290 @@ first purchase at 6.4 s (6 s), first bonus at 2.1 min (2 min), unlocks at 4.5 mi
 **Passed on:** keeping income in the game state (a copy to keep in step after every purchase, to
 save a few microseconds a frame) · self-serve at the average Spend (Mainak chose the cheapest item
 for now, pending the design chat) · plain numbers for the levers (they stack without limit, D5).
+
+<a id="d30"></a>
+## D30 · The coffee shop is counter service: Signage brings customers in, Tables seat them — Accepted · 2026-10-04
+
+**Decision:** Customers line up at the counter to order. **Signage** is Demand's leveled upgrade
+(+6 customers a minute per level). Every franchise shares the name, and each bonus level brings a
+bigger sign (chalkboard → painted → lit → neon). **Tables are dine-in seats:** a served customer
+sits if a seat is free and spends 1.5× the usual order; otherwise they take it to go. Nobody waits
+for a seat. Each Tables level adds seats, counted as seated customers a minute. The first ×2
+Demand global upgrade is **Free Wi-Fi**. The lever keeps the name Demand in the docs and code;
+players see "Customers" for now.
+
+**Why:** Tables bringing customers in felt off. Signage names what the upgrade does (it tells
+people you're there) and what you see, and it fits a food truck or a beach bar as well as a coffee
+shop. Dine-in gives tables a real job: customers who sit spend more than those who take it to go.
+It's in Phase 0 because Phase 0 delivers the whole run and Phase 1 tunes it; an upgrade added
+after tuning would mean tuning twice.
+
+**Passed on:** Storefront and Curb appeal (awkward for a truck or a beach) · Reputation and
+Marketing (nothing to see) · Hype (too close to Buzz) · tables as decoration only · tables as
+capacity, with customers sitting first (Mainak's pattern for full-service franchises, parked for
+the multi-role session) · tips from seated customers (tips only come while you watch, so tables
+would do nothing for idle play) · Tables bringing customers in (it felt off) · Chalkboard sign
+as the first ×2 Demand global upgrade (signs are Signage's now).
+
+<a id="d31"></a>
+## D31 · Purchases may pay later — Accepted · 2026-10-04
+
+**Decision:** A purchase doesn't have to raise income the moment it's bought. A table bought while
+seats sit empty, or Signage bought while the baristas can't keep up, earns nothing until the rest
+of the shop catches up. Spillover (D17) is a safety net, not a promise that every purchase pays at
+once.
+
+**Why:** Chasing "every purchase pays at once" would discourage planning ahead (Mainak). D17's
+simulation showed that players who upgrade stations together escape the strict bottleneck, and
+spillover covers those who don't. The same goes for a shop without self-serve: more customers
+during a line earn nothing for a while, and that's fine.
+
+**Passed on:** a goal that no purchase ever does nothing (it discouraged planning ahead) · a
+spillover for empty seats (empty tables drawing people in), which would work like
+samples, and samples were already too strong.
+
+<a id="d32"></a>
+## D32 · Samples: at most 3 baristas outside; no self-serve for now — Accepted · 2026-10-04
+
+**Decision:** When the baristas can serve more customers than arrive, up to **3** idle baristas step
+outside with sample trays. Each one brings in **10% more customers** (10% of Demand), never more
+than the idle baristas can serve. Idle baristas beyond the 3 stay behind the counter and earn
+nothing. Sampled customers join the back of the line like everyone else, pay the usual order and sit
+if a seat is free. Both numbers are franchise settings. **There's no self-serve from the line** for
+now; it's on the *Later* list in design.md.
+
+**Why:** With samples worth 20% of the idle capacity, a shop with far too many baristas got 96% of
+its customers from samples, with dozens of baristas outside: immersion-breaking. Mainak's limit on
+how many baristas go outside fixes the picture. Basing what each one brings in on Demand (the people
+walking past) rather than on their serving speed fixes the numbers: samples bring in about 23% of
+customers on a typical run and in that lopsided shop alike. Walking out and back takes time; the
+10% is an average that includes it, and Phase 2's live baristas get tuned to match (D18).
+Self-serve rarely triggered, because the shop was almost never backed up; in a shop that is, it was
+worth about 3% of income. It also needed a grab-and-go item for each franchise, the Pastry case
+requirement and a rule for dine-in. It's easy to bring back.
+
+**Passed on:** 20% of the idle capacity (the runaway above) · capping samples at +50% of Demand
+(invisible on screen) · removing samples (with today's numbers, extra baristas would stop paying) ·
+a smaller share, such as 5–10% (still runs away in a lopsided shop) · self-serve customers buying a
+set grab-and-go item (the muffin) · self-serve from the line, for now (see above).
+
+<a id="d33"></a>
+## D33 · Menu items: cook time shrinks gradually; bonus levels raise the price and add machines — Accepted · 2026-10-04
+
+**Decision:** An item's cook time falls a little every level until it reaches **half its starting
+time at level 25** (drip coffee: 8 s → 4 s), and it never gets faster than that. An item's bonus
+levels raise its **price** (×2, ×2, ×3, ×5 at levels 10, 25, 50 and 100; see D34), and
+levels 50 and 100 add a **2nd and 3rd machine**: two machines make twice the drinks, three make
+three times. The price still rises every level by 10% of the starting price. The minimum (half),
+the level it's reached at and the bonus levels that add machines are franchise settings.
+
+**Why:** With an item's speed doubling at every bonus level, Service grew two ways (baristas,
+and every item) while Demand grew one way, so the simulated shop sat overstaffed 98% of the time
+and the bottleneck never swung. Mainak wants it to swing: each purchase can tip the shop, so the
+scene always shows what to buy next. A minimum cook time (his idea) caps how much faster items get.
+At half, the shop stays balanced; at a quarter or an eighth, it overstaffs again. Reaching the
+minimum gradually by level 25, rather than all at once at level 10, kept the balance and made
+pacing much less dependent on play style: both simulated players unlocked Pumpkin spice at the same
+time instead of 1.2 h vs 3.5 h. Machines double the drinks rather than shortening the cook, which
+is what a second machine really does (Mainak). They need customers to grow faster to match (D34).
+
+**Passed on:** doubling speed at each bonus level (the shop sat overstaffed) · ×1.5 speed at each
+bonus level · alternating speed and price · price only, never
+faster · reaching the minimum at level 10 · minimums of a quarter or an eighth.
+
+<a id="d34"></a>
+## D34 · Bonus levels are set per franchise, with multipliers by level and by upgrade; a finished shop must balance — Accepted · 2026-10-04
+
+**Decision:** Each franchise sets its own bonus levels, shared by all its leveled upgrades; the
+coffee shop's are 10, 25, 50 and 100. Each leveled upgrade has its own multiplier at each bonus
+level, and they can differ from one bonus level to the next. In the coffee shop, for example,
+Signage goes ×3, ×3, ×3, ×6 and Baristas ×2, ×2, ×3, ×3 (design.md's placeholder numbers list them
+all). **Tuning rule:** with every upgrade at max level and every global upgrade bought, Service ÷
+Demand should land around 1.1, inside the balanced band.
+
+**Why:** Mainak wanted multipliers that aren't always ×2, with bigger jumps later, varying by both
+level and upgrade, and bonus levels that each franchise places, as one more way to tune it.
+Machines add drinks, so Signage needs bigger jumps than Baristas to keep
+customers coming, and they have to start early, because machines start arriving early: drip
+coffee's 2nd machine comes within the first half hour. A Signage ladder that saved its big jump for
+the end (×2, ×3, ×3, ×6) left the shop overstaffed for up to 20 hours. The finished-shop check
+catches that kind of mismatch by hand, since a shop that ends unbalanced stays stuck that way
+through its last hours. Tables use Signage's multipliers so seats keep up with customers: a third to
+a half of customers sit for the first 3 hours, and dine-in is about 9% of income. On screen, big
+seating multipliers show as stages (bigger tables, a patio, a second room, a rooftop), not counts.
+Signage's ×6 at level 100 pairs with Barista training (D37).
+
+**Passed on:** ×2 everywhere · Signage at ×2, ×3, ×3, ×6 (overstaffed for hours) or ×2, ×3, ×4, ×6
+(backed up once everything is maxed) · Tables on Baristas' multipliers (seats fall behind customers,
+and dine-in is only 4% of income) · the same bonus levels for every franchise.
+
+<a id="d35"></a>
+## D35 · One max level per franchise, on a bonus level; each upgrade has its own price growth — Accepted · 2026-10-04
+
+**Decision:** Every leveled upgrade in a franchise maxes out at the same level, one of its bonus
+levels: **100** in the coffee shop. Each one's price rises
+by its own percentage per level (placeholders from 8% to 40%), chosen so upgrades finish one after
+another through the run, the last near its end: drip coffee first, Signage and Baristas together
+near the end (they balance each other), Pumpkin spice last. Players only ever see each level's price.
+
+**Why:** A max gives each upgrade a "quest completed" moment. Idle Brewery had none, and Mainak
+liked that least about it. One max for everything in a franchise is one rule to remember, and
+ending on a bonus level makes the last level special; since each franchise places its bonus levels
+(D34), it sets its max too. With one shared price growth, completions bunch up, or menu
+items never finish; a price growth for each upgrade spreads them out. With the previous placeholder
+(max 50 and 26% per level), Signage, Baristas and Tables all maxed out in the first 10 minutes.
+
+**Passed on:** max 50 · a different max for each upgrade (60 or 90 aren't bonus levels, and there'd
+be more to keep track of) · no max · max 100 for every franchise (each would need a bonus level at
+100).
+
+<a id="d36"></a>
+## D36 · Each menu unlock about doubles income; upgrades bought in cost order should raise income — Accepted · 2026-10-04
+
+**Decision:** Two principles:
+- **When bought in cost order, every upgrade should raise income, right away or once the rest of the
+  shop catches up. Exceptions can happen and get discussed as they come up.**
+- **Each menu unlock should about double income when it typically happens.** A new item's starting
+  price is set for that, and its unlock price for when it should arrive.
+
+Buying unlocks out of order is a legitimate choice.
+
+**Why:** A tier rule (a new item worth about 3× the previous one per second of barista time, at the
+point it typically unlocks) broke once bonus levels raised prices and added machines: a leveled
+muffin earned 25× what a new Pumpkin spice latte did, so unlocking it cut income by 36%.
+Re-applying 3× gave 6–15× income jumps and wouldn't settle in tuning. "About doubles income" is what
+a player feels, and it tunes cleanly. Neither principle is a promise. Two cases can still lower
+income: unlocking out of order (a cheaper item joins the menu), and unlocking late, after the old
+items have grown far ahead. The human-like simulated player never hit either. A player who
+strictly buys the cheapest thing first still loses about half its income when it buys the Espresso
+machine late.
+
+**Passed on:** the 3× tier rule · promising that every unlock raises income (the two cases above
+break it) · unlocks that must happen in menu order.
+
+<a id="d37"></a>
+## D37 · A 4–6 hour coffee shop run for now, with one-time upgrades spread across it — Accepted · 2026-10-04
+
+**Decision:** For Phase 0 and Phase 1's first tests, a full coffee shop run (every upgrade maxed)
+takes **4–6 hours**. Session B decides the real first-run length, together with the sale and the
+knee. One-time upgrades spread across the run: the menu unlocks come at about 2.5 min, 15 min and
+1 h, and the three late global upgrades (Local influencer visit, Mobile ordering and Barista
+training) get requirements a run reaches, plus prices; both are in design.md's placeholder numbers.
+
+**Tuning rules:** boosts to Demand and Service arrive in pairs, such as the influencer with mobile
+ordering around the 1-hour mark, and training with Signage's ×6 at level 100 around 3 hours. A late
+global upgrade costs about a minute of income when its requirement is typically met, so the
+requirement sets the timing.
+
+**Why:** The earlier target (a first run of 1–2 days, so upgrades kept finishing up to 36 hours in)
+felt far too long, and Phase 1's first tests need faster loops (Mainak). The three earlier global
+upgrades were all bought in the first 15 minutes; the late three now fill the rest of the run.
+Their old requirements (Baristas 200, Signage 150) were above the max. A boost with nothing to match
+it on the other side leaves the shop stuck: an influencer at ×3, matched only two hours later, left
+it backed up for up to 2 hours. With the pairs, the shop is balanced 83% of the time and never stuck
+for more than about 20 minutes.
+
+**Passed on:** a first run of 1–2 days for now · a test-speed setting instead (long runs, with time
+running faster for playtests) · the influencer at ×3 · pricing the late upgrades by hand (a high
+price kept mobile ordering out of reach for an hour after its requirement was met).
+
+<a id="d38"></a>
+## D38 · The scene comes early: basic shapes in Phase 0, placeholder sprites first in Phase 1 — Accepted · 2026-10-04
+
+**Decision:** Phase 0 ends with a real scene drawn in basic shapes, not a gray box: the counter, the
+baristas, the line, the tables, the sign and baristas outside with samples, all driven by the rates.
+It takes up more of the screen than the first wireframe. Upgrades sit either on the scene itself
+(tap the sign for Signage) or in a condensed menu under it; Mainak will try both. **The first step
+of Phase 1 swaps the shapes for placeholder sprites** from a licensed pack, before anyone else
+plays. Phase 2 brings the final art and animation, live customers (D18) and asset loading. Whether
+PixiJS draws the shapes scene from the start is the call of the step that builds it (D2).
+
+**Why:** Playtesters need something real to look at, and so does Mainak: seeing the game early keeps
+the project going. design.md had put everything visual in Phase 2, while Phase 1's tips, special
+customers and tuning for fun already assumed a scene.
+
+**Passed on:** a gray box until Phase 2 · real sprites already in Phase 0.
+
+<a id="d39"></a>
+## D39 · Where AI-generated content is allowed — Accepted · 2026-10-04
+
+**Decision:**
+
+| Content | AI-generated? |
+|---|---|
+| In-game art: sprites, backgrounds, icons, the logo and app icon | Never, including AI edits of licensed art |
+| Music | Never |
+| Sound effects | Real ones first, after a good-faith search; AI if that takes too long |
+| UX elements: buttons, panels, menu layouts, a main or pause menu | Yes, and they can ship as is |
+| Art drawn with code | Shapes and effects (steam, confetti) are fine; drawings count as art |
+| In-game writing | Yes, with Mainak's review |
+| Visuals for design discussions (mockups, wireframes, sample screenshots) | Anything, since they never go into the game. They stay out of the repo |
+
+Placeholders come only from licensed packs. Prompts for anything that ships describe what we want
+rather than naming another game. AI-made UX elements and sound effects are marked in `CREDITS.md`.
+
+**Why:** Mainak's line is the art and music players experience as the game's own. UX elements are
+fine, and discussion visuals help the design chat and Mainak stay on the same page. Good free sound
+effects have been hard for him to find before, and he'll be particular about them. Marking AI-made
+assets keeps an honest record for the disclosure he wants if the game ships, and some stores ask
+(Steam does). Purely AI-generated work generally can't be copyrighted in the US, so AI-made UX isn't
+protected the way his own work is; that's fine for this project.
+
+**Passed on:** no AI-generated images at all, the earlier rule, which also ruled out UX elements and
+discussion mockups.
+
+<a id="d40"></a>
+## D40 · Simulated players: the human-like player is the reference — Accepted · 2026-10-04
+
+**Decision:** Pacing is judged with a **human-like** simulated player. It decides by what the screen
+shows, never by income math:
+- It sees the shop's state (overstaffed, balanced or backed up), whether every seat is full, and the
+  upgrade buttons.
+- It loves unlocks, ×2 upgrades and maxing things out, likes reaching bonus levels, and prefers
+  cheap things.
+- It never saves up for more than about 3 minutes of income.
+- It judges by gut feel: a random nudge of up to ±40% on each option, with a fixed seed so a run
+  repeats exactly.
+
+Players that maximize income per dollar are for special cases only: an upper bound for a min-maxer,
+and a player that always buys the cheapest thing, to check D36's cost-order principle. The design
+chat's simulator uses the human-like player, and the pacing test switches to it.
+
+**Why:** Real players can't see what a purchase does to income (D20), so optimizing players aren't
+realistic, and they misled the design: a 99-minute wait around the 1-hour mark and "the Espresso
+machine never gets bought" were both optimizer behavior. With the human-like player, the wait was
+about 2 minutes, and the Espresso machine raised income. Its limits: its tastes are guesses, it's
+one personality with some noise, and how often a real player checks in moves results the most.
+Phase 1 playtests are the real check.
+
+**Passed on:** the best-value player as the reference (today's pacing test) · a player that also
+weighs buying two things together · a player that always buys the cheapest thing.
+
+<a id="d41"></a>
+## D41 · Times shown with their two largest units — Accepted · 2026-10-04
+
+**Decision:** Durations show their two largest units, kept short: 42s, 2m 41s, 1h 23m, 2d 4h. Rush
+Hour's timer, the Buzz refill countdown and a future welcome-back message all use it. (Decided
+2026-10-01; recorded here.)
+
+**Why:** It's compact on a phone, like the number suffixes (D15), and two units are enough to plan
+by.
+
+**Passed on:** a clock format (2:14:00) · full words (2 hours 14 minutes).
+
+<a id="d42"></a>
+## D42 · The title is Grand Reopening — Accepted · 2026-10-05
+
+**Decision:** The game is called **Grand Reopening**. It stays easy to change: code reads it from
+`.env` (D7), and the docs name it only in design.md's heading and the README.
+
+**Why:** Every run takes over a place and opens it again under a new owner, and it was Mainak's
+favorite. Checked on 2026-10-05: no app in Apple's or Google's stores uses it. On Google it competes
+with real stores' reopenings, and an upcoming restaurant game on Steam uses it as a subtitle
+(*Frieseria: The Grand Reopening*). That matters most once the web version is shared widely; in the
+app stores it stands out.
+
+**Passed on:** Under New Management (the working title; it doesn't roll off the tongue) · Dishes to
+Riches (easy to find on Google, but look-alike "… to Riches" business games in the app stores) ·
+Kitchen Takeover (a Food Network show about taking over failing restaurants) · Opening Night
+(crowded by Gamescom's Opening Night Live, and it reads as theater).
