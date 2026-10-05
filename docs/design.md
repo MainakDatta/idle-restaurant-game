@@ -115,8 +115,9 @@ average cook time sets how many customers the baristas serve.
 
 - **One level per item:** its price rises every level by 10% of its starting price, and its cook
   time falls a little every level until it reaches **half its starting time at level 25** (D33).
-- **Bonus levels raise the price** (×2, ×2, ×3, ×5 at levels 10, 25, 50, 100), and levels 50 and
-  100 add a **2nd and 3rd machine**: two machines make twice the drinks, three make three times.
+- **Bonus levels raise the price** (×2, ×2, ×3, ×5 at the coffee shop's levels 10, 25, 50, 100),
+  and levels 50 and 100 add a **2nd and 3rd machine**: two machines make twice the drinks, three
+  make three times.
 - **The whole menu is visible from the start** and items unlock by **cost only**.
 - **Each unlock should about double income** when it typically happens (D36). Buying out of order
   is allowed, and can lower income for a while.
@@ -128,7 +129,7 @@ average cook time sets how many customers the baristas serve.
 
 | Kind | Examples | Rule |
 |---|---|---|
-| **Leveled** | Signage, Baristas, Tables, each menu item | Max level 100. Each level costs more, at the upgrade's own rate (D35). Bonus levels at 10, 25, 50 and 100 multiply its output by amounts that vary by level and by upgrade (D34) |
+| **Leveled** | Signage, Baristas, Tables, each menu item | Each franchise sets its bonus levels and one max level, which is a bonus level (the coffee shop: 10, 25, 50 and 100, max 100). Bonus levels multiply output by amounts that vary by level and by upgrade (D34). Each level costs more, at the upgrade's own rate (D35) |
 | **Menu unlocks** | Espresso machine → Latte | Visible from the start; cost is the only gate |
 | **Global upgrades** | Free Wi-Fi (×2 Demand), Second grinder (×2 Service) | Visible from the start; buyable once an upgrade reaches a level. Boosts to Demand and Service come in pairs (D37) |
 
@@ -176,7 +177,8 @@ Furniture works the same way: the scene shows stages (a patio, a second room), n
 ### Placeholder numbers: coffee shop
 
 Tested in simulation with a human-like player; Phase 1 tunes them. A run starts with Signage,
-Baristas and Tables at level 1, and drip coffee. Every leveled upgrade maxes out at level 100.
+Baristas and Tables at level 1, and drip coffee. Bonus levels come at 10, 25, 50 and 100, and every
+leveled upgrade maxes out at level 100.
 Samples: up to 3 baristas outside, +10% customers each. Seated customers spend 1.5×. No self-serve.
 
 | Leveled upgrade | Each level | First level costs | Each level costs more by |
