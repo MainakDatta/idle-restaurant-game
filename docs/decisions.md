@@ -27,7 +27,7 @@ the line above its heading. The links point at those anchors, so they keep worki
 changes.
 
 1. [**Web stack, not a game engine**](#d1): a TypeScript + React web client and a Python backend. Godot is saved for a later project.
-2. [**PixiJS, not Phaser**](#d2): Pixi draws the animated scene: a renderer, not a framework competing with React. Updated by D38.
+2. [**PixiJS, not Phaser**](#d2): Pixi draws the animated scene: a renderer, not a framework competing with React.
 3. [**Mobile via Capacitor, not React Native**](#d3): a PWA first, then Capacitor ships the same web app to the app stores.
 4. [**Dependencies must earn their place**](#d4): add one only for a problem we've actually hit, and give it an entry here.
 5. [**Big numbers from day one**](#d5): anything that can grow without limit is a `Big`; time, levels and counts stay plain numbers.
@@ -38,7 +38,7 @@ changes.
 10. [**Saves built for the PWA now and app stores later**](#d10): one storage module, export/import, versioned JSON and an iPhone install hint.
 11. [**Offline progress is calculated in the browser**](#d11): from real elapsed time, on the device; the Phase 4 server only double-checks it.
 12. [**Phase 0 foundation dependencies**](#d12): Vite's React + TypeScript starter, each package justified; TypeScript pinned to 6.0.
-13. [**Public repository**](#d13): public with no license; no secrets in git, asset licenses checked, AI disclosed in the README. Updated by D39.
+13. [**Public repository**](#d13): public with no license; no secrets in git, asset licenses checked, AI disclosed in the README.
 14. [**No cap on offline progress**](#d14): idle progress keeps building however long you're away.
 15. [**Numbers shown with short suffixes**](#d15): 1.23K, 45.6M and so on, three digits, rounded down; scientific notation is a setting.
 16. [**Phase 0 ends with one complete run loop**](#d16): earning, upgrading, the first active mechanic, saves and offline progress, with the scene in basic shapes (D38).
@@ -101,17 +101,15 @@ performance becomes a real problem in testing. Moving to the app stores is *not*
 on its own, because Capacitor already covers it. It's just a good moment to re-check this list.
 
 <a id="d2"></a>
-## D2 · PixiJS, not Phaser — Accepted · 2026-09-21
+## D2 · PixiJS, not Phaser — Accepted · 2026-09-21 · changed 2026-10-04
 
-**Decision:** PixiJS for the animated scene layer (Phase 2).
+**Decision:** PixiJS for the animated scene layer. When the scene arrives: see D38. Whether PixiJS
+draws its first, basic-shapes version is the call of the step that builds it.
 
 **Why:** We need a renderer, not a framework. Phaser's scene lifecycle competes with React for
 control of the page; Pixi is smaller and does one job.
 
 **Passed on:** Phaser.
-
-**Updated 2026-10-04:** the scene now starts in Phase 0, as basic shapes (D38). Whether PixiJS draws
-it from the start is the call of the step that builds it.
 
 <a id="d3"></a>
 ## D3 · Mobile via Capacitor, not React Native — Accepted · 2026-09-21
@@ -300,7 +298,7 @@ again. If the clock moves backward, elapsed time counts as zero, so progress is 
 **Passed on:** using the generated starter as-is, which comes with demo files we'd delete.
 
 <a id="d13"></a>
-## D13 · Public repository — Accepted · 2026-09-22
+## D13 · Public repository — Accepted · 2026-09-22 · changed 2026-10-04
 
 **Decision:** The repo is public from the first commit, with no license.
 
@@ -310,20 +308,17 @@ macOS runners, so iOS builds won't require owning a Mac.
 **Rules that come with it:**
 - **Secrets never enter git,** because history is permanent. They live in gitignored `*.local`
   files. `VITE_*` values are public by design.
-- **Check every art and audio license before committing.** Packs that forbid redistribution
-  stay out of the repo.
+- **Check every art and audio license before committing,** and give every asset a row in
+  `CREDITS.md` (source, license, required attribution). Packs that forbid redistribution stay out
+  of the repo.
 - **AI disclosure:** one sentence in the README. Commit and PR attribution is decided per
-  change: the `Co-Authored-By` trailer goes on when Claude wrote most of it.
+  change: the `Co-Authored-By` trailer goes on when Claude wrote most of it. Where AI-generated
+  content is allowed at all: see D39.
 - **No license:** default copyright applies, so the code can be read but not reused. GitHub's
   Terms still let users view the repo and fork it on GitHub.
 - **Personal details stay out of the repo.** Project instructions for Claude live in
   `CLAUDE.md`; personal preferences and machine setup live in `~/.claude/CLAUDE.md`, which is
   never committed.
-
-**Updated 2026-09-22:** every asset gets a row in `CREDITS.md` (source, license, required
-attribution).
-
-**Updated 2026-10-04:** where AI-generated content is allowed is D39.
 
 <a id="d14"></a>
 ## D14 · No cap on offline progress — Accepted · 2026-09-22
@@ -360,18 +355,16 @@ looks like 1.23e45 and keeps its zeros (1.00e3). The two-letter codes run aa to 
 1e2064), and short mode switches to scientific after that.
 
 <a id="d16"></a>
-## D16 · Phase 0 ends with one complete run loop — Accepted · 2026-09-23
+## D16 · Phase 0 ends with one complete run loop — Accepted · 2026-09-23 · changed 2026-10-04
 
 **Decision:** Phase 0 delivers a playable single run: earning, upgrading, the first active
-mechanic, saves and offline progress. Gray boxes are fine. Selling and everything between runs
-come later.
+mechanic, saves and offline progress. How the scene looks by then: see D38. Selling and everything
+between runs come later.
 
 **Why:** It's the smallest thing Phase 1 can tune for fun.
 
 **Passed on:** a minimal tech demo · including a basic sale, which needs session B's currency and
 knee decisions first.
-
-**Updated 2026-10-04:** instead of gray boxes, Phase 0's scene shows the shop in basic shapes (D38).
 
 <a id="d17"></a>
 ## D17 · A bottleneck economy with spillover — Accepted · 2026-09-23 · changed 2026-10-04
@@ -394,24 +387,24 @@ bottleneck alone · a soft congestion formula (loses ~16% at perfect balance, wh
 wouldn't reproduce) · universal spillover (any role helps with any job).
 
 <a id="d18"></a>
-## D18 · Rates now, live customers in Phase 2 — Accepted · 2026-09-23
+## D18 · Rates now, live customers in Phase 2 — Accepted · 2026-09-23 · changed 2026-10-04
 
 **Decision:** The economy runs on rates; customers on screen only illustrate them. Phase 2 adds
 live customers: irregular arrivals (gaps 60–140% of the average, service times ±20%), weighted
 random orders, and a patient line capped around 50 ("come back later"). Their long-run average
-must stay within 5% of the rate formula, enforced by a test that simulates hours of play.
+must stay within 5% of the rate formula, enforced by a test that simulates hours of play. **At
+scale,** each visible customer stands for a group that grows with the shop (1, then 10, then
+100…). The randomness applies to each visible customer, and the 5% rule still holds. How the group
+size grows is a Phase 2 open question.
 
 **Why:** Offline catch-up stays exact while live play gets a restaurant's randomness. In
 simulation with 3 baristas, fully random arrivals and a 10-person line turned away 7.7% of
-customers at balance. A patient line of 50 with moderate randomness lost 0.1%.
+customers at balance. A patient line of 50 with moderate randomness lost 0.1%. Groups are needed
+because within an hour the shop serves hundreds of customers a second, too many to simulate or
+draw one by one.
 
 **Passed on:** Eatventure's approach (a live simulation plus a capped, deliberately weaker offline
 estimate), which punishes absence (pillars 1 and 4, D14).
-
-**Updated 2026-10-04 (scale):** within an hour the shop serves hundreds of customers a second, too
-many to simulate or draw one by one. So each visible customer stands for a group that grows with
-the shop (1, then 10, then 100…). The randomness applies to each visible customer, and the 5% rule
-still holds. How the group size grows is a Phase 2 open question.
 
 <a id="d19"></a>
 ## D19 · A real menu with per-item upgrades — Accepted · 2026-09-23 · changed 2026-10-04
