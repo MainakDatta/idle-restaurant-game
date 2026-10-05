@@ -7,8 +7,7 @@ import { Big } from './big.ts'
 import coffeeShopFile from './franchises/coffee-shop.json' with { type: 'json' }
 
 /**
- * Which upgrade: its id from the franchise file, such as "tables", "latte" or
- * "chalkboard-sign".
+ * Which upgrade: its id from the franchise file, such as "signage", "latte" or "free-wi-fi".
  */
 export type UpgradeItemId = string
 
@@ -18,66 +17,93 @@ export type Lever = 'demand' | 'service'
 export type Franchise = {
   readonly id: string
   readonly name: string
-  /** The highest level any leveled upgrade can reach, or null for no max. */
-  readonly maxLevel: number | null
-  /** How much more each level costs than the one before: 1.26 is 26% more. */
-  readonly costGrowth: number
-  readonly bonusLevels: BonusLevels
+  /**
+   * The levels where a leveled upgrade's output jumps, in order: [10, 25, 50, 100]. Every leveled
+   * upgrade shares them, and each has its own multiplier at each one (D34).
+   */
+  readonly bonusLevels: readonly number[]
+  /** The highest level any leveled upgrade can reach. It's always the last bonus level (D35). */
+  readonly maxLevel: number
   /** What each level adds to a menu item's price, as a share of its starting price: 0.1 is 10%. */
   readonly priceRisePerLevel: number
-  /** How much idle staff help outside their own role: 0.2 is 20% (D17). */
-  readonly spillover: { readonly acrossRoles: number }
-  /** The share of a line's extra customers who serve themselves, or null for none (D17). */
-  readonly selfServe: number | null
-  /** What brings customers in: the coffee shop's Tables. */
+  readonly cookTime: CookTime
+  readonly samples: Samples
+  /** What brings customers in: the coffee shop's Signage. */
   readonly demand: DemandUpgrade
   /** Who serves them: the coffee shop's Baristas. One staff role for now (D28). */
   readonly staff: StaffUpgrade
+  /** Where served customers sit: the coffee shop's Tables (D30). */
+  readonly seating: SeatingUpgrade
   readonly menu: readonly MenuItem[]
-  /** One-time purchases that multiply a lever for the whole shop (design.md's lever boosts). */
+  /** One-time purchases that multiply a lever for the whole shop. */
   readonly globalUpgrades: readonly GlobalUpgrade[]
 }
 
-/**
- * Levels where a leveled upgrade's output jumps. Every leveled upgrade in the franchise shares
- * the same ones.
- */
-export type BonusLevels = {
-  /** Specific levels, each with its own multiplier: ×2 at 10, ×3 at 25, and so on. */
-  readonly at: readonly { readonly level: number; readonly multiplier: number }[]
-  /** Repeats after the last listed level (every 50 levels, ×2 each time), or null for no repeat. */
-  readonly thenEvery: { readonly levels: number; readonly multiplier: number } | null
+/** How menu items get faster as they level up (D33). */
+export type CookTime = {
+  /** The shortest an item's cook time gets, as a share of its starting time: 0.5 is half. */
+  readonly shortest: number
+  /** The level where it gets there. Until then, it falls a little every level. */
+  readonly shortestFromLevel: number
+  /** Bonus levels that add a machine: two machines make twice as many, three make three times. */
+  readonly extraMachinesAt: readonly number[]
 }
 
-export type DemandUpgrade = {
+/** Idle baristas stepping outside with sample trays (D32). */
+export type Samples = {
+  /** The most baristas that go outside. Any more idle baristas stay behind the counter. */
+  readonly maxBaristasOutside: number
+  /** The extra customers each one brings in, as a share of Demand: 0.1 is 10%. */
+  readonly customersEach: number
+}
+
+/** What every leveled upgrade has: Signage, Baristas, Tables and each menu item. */
+type LeveledFields = {
   readonly id: UpgradeItemId
   readonly name: string
+  /** What the first level you buy costs. Each level after that costs `costGrowth` times more. */
+  readonly firstCost: Big
+  /** How much more each level costs than the one before: 1.395 is 39.5% more (D35). */
+  readonly costGrowth: number
+  /** Its multiplier at each of the franchise's bonus levels, in the same order (D34). */
+  readonly bonusMultipliers: readonly number[]
+}
+
+/**
+ * The same fields, as the readers below list them. It sits up here because COFFEE_SHOP is loaded
+ * while this file is still being set up, before any `const` further down exists.
+ */
+const LEVELED_FIELDS = ['id', 'name', 'firstCost', 'costGrowth', 'bonusMultipliers']
+
+// `A & B` is a type with every field of both: a DemandUpgrade has the leveled fields above,
+// plus the fields listed here.
+export type DemandUpgrade = LeveledFields & {
   /** Customers each level brings in per minute, before bonus levels. */
   readonly customersPerMinute: number
   readonly startLevel: number
-  /** What the first level you buy costs. Each level after that costs `costGrowth` times more. */
-  readonly firstCost: Big
 }
 
 /** Each level is one more member of staff. */
-export type StaffUpgrade = {
-  readonly id: UpgradeItemId
-  readonly name: string
+export type StaffUpgrade = LeveledFields & {
   readonly startLevel: number
-  readonly firstCost: Big
 }
 
-export type MenuItem = {
-  readonly id: UpgradeItemId
-  readonly name: string
+/** Each level adds seats, counted as how many customers a minute can sit down (D30). */
+export type SeatingUpgrade = LeveledFields & {
+  /** Seated customers a minute that each level adds, before bonus levels. */
+  readonly seatedPerMinute: number
+  /** What a seated customer spends, compared with the usual order: 1.5 is 50% more. */
+  readonly seatedSpend: number
+  readonly startLevel: number
+}
+
+export type MenuItem = LeveledFields & {
   /** The price at level 1. */
   readonly price: Big
-  /** Staff time to make one, at level 1. */
-  readonly prepSeconds: number
+  /** A barista's time to make one at level 1, in seconds: the docs' "cook time". */
+  readonly cookSeconds: number
   /** How often it's ordered compared with the other unlocked items: 5 against 4 is 5 in every 9. */
   readonly popularity: number
-  /** What the first level you buy after unlocking it costs. */
-  readonly firstCost: Big
   /** What puts it on the menu, or null if it's there from the start (at level 1). */
   readonly unlock: Unlock | null
 }
@@ -90,25 +116,23 @@ export type GlobalUpgrade = {
   readonly name: string
   readonly lever: Lever
   readonly multiplier: number
-  /** It can only be bought once this leveled upgrade reaches this level: Tables 10. */
+  /** It can only be bought once this leveled upgrade reaches this level: Signage 10. */
   readonly requires: { readonly upgrade: UpgradeItemId; readonly level: number }
   readonly cost: Big
 }
 
-/** Anything you level up (Tables, Baristas or a menu item), in the shape they have in common. */
-export type LeveledUpgrade = {
-  readonly id: UpgradeItemId
-  readonly name: string
-  readonly firstCost: Big
+/** Anything you level up (Signage, Baristas, Tables or a menu item), in the shape they share. */
+export type LeveledUpgrade = LeveledFields & {
   /** null if it's there from the start. */
   readonly unlock: Unlock | null
 }
 
-/** Every leveled upgrade, in display order: Tables, Baristas, then the menu. */
+/** Every leveled upgrade, in display order: Signage, Baristas, Tables, then the menu. */
 export function leveledUpgrades(franchise: Franchise): readonly LeveledUpgrade[] {
   return [
     { ...franchise.demand, unlock: null },
     { ...franchise.staff, unlock: null },
+    { ...franchise.seating, unlock: null },
     ...franchise.menu,
   ]
 }
@@ -141,21 +165,20 @@ export const COFFEE_SHOP: Franchise = loadFranchise(coffeeShopFile, 'coffee-shop
 
 function readFranchise(file: unknown): Franchise {
   const root = readObject(file, '', [
-    'id', 'name', 'maxLevel', 'costGrowth', 'bonusLevels', 'priceRisePerLevel', 'spillover',
-    'selfServe', 'demand', 'staff', 'menu', 'globalUpgrades',
+    'id', 'name', 'bonusLevels', 'maxLevel', 'priceRisePerLevel', 'cookTime', 'samples',
+    'demand', 'staff', 'seating', 'menu', 'globalUpgrades',
   ])
-  const spillover = readObject(root.spillover, 'spillover', ['acrossRoles'])
   const franchise: Franchise = {
     id: readId(root.id, 'id'),
     name: readText(root.name, 'name'),
-    maxLevel: root.maxLevel === null ? null : readWholeNumber(root.maxLevel, 'maxLevel', 1),
-    costGrowth: readAbove(root.costGrowth, 'costGrowth', 1),
-    bonusLevels: readBonusLevels(root.bonusLevels, 'bonusLevels'),
+    bonusLevels: readLevels(root.bonusLevels, 'bonusLevels'),
+    maxLevel: readWholeNumber(root.maxLevel, 'maxLevel', 1),
     priceRisePerLevel: readAtLeast(root.priceRisePerLevel, 'priceRisePerLevel', 0),
-    spillover: { acrossRoles: readShare(spillover.acrossRoles, 'spillover.acrossRoles') },
-    selfServe: root.selfServe === null ? null : readShare(root.selfServe, 'selfServe'),
+    cookTime: readCookTime(root.cookTime, 'cookTime'),
+    samples: readSamples(root.samples, 'samples'),
     demand: readDemandUpgrade(root.demand, 'demand'),
     staff: readStaffUpgrade(root.staff, 'staff'),
+    seating: readSeatingUpgrade(root.seating, 'seating'),
     menu: readList(root.menu, 'menu', readMenuItem),
     globalUpgrades: readList(root.globalUpgrades, 'globalUpgrades', readGlobalUpgrade),
   }
@@ -163,62 +186,92 @@ function readFranchise(file: unknown): Franchise {
   return franchise
 }
 
-function readBonusLevels(value: unknown, path: string): BonusLevels {
-  const record = readObject(value, path, ['at', 'thenEvery'])
-  const at = readList(record.at, `${path}.at`, (item, itemPath) => {
-    const bonus = readObject(item, itemPath, ['level', 'multiplier'])
-    return {
-      level: readWholeNumber(bonus.level, `${itemPath}.level`, 1),
-      // At least 1: a bonus level can't shrink output.
-      multiplier: readAtLeast(bonus.multiplier, `${itemPath}.multiplier`, 1),
+/** Levels in increasing order, such as the bonus levels [10, 25, 50, 100]. */
+function readLevels(value: unknown, path: string): number[] {
+  const levels = readList(value, path, (item, itemPath) => readWholeNumber(item, itemPath, 1))
+  levels.forEach((level, i) => {
+    const before = levels[i - 1]
+    if (before !== undefined && level <= before) {
+      fail(`${path}[${i}]`, `must be above the level before it (${before}), got ${level}`)
     }
   })
-  at.forEach((bonus, i) => {
-    const before = at[i - 1]
-    if (before !== undefined && bonus.level <= before.level) {
-      const problem = `must be above the level before it (${before.level}), got ${bonus.level}`
-      fail(`${path}.at[${i}].level`, problem)
-    }
-  })
-  if (record.thenEvery === null) return { at, thenEvery: null }
-  const repeat = readObject(record.thenEvery, `${path}.thenEvery`, ['levels', 'multiplier'])
+  return levels
+}
+
+function readCookTime(value: unknown, path: string): CookTime {
+  const record = readObject(value, path, ['shortest', 'shortestFromLevel', 'extraMachinesAt'])
+  const shortest = readShare(record.shortest, `${path}.shortest`)
+  if (shortest === 0) fail(`${path}.shortest`, 'must be above 0: nothing is made instantly')
   return {
-    at,
-    thenEvery: {
-      levels: readWholeNumber(repeat.levels, `${path}.thenEvery.levels`, 1),
-      multiplier: readAtLeast(repeat.multiplier, `${path}.thenEvery.multiplier`, 1),
-    },
+    shortest,
+    // At least 2: every item starts at its full cook time at level 1.
+    shortestFromLevel: readWholeNumber(record.shortestFromLevel, `${path}.shortestFromLevel`, 2),
+    extraMachinesAt: readLevels(record.extraMachinesAt, `${path}.extraMachinesAt`),
   }
 }
 
-function readDemandUpgrade(value: unknown, path: string): DemandUpgrade {
-  const upgrade = readObject(value, path, [
-    'id', 'name', 'customersPerMinute', 'startLevel', 'firstCost',
-  ])
+function readSamples(value: unknown, path: string): Samples {
+  const record = readObject(value, path, ['maxBaristasOutside', 'customersEach'])
   return {
-    id: readId(upgrade.id, `${path}.id`),
-    name: readText(upgrade.name, `${path}.name`),
+    // 0 turns samples off.
+    maxBaristasOutside: readWholeNumber(record.maxBaristasOutside, `${path}.maxBaristasOutside`, 0),
+    customersEach: readShare(record.customersEach, `${path}.customersEach`),
+  }
+}
+
+function readLeveledFields(record: Record<string, unknown>, path: string): LeveledFields {
+  return {
+    id: readId(record.id, `${path}.id`),
+    name: readText(record.name, `${path}.name`),
+    firstCost: readDollars(record.firstCost, `${path}.firstCost`),
+    // Above 1: each level costs more than the one before.
+    costGrowth: readAbove(record.costGrowth, `${path}.costGrowth`, 1),
+    // checkSetup makes sure there's one for each bonus level.
+    bonusMultipliers: readList(record.bonusMultipliers, `${path}.bonusMultipliers`, readMultiplier),
+  }
+}
+
+/** A multiplier at a bonus level: at least 1, because a bonus level can't shrink output. */
+function readMultiplier(value: unknown, path: string): number {
+  return readAtLeast(value, path, 1)
+}
+
+function readDemandUpgrade(value: unknown, path: string): DemandUpgrade {
+  const upgrade = readObject(value, path, [...LEVELED_FIELDS, 'customersPerMinute', 'startLevel'])
+  return {
+    ...readLeveledFields(upgrade, path),
     customersPerMinute: readAbove(upgrade.customersPerMinute, `${path}.customersPerMinute`, 0),
-    // At least 1: a new game needs somewhere for customers to come.
+    // At least 1: a new game needs something bringing customers in.
     startLevel: readWholeNumber(upgrade.startLevel, `${path}.startLevel`, 1),
-    firstCost: readDollars(upgrade.firstCost, `${path}.firstCost`),
   }
 }
 
 function readStaffUpgrade(value: unknown, path: string): StaffUpgrade {
-  const upgrade = readObject(value, path, ['id', 'name', 'startLevel', 'firstCost'])
+  const upgrade = readObject(value, path, [...LEVELED_FIELDS, 'startLevel'])
   return {
-    id: readId(upgrade.id, `${path}.id`),
-    name: readText(upgrade.name, `${path}.name`),
+    ...readLeveledFields(upgrade, path),
     // At least 1: a new game needs someone to serve.
     startLevel: readWholeNumber(upgrade.startLevel, `${path}.startLevel`, 1),
-    firstCost: readDollars(upgrade.firstCost, `${path}.firstCost`),
+  }
+}
+
+function readSeatingUpgrade(value: unknown, path: string): SeatingUpgrade {
+  const upgrade = readObject(value, path, [
+    ...LEVELED_FIELDS, 'seatedPerMinute', 'seatedSpend', 'startLevel',
+  ])
+  return {
+    ...readLeveledFields(upgrade, path),
+    seatedPerMinute: readAbove(upgrade.seatedPerMinute, `${path}.seatedPerMinute`, 0),
+    // At least 1: sitting down doesn't make a customer spend less.
+    seatedSpend: readAtLeast(upgrade.seatedSpend, `${path}.seatedSpend`, 1),
+    // At least 1: level 0 means locked, and seating has no unlock.
+    startLevel: readWholeNumber(upgrade.startLevel, `${path}.startLevel`, 1),
   }
 }
 
 function readMenuItem(value: unknown, path: string): MenuItem {
   const item = readObject(value, path, [
-    'id', 'name', 'price', 'prepSeconds', 'popularity', 'firstCost', 'unlock',
+    ...LEVELED_FIELDS, 'price', 'cookSeconds', 'popularity', 'unlock',
   ])
   let unlock: Unlock | null = null
   if (item.unlock !== null) {
@@ -229,12 +282,10 @@ function readMenuItem(value: unknown, path: string): MenuItem {
     }
   }
   return {
-    id: readId(item.id, `${path}.id`),
-    name: readText(item.name, `${path}.name`),
+    ...readLeveledFields(item, path),
     price: readDollars(item.price, `${path}.price`),
-    prepSeconds: readAbove(item.prepSeconds, `${path}.prepSeconds`, 0),
+    cookSeconds: readAbove(item.cookSeconds, `${path}.cookSeconds`, 0),
     popularity: readAbove(item.popularity, `${path}.popularity`, 0),
-    firstCost: readDollars(item.firstCost, `${path}.firstCost`),
     unlock,
   }
 }
@@ -261,13 +312,28 @@ function readGlobalUpgrade(value: unknown, path: string): GlobalUpgrade {
 
 /** Checks that the parts fit together, once each field is valid on its own. */
 function checkSetup(franchise: Franchise): void {
-  const { maxLevel } = franchise
+  const { bonusLevels, maxLevel } = franchise
+
+  // The max level is the last bonus level (D35), so no bonus level is out of reach.
+  const lastBonusLevel = bonusLevels.at(-1)
+  if (lastBonusLevel === undefined) {
+    fail('bonusLevels', 'needs at least one level: the last one is the max level')
+  }
+  if (maxLevel !== lastBonusLevel) {
+    fail('maxLevel', `must be the last bonus level (${lastBonusLevel}), got ${maxLevel}`)
+  }
+
+  // Every leveled upgrade, with where it sits in the file, for the checks below.
+  const leveled: [LeveledFields, string][] = [
+    [franchise.demand, 'demand'],
+    [franchise.staff, 'staff'],
+    [franchise.seating, 'seating'],
+    ...franchise.menu.map((item, i): [LeveledFields, string] => [item, `menu[${i}]`]),
+  ]
 
   // Every id is unique, so an id always means one thing in saves and in the code.
   const idPaths: [UpgradeItemId, string][] = [
-    [franchise.demand.id, 'demand.id'],
-    [franchise.staff.id, 'staff.id'],
-    ...franchise.menu.map((item, i): [UpgradeItemId, string] => [item.id, `menu[${i}].id`]),
+    ...leveled.map(([upgrade, path]): [UpgradeItemId, string] => [upgrade.id, `${path}.id`]),
     ...franchise.globalUpgrades.map(
       (upgrade, i): [UpgradeItemId, string] => [upgrade.id, `globalUpgrades[${i}].id`],
     ),
@@ -279,13 +345,37 @@ function checkSetup(franchise: Franchise): void {
     firstPath.set(id, path)
   }
 
+  // Each leveled upgrade has a multiplier for each bonus level.
+  for (const [upgrade, path] of leveled) {
+    const [wanted, got] = [bonusLevels.length, upgrade.bonusMultipliers.length]
+    if (got !== wanted) {
+      const problem = `needs one multiplier per bonus level (${wanted}), got ${got}`
+      fail(`${path}.bonusMultipliers`, problem)
+    }
+  }
+
   // Starting levels fit under the max.
-  const startingUpgrades = [[franchise.demand, 'demand'], [franchise.staff, 'staff']] as const
+  const startingUpgrades = [
+    [franchise.demand, 'demand'], [franchise.staff, 'staff'], [franchise.seating, 'seating'],
+  ] as const
   for (const [upgrade, path] of startingUpgrades) {
-    if (maxLevel !== null && upgrade.startLevel > maxLevel) {
+    if (upgrade.startLevel > maxLevel) {
       fail(`${path}.startLevel`, `is above maxLevel (${maxLevel}), got ${upgrade.startLevel}`)
     }
   }
+
+  // Menu items reach their shortest cook time, and machines arrive at bonus levels (D33).
+  const { cookTime } = franchise
+  if (cookTime.shortestFromLevel > maxLevel) {
+    const problem = `is above maxLevel (${maxLevel}), so it could never be reached`
+    fail('cookTime.shortestFromLevel', problem)
+  }
+  cookTime.extraMachinesAt.forEach((level, i) => {
+    if (!bonusLevels.includes(level)) {
+      const problem = `must be one of the bonus levels (${bonusLevels.join(', ')}), got ${level}`
+      fail(`cookTime.extraMachinesAt[${i}]`, problem)
+    }
+  })
 
   // A new game has something to sell.
   if (!franchise.menu.some((item) => item.unlock === null)) {
@@ -293,14 +383,14 @@ function checkSetup(franchise: Franchise): void {
   }
 
   // A global upgrade's requirement names a leveled upgrade, at a level you can reach.
-  const leveledIds = leveledUpgrades(franchise).map((upgrade) => upgrade.id)
+  const leveledIds = leveled.map(([upgrade]) => upgrade.id)
   franchise.globalUpgrades.forEach((upgrade, i) => {
     const path = `globalUpgrades[${i}].requires`
     if (!leveledIds.includes(upgrade.requires.upgrade)) {
       const choices = leveledIds.join(', ')
       fail(`${path}.upgrade`, `must be one of ${choices}, got "${upgrade.requires.upgrade}"`)
     }
-    if (maxLevel !== null && upgrade.requires.level > maxLevel) {
+    if (upgrade.requires.level > maxLevel) {
       fail(`${path}.level`, `is above maxLevel (${maxLevel}), so it could never be bought`)
     }
   })
@@ -312,7 +402,7 @@ function fail(path: string, problem: string): never {
   throw new FranchiseFileError(`${path === '' ? 'the file' : path} ${problem}`)
 }
 
-/** An object with exactly these fields: none missing, none unknown (a typo like "prepSecond"). */
+/** An object with exactly these fields: none missing, none unknown (a typo like "cookSecond"). */
 function readObject(
   value: unknown,
   path: string,

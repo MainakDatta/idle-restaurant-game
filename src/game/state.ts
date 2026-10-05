@@ -8,7 +8,7 @@ import { economy } from './economy.ts'
 import type { Franchise, UpgradeItemId } from './franchise.ts'
 
 /**
- * Each leveled upgrade's current level, by id: { tables: 3, baristas: 2, latte: 0 }. 0 means
+ * Each leveled upgrade's current level, by id: { signage: 3, baristas: 2, latte: 0 }. 0 means
  * a menu item that isn't unlocked yet. `Record<K, V>` is TypeScript's type for an object used
  * as a dictionary; a plain object rather than a Map, because it has to save as JSON (step 6).
  */
@@ -22,9 +22,9 @@ export type UpgradeLevels = Readonly<Record<UpgradeItemId, number>>
  */
 export type GameState = {
   readonly money: Big
-  /** Tables, Baristas and each menu item. */
+  /** Signage, Baristas, Tables and each menu item. */
   readonly levels: UpgradeLevels
-  /** The one-time global upgrades bought so far: ["chalkboard-sign"]. */
+  /** The one-time global upgrades bought so far: ["free-wi-fi"]. */
   readonly globalUpgradesBought: readonly UpgradeItemId[]
 }
 
@@ -33,6 +33,7 @@ export function newGame(franchise: Franchise): GameState {
   const levels: Record<UpgradeItemId, number> = {
     [franchise.demand.id]: franchise.demand.startLevel,
     [franchise.staff.id]: franchise.staff.startLevel,
+    [franchise.seating.id]: franchise.seating.startLevel,
   }
   // A menu item starts at level 1 if it's on the menu from the start, and locked (0) otherwise.
   for (const item of franchise.menu) levels[item.id] = item.unlock === null ? 1 : 0

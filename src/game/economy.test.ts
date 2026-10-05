@@ -1,10 +1,9 @@
 import { describe, expect, test } from 'vitest'
 import { Big } from './big.ts'
-import { bonusMultiplier, economy } from './economy.ts'
-import { COFFEE_SHOP, leveledUpgrades, type BonusLevels, type UpgradeItemId } from './franchise.ts'
+import { bonusMultiplier, economy, type Economy } from './economy.ts'
+import { COFFEE_SHOP, type UpgradeItemId } from './franchise.ts'
 import { newGame, type GameState } from './state.ts'
-import { expectBigClose, makeRandom } from './test-utils.ts'
-import { buy, nextCost, requirementMet } from './upgrades.ts'
+import { expectBigClose } from './test-utils.ts'
 
 /** A coffee shop game with some levels changed from the start, and some global upgrades. */
 function gameWith(levels: Record<UpgradeItemId, number>, bought: UpgradeItemId[] = []): GameState {
@@ -13,97 +12,98 @@ function gameWith(levels: Record<UpgradeItemId, number>, bought: UpgradeItemId[]
 }
 
 /** Checks each number in `expected` against the economy, to about 12 significant digits. */
-function expectEconomy(
-  state: GameState,
-  expected: Record<string, number>,
-  franchise = COFFEE_SHOP,
-) {
-  const actual: Record<string, Big> = economy(franchise, state)
-  for (const [name, value] of Object.entries(expected)) {
-    expect(actual[name], name).toBeDefined()
+function expectEconomy(state: GameState, expected: Partial<Record<keyof Economy, number>>) {
+  const actual = economy(COFFEE_SHOP, state)
+  for (const [name, value] of Object.entries(expected) as [keyof Economy, number][]) {
+    const got = actual[name]
+    if (typeof got === 'number') expect(got, name).toBeCloseTo(value, 12)
     // A ratio can't compare with 0, so 0 has to match exactly.
-    if (value === 0) expect(actual[name].eq(0), name).toBe(true)
-    else expectBigClose(actual[name], Big.fromValue(value))
+    else if (value === 0) expect(got.eq(0), name).toBe(true)
+    else expect(Math.abs(got.div(value).toNumber() - 1), name).toBeLessThanOrEqual(1e-12)
   }
 }
 
-/** Big.pow works through logarithms, so ×8 can come out as 7.999…; close is good enough. */
-function expectMultiplier(bonusLevels: BonusLevels, level: number, multiplier: number) {
-  expectBigClose(bonusMultiplier(bonusLevels, level), Big.fromValue(multiplier))
-}
-
 describe('a new coffee shop', () => {
-  // design.md's opening: Service a little above Demand, and the first $2 table in about 6 s.
-  test('opens at Demand 6/min, Service 7.5/min, Spend $3 and $0.315/s', () => {
+  // design.md's opening: Service a little above Demand.
+  test('opens at Demand 6/min and Service 7.5/min, earning $0.459/s', () => {
     expectEconomy(newGame(COFFEE_SHOP), {
-      demand: 6, // 1 table × 6 customers a minute
+      demand: 6, // 1 level of Signage × 6 customers a minute
       service: 7.5, // 1 barista × 60 s ÷ 8 s per drip coffee
       spend: 3,
-      served: 6.3, // all 6, plus 20% of the 1.5 spare, from the barista handing out samples
-      incomePerSecond: 0.315, // 6.3 customers × $3 ÷ 60 s
+      baristasOutside: 0.2, // the spare 1.5 a minute is a fifth of a barista's 7.5
+      samples: 0.12, // 10% of Demand for each barista outside: 0.1 × 6 × 0.2
+      served: 6.12,
+      seats: 8,
+      seated: 6.12, // everyone finds a seat
+      incomePerSecond: 0.459, // (6.12 × $3 + 6.12 × $3 × 0.5) ÷ 60
     })
-    expect(economy(COFFEE_SHOP, newGame(COFFEE_SHOP)).selfServe.eq(0)).toBe(true)
   })
 })
 
 describe('bonus levels', () => {
-  // The coffee shop's setting: ×2 at 10, 25, 50 and 100, then ×2 every 50 levels.
+  // The coffee shop's Signage: ×3 at levels 10, 25 and 50, then ×6 at 100.
   test.each([
     [1, 1],
     [9, 1],
-    [10, 2],
-    [24, 2],
-    [25, 4],
-    [49, 4],
-    [50, 8],
-    [100, 16],
-    [149, 16],
-    [150, 32],
-    [200, 64],
-  ])("level %i multiplies output by %i with the coffee shop's setting", (level, multiplier) => {
-    expectMultiplier(COFFEE_SHOP.bonusLevels, level, multiplier)
+    [10, 3],
+    [24, 3],
+    [25, 9],
+    [49, 9],
+    [50, 27],
+    [99, 27],
+    [100, 162],
+  ])('Signage at level %i multiplies its customers by %i', (level, multiplier) => {
+    const { bonusLevels, demand } = COFFEE_SHOP
+    const actual = bonusMultiplier(bonusLevels, demand.bonusMultipliers, level)
+    expectBigClose(actual, Big.fromValue(multiplier))
   })
 
-  const EVERY_10: BonusLevels = { at: [], thenEvery: { levels: 10, multiplier: 2 } }
-  const LIST_ONLY: BonusLevels = { ...COFFEE_SHOP.bonusLevels, thenEvery: null }
-  const MIXED: BonusLevels = {
-    at: [
-      { level: 10, multiplier: 2 },
-      { level: 25, multiplier: 3 },
-    ],
-    thenEvery: null,
-  }
-  test.each([
-    ['every 10 levels', 9, 1, EVERY_10],
-    ['every 10 levels', 10, 2, EVERY_10],
-    ['every 10 levels', 35, 8, EVERY_10],
-    ['a list with no repeat', 100, 16, LIST_ONLY],
-    ['a list with no repeat', 1000, 16, LIST_ONLY],
-    ['×2 at 10, then ×3 at 25', 24, 2, MIXED],
-    ['×2 at 10, then ×3 at 25', 25, 6, MIXED],
-  ])('%s: level %i is ×%i', (_name, level, multiplier, bonusLevels) => {
-    expectMultiplier(bonusLevels, level, multiplier)
+  test('each upgrade has its own multipliers: Baristas ×2, ×2, ×3, ×3', () => {
+    const { bonusLevels, staff } = COFFEE_SHOP
+    expectBigClose(bonusMultiplier(bonusLevels, staff.bonusMultipliers, 50), Big.fromValue(12))
+    expectBigClose(bonusMultiplier(bonusLevels, staff.bonusMultipliers, 100), Big.fromValue(36))
   })
 
-  test("multiply Tables' customers, Baristas' service and a menu item's speed", () => {
-    expectEconomy(gameWith({ tables: 10 }), { demand: 6 * 10 * 2 })
+  test('a franchise places its own bonus levels', () => {
+    expectBigClose(bonusMultiplier([20, 40], [2, 3], 39), Big.fromValue(2))
+    expectBigClose(bonusMultiplier([20, 40], [2, 3], 40), Big.fromValue(6))
+  })
+})
+
+describe('Demand and Service', () => {
+  test('Signage brings in 6 customers a minute per level, multiplied at bonus levels', () => {
+    expectEconomy(gameWith({ signage: 10 }), { demand: 6 * 10 * 3 })
+  })
+
+  test('each barista serves 60 ÷ the cook time a minute, multiplied at bonus levels', () => {
     expectEconomy(gameWith({ baristas: 10 }), { service: 10 * 2 * (60 / 8) })
-    // Drip coffee at 10 is made in 4 s instead of 8, and costs 3 × (1 + 0.1 × 9) = $5.70.
-    expectEconomy(gameWith({ 'drip-coffee': 10 }), { service: 60 / 4, spend: 5.7 })
   })
 })
 
 describe('the menu', () => {
-  test('each level adds 10% of the starting price', () => {
+  test('each level adds 10% of the starting price, and bonus levels multiply it', () => {
     expectEconomy(gameWith({ 'drip-coffee': 2 }), { spend: 3.3 })
-    expectEconomy(gameWith({ 'drip-coffee': 50 }), { spend: 3 * (1 + 0.1 * 49) })
+    expectEconomy(gameWith({ 'drip-coffee': 10 }), { spend: 3 * 1.9 * 2 })
+    expectEconomy(gameWith({ 'drip-coffee': 100 }), { spend: 3 * 10.9 * 60 })
   })
 
-  // Drip (popularity 5, $3, 8 s) and latte (popularity 4, $51, 12 s): 5 of every 9 customers
-  // order drip.
-  test('Spend and prep time are averaged by popularity', () => {
+  // One barista making drip coffee serves 60 ÷ its cook time a minute.
+  test('cook time falls a little every level, to half the starting time at level 25', () => {
+    expectEconomy(gameWith({ 'drip-coffee': 13 }), { service: 60 / (8 / 1.5) }) // halfway there
+    expectEconomy(gameWith({ 'drip-coffee': 25 }), { service: 60 / 4 })
+    expectEconomy(gameWith({ 'drip-coffee': 49 }), { service: 60 / 4 }) // never faster than half
+  })
+
+  test('levels 50 and 100 add a 2nd and a 3rd machine', () => {
+    expectEconomy(gameWith({ 'drip-coffee': 50 }), { service: 2 * (60 / 4) })
+    expectEconomy(gameWith({ 'drip-coffee': 100 }), { service: 3 * (60 / 4) })
+  })
+
+  // Drip coffee (popularity 5, $3, 8 s) and latte (popularity 4, $84, 12 s): 5 of every 9
+  // customers order drip.
+  test('Spend and cook time are averaged by popularity', () => {
     expectEconomy(gameWith({ latte: 1 }), {
-      spend: (5 * 3 + 4 * 51) / 9,
+      spend: (5 * 3 + 4 * 84) / 9,
       service: 60 / ((5 * 8 + 4 * 12) / 9),
     })
   })
@@ -114,101 +114,61 @@ describe('the menu', () => {
 })
 
 describe('the bottleneck', () => {
-  test('idle baristas bring in 20% of their spare capacity', () => {
-    // Service 15, Demand 6: all 6 served, plus 20% of the spare 9.
-    expectEconomy(gameWith({ baristas: 2 }), { served: 6 + 0.2 * 9, selfServe: 0 })
+  // Demand 12 or 18, Service 7.5: the baristas serve all they can. Signage bought now pays only
+  // once the baristas catch up (D31).
+  test('with a line, extra customers wait instead of being served', () => {
+    expectEconomy(gameWith({ signage: 2 }), { served: 7.5, samples: 0, baristasOutside: 0 })
+    expectEconomy(gameWith({ signage: 3 }), { served: 7.5 })
   })
 
-  test('a line: the baristas serve all they can, and 20% of the rest serve themselves', () => {
-    // Demand 12, Service 7.5: 7.5 served, and 20% of the 4.5 waiting grab something.
-    expectEconomy(gameWith({ tables: 2 }), {
-      served: 7.5,
-      selfServe: 0.2 * 4.5,
-      incomePerSecond: (7.5 * 3 + 0.9 * 3) / 60, // $0.42/s
+  test('Demand exactly equal to Service: everyone is served, and nobody goes outside', () => {
+    // 5 levels of Signage bring in 30 a minute; 4 baristas at 7.5 each serve 30.
+    expectEconomy(gameWith({ signage: 5, baristas: 4 }), { served: 30, samples: 0 })
+  })
+
+  // 10 baristas serve 150 a minute (×2 from level 10), and 6 customers arrive: 9.6 baristas are
+  // idle. 3 go outside, and each brings in 10% of Demand.
+  test('up to 3 idle baristas hand out samples, each bringing in 10% of Demand', () => {
+    expectEconomy(gameWith({ baristas: 10 }), { baristasOutside: 3, samples: 1.8, served: 7.8 })
+  })
+
+  test('idle baristas beyond the 3 outside stay behind the counter', () => {
+    expectEconomy(gameWith({ baristas: 11 }), { baristasOutside: 3, samples: 1.8, served: 7.8 })
+  })
+
+  // Demand 180, Service 195 (13 baristas at 15 a minute): 1 idle barista, whose sample tray
+  // could bring in 18 more customers, but there's only time to serve 15.
+  test('samples never bring in more than the idle baristas can serve', () => {
+    expectEconomy(gameWith({ signage: 10, baristas: 13 }), {
+      baristasOutside: 1,
+      samples: 15,
+      served: 195,
+    })
+  })
+})
+
+describe('seating', () => {
+  // Demand 12, Service 15: 12.48 served (samples included), but only 8 seats.
+  test('served customers sit if there is a seat, and spend 1.5× when they do', () => {
+    expectEconomy(gameWith({ signage: 2, baristas: 2 }), {
+      served: 12.48,
+      seats: 8,
+      seated: 8,
+      incomePerSecond: (12.48 * 3 + 8 * 3 * 0.5) / 60,
     })
   })
 
-  test('self-serve customers pay the cheapest unlocked item, at its current price', () => {
-    // Drip at level 11 costs $6, which is cheaper than a latte at $51.
-    const state = gameWith({ tables: 5, 'drip-coffee': 11, latte: 1 })
-    const now = economy(COFFEE_SHOP, state)
-    expect(now.selfServePrice.eq(6)).toBe(true)
-    const expected = now.served.mul(now.spend).add(now.selfServe.mul(6)).div(60)
-    expectBigClose(now.incomePerSecond, expected)
-  })
-
-  test('Demand exactly equal to Service: everyone is served, and nobody is left over', () => {
-    // 5 tables bring 30 a minute; 4 baristas at 7.5 each serve 30.
-    expectEconomy(gameWith({ tables: 5, baristas: 4 }), { served: 30, selfServe: 0 })
-  })
-
-  test('a franchise without self-serve leaves the line unserved', () => {
-    const noSelfServe = { ...COFFEE_SHOP, selfServe: null }
-    expectEconomy(gameWith({ tables: 2 }), { served: 7.5, selfServe: 0 }, noSelfServe)
+  test('bonus levels multiply the seats', () => {
+    expectEconomy(gameWith({ tables: 10 }), { seats: 8 * 10 * 3 })
   })
 })
 
 describe('global upgrades', () => {
   test('each multiplies its own lever once bought', () => {
-    expectEconomy(gameWith({}, ['chalkboard-sign']), { demand: 12, service: 7.5 })
+    expectEconomy(gameWith({}, ['free-wi-fi']), { demand: 12, service: 7.5 })
     expectEconomy(gameWith({}, ['second-grinder']), { demand: 6, service: 15 })
-    expectEconomy(gameWith({}, ['chalkboard-sign', 'loyalty-cards']), { demand: 24 })
+    expectEconomy(gameWith({}, ['barista-training']), { service: 7.5 * 1.5 })
+    const demandBoosts = ['free-wi-fi', 'loyalty-cards', 'local-influencer-visit']
+    expectEconomy(gameWith({}, demandBoosts), { demand: 6 * 8 })
   })
 })
-
-describe("the design docs' promises", () => {
-  // D19: a new item is slow to make, so unlocking it can serve fewer customers while
-  // earning more.
-  test('unlocking latte serves fewer customers but earns more', () => {
-    const before = economy(COFFEE_SHOP, gameWith({}))
-    const after = economy(COFFEE_SHOP, gameWith({ latte: 1 }))
-    expect(after.served.lt(before.served)).toBe(true)
-    expect(after.incomePerSecond.gt(before.incomePerSecond)).toBe(true)
-  })
-
-  // D17: spillover means no purchase is ever useless. Checked on random coffee shops: every
-  // level and global upgrade on offer raises income. Unlocks are left out: D19 only promises
-  // they raise income at the point they typically unlock, which pacing.test.ts checks.
-  test.each([1, 2, 3, 4, 5])('every level and global upgrade raises income (seed %i)', (seed) => {
-    const random = makeRandom(seed)
-    for (let shop = 0; shop < 50; shop++) {
-      const state = randomShop(random)
-      const income = economy(COFFEE_SHOP, state).incomePerSecond
-      for (const id of purchasesOnOffer(state)) {
-        const cost = nextCost(COFFEE_SHOP, state, id)!
-        const after = buy(COFFEE_SHOP, { ...state, money: cost }, id)
-        const gained = economy(COFFEE_SHOP, after).incomePerSecond.gt(income)
-        expect(gained, `${id} in ${JSON.stringify(state.levels)}`).toBe(true)
-      }
-    }
-  })
-})
-
-/**
- * A coffee shop with random levels from 1 to 50, some menu items still locked (in any order,
- * since unlocks cost money and nothing else), and some global upgrades bought.
- */
-function randomShop(random: () => number): GameState {
-  const level = () => 1 + Math.floor(random() * 50)
-  const levels: Record<UpgradeItemId, number> = {}
-  for (const upgrade of leveledUpgrades(COFFEE_SHOP)) {
-    const locked = upgrade.unlock !== null && random() < 0.3
-    levels[upgrade.id] = locked ? 0 : level()
-  }
-  const bought = COFFEE_SHOP.globalUpgrades
-    .map((upgrade) => upgrade.id)
-    .filter(() => random() < 0.5)
-  return gameWith(levels, bought)
-}
-
-/** The levels and global upgrades that could be bought next, money aside. Unlocks are left out. */
-function purchasesOnOffer(state: GameState): UpgradeItemId[] {
-  const levelUps = leveledUpgrades(COFFEE_SHOP)
-    .map((upgrade) => upgrade.id)
-    .filter((id) => state.levels[id] > 0 && nextCost(COFFEE_SHOP, state, id) !== null)
-  const globals = COFFEE_SHOP.globalUpgrades
-    .map((upgrade) => upgrade.id)
-    .filter((id) => nextCost(COFFEE_SHOP, state, id) !== null)
-    .filter((id) => requirementMet(COFFEE_SHOP, state, id))
-  return [...levelUps, ...globals]
-}

@@ -5,7 +5,7 @@ import { COFFEE_SHOP } from './franchise.ts'
 import { advance, newGame } from './state.ts'
 import { expectBigClose, makeRandom } from './test-utils.ts'
 
-// A new game's income ($0.315/s), worked out rather than written down, so these tests keep
+// A new game's income ($0.459/s), worked out rather than written down, so these tests keep
 // passing when the coffee shop's numbers are tuned. economy.test.ts checks the number itself.
 const RATE = economy(COFFEE_SHOP, newGame(COFFEE_SHOP)).incomePerSecond
 
@@ -17,8 +17,9 @@ describe('newGame', () => {
   test('starts every leveled upgrade at its level from the file, with later menu items locked', () => {
     const game = newGame(COFFEE_SHOP)
     expect(game.levels).toEqual({
-      tables: 1,
+      signage: 1,
       baristas: 1,
+      tables: 1,
       'drip-coffee': 1,
       latte: 0,
       muffin: 0,
@@ -45,10 +46,10 @@ describe('advance', () => {
     expectBigClose(advance(COFFEE_SHOP, state, 10).money, RATE.mul(10).add(100))
   })
 
-  test("earns at the shop's own income: a second table raises it to $0.42/s", () => {
+  test("earns at the shop's own income: a second level of Signage raises it to $0.5625/s", () => {
     const state = newGame(COFFEE_SHOP)
-    const twoTables = { ...state, levels: { ...state.levels, tables: 2 } }
-    expectBigClose(advance(COFFEE_SHOP, twoTables, 10).money, Big.fromValue(4.2))
+    const moreSignage = { ...state, levels: { ...state.levels, signage: 2 } }
+    expectBigClose(advance(COFFEE_SHOP, moreSignage, 10).money, Big.fromValue(5.625))
   })
 
   test('no time passing gives back the same object, so nothing redraws', () => {
