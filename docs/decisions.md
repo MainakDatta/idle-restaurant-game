@@ -55,8 +55,8 @@ status changes.
 31. [**Purchases may pay later**](#d31): a purchase can earn nothing until the rest of the shop catches up; D17's "never does nothing" is dropped.
 32. [**Samples: at most 3 baristas outside; self-serve removed**](#d32): each one brings in 10% more customers; idle baristas beyond 3 stay inside.
 33. [**Menu items: cook time shrinks gradually; bonus levels raise the price and add machines**](#d33): half the starting time by level 25; 2nd and 3rd machines at 50 and 100.
-34. [**Bonus levels vary by level and by upgrade; a finished shop must balance**](#d34): each upgrade gets its own multipliers, with bigger jumps later; a maxed shop's Service ÷ Demand lands around 1.1.
-35. [**Max level 100 for every upgrade, each with its own price growth**](#d35): upgrades finish one after another, the last near the end of the run.
+34. [**Bonus levels are set per franchise, with multipliers by level and by upgrade; a finished shop must balance**](#d34): the coffee shop's are 10, 25, 50 and 100; later jumps are bigger, and a maxed shop's Service ÷ Demand lands around 1.1.
+35. [**One max level per franchise, on a bonus level; each upgrade has its own price growth**](#d35): 100 in the coffee shop; upgrades finish one after another, the last near the end of the run.
 36. [**Each menu unlock about doubles income; D19's promise becomes a guiding principle**](#d36): bought in cost order, upgrades should raise income, now or later.
 37. [**A 4–6 hour coffee shop run for now, with one-time upgrades spread across it**](#d37): late global upgrades paired in time and priced at about a minute of income.
 
@@ -663,8 +663,8 @@ that reads it, unlike a save, D10) · a list of staff roles now (their rules are
 TypeScript files instead of JSON.
 
 **Updated 2026-10-04:** bonus-level multipliers and price growth now differ for each leveled
-upgrade, and the max level is 100 (D34, D35). How the file holds them is up to the next step's
-pull request.
+upgrade, while the bonus levels and the max level stay franchise settings (D34, D35). How the file
+holds them is up to the next step's pull request.
 
 <a id="d30"></a>
 ## D30 · The coffee shop is counter service: Signage brings customers in, Tables seat them — Accepted · 2026-10-04
@@ -737,8 +737,8 @@ set grab-and-go item (the muffin).
 time at level 25** (drip coffee: 8 s → 4 s), and it never gets faster than that. An item's bonus
 levels raise its **price** instead (×2, ×2, ×3, ×5 at levels 10, 25, 50 and 100; see D34), and
 levels 50 and 100 add a **2nd and 3rd machine**: two machines make twice the drinks, three make
-three times. The price still rises every level by 10% of the starting price. The minimum (half)
-and the level it's reached at are franchise settings.
+three times. The price still rises every level by 10% of the starting price. The minimum (half),
+the level it's reached at and the bonus levels that add machines are franchise settings.
 
 **Why:** With an item's speed doubling at every bonus level (D19), Service grew two ways (baristas,
 and every item) while Demand grew one way, so the simulated shop sat overstaffed 98% of the time
@@ -754,17 +754,18 @@ is what a second machine really does (Mainak). They need customers to grow faste
 faster · reaching the minimum at level 10 · minimums of a quarter or an eighth.
 
 <a id="d34"></a>
-## D34 · Bonus levels vary by level and by upgrade; a finished shop must balance — Accepted · 2026-10-04
+## D34 · Bonus levels are set per franchise, with multipliers by level and by upgrade; a finished shop must balance — Accepted · 2026-10-04
 
-**Decision:** Each leveled upgrade has its own multipliers at bonus levels 10, 25, 50 and 100, and
-they can differ from one bonus level to the next. In the coffee shop, for example, Signage goes ×3,
-×3, ×3, ×6 and Baristas ×2, ×2, ×3, ×3 (design.md's placeholder numbers list them all). The set
-stays the same within a franchise; other franchises get their own. **Tuning rule:** with every
-upgrade at max level and every global upgrade bought, Service ÷ Demand should land around 1.1,
-inside the balanced band.
+**Decision:** Each franchise sets its own bonus levels, shared by all its leveled upgrades; the
+coffee shop's are 10, 25, 50 and 100. Each leveled upgrade has its own multiplier at each bonus
+level, and they can differ from one bonus level to the next. In the coffee shop, for example,
+Signage goes ×3, ×3, ×3, ×6 and Baristas ×2, ×2, ×3, ×3 (design.md's placeholder numbers list them
+all). **Tuning rule:** with every upgrade at max level and every global upgrade bought, Service ÷
+Demand should land around 1.1, inside the balanced band.
 
 **Why:** Mainak wanted multipliers that aren't always ×2, with bigger jumps later, varying by both
-level and upgrade. Machines add drinks, so Signage needs bigger jumps than Baristas to keep
+level and upgrade, and bonus levels that each franchise places, as one more way to tune it.
+Machines add drinks, so Signage needs bigger jumps than Baristas to keep
 customers coming, and they have to start early, because machines start arriving early: drip
 coffee's 2nd machine comes within the first half hour. A Signage ladder that saved its big jump for
 the end (×2, ×3, ×3, ×6) left the shop overstaffed for up to 20 hours. The finished-shop check
@@ -776,24 +777,27 @@ Signage's ×6 at level 100 pairs with Barista training (D37).
 
 **Passed on:** ×2 everywhere · Signage at ×2, ×3, ×3, ×6 (overstaffed for hours) or ×2, ×3, ×4, ×6
 (backed up once everything is maxed) · Tables on Baristas' multipliers (seats fall behind customers,
-and dine-in is only 4% of income).
+and dine-in is only 4% of income) · the same bonus levels for every franchise.
 
 <a id="d35"></a>
-## D35 · Max level 100 for every upgrade, each with its own price growth — Accepted · 2026-10-04
+## D35 · One max level per franchise, on a bonus level; each upgrade has its own price growth — Accepted · 2026-10-04
 
-**Decision:** Every leveled upgrade maxes out at level **100**, a bonus level. Each one's price rises
+**Decision:** Every leveled upgrade in a franchise maxes out at the same level, one of its bonus
+levels: **100** in the coffee shop. Each one's price rises
 by its own percentage per level (placeholders from 8% to 40%), chosen so upgrades finish one after
 another through the run, the last near its end: drip coffee first, Signage and Baristas together
 near the end (they balance each other), Pumpkin spice last. Players only ever see each level's price.
 
 **Why:** A max gives each upgrade a "quest completed" moment. Idle Brewery had none, and Mainak
-liked that least about it. One max for everything is one rule to remember, and ending on a bonus
-level makes the last level special. With one shared price growth, completions bunch up, or menu
+liked that least about it. One max for everything in a franchise is one rule to remember, and
+ending on a bonus level makes the last level special; since each franchise places its bonus levels
+(D34), it sets its max too. With one shared price growth, completions bunch up, or menu
 items never finish; a price growth for each upgrade spreads them out. With the previous placeholder
 (max 50 and 26% per level), Signage, Baristas and Tables all maxed out in the first 10 minutes.
 
 **Passed on:** max 50 · a different max for each upgrade (60 or 90 aren't bonus levels, and there'd
-be more to keep track of) · no max.
+be more to keep track of) · no max · max 100 for every franchise (each would need a bonus level at
+100).
 
 <a id="d36"></a>
 ## D36 · Each menu unlock about doubles income; D19's promise becomes a guiding principle — Accepted · 2026-10-04
