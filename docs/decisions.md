@@ -52,9 +52,9 @@ changes.
 24. [**The `Big` API**](#d24): 17 methods; one way in (`fromValue`), strings only where data loads, mistakes throw a `BigError`.
 25. [**A lint rule keeps React and Pixi out of `src/game/`**](#d25): plus a type check that runs game code without browser types.
 26. [**One check command before every pull request**](#d26): `npm run check` runs lint, types, tests and the build; CI runs it too.
-27. [**The game runs outside React, on one clock**](#d27): a pure `advance(state, seconds)` moves time; catch-up is the first frame back.
+27. [**The game runs outside React, on one clock**](#d27): a pure `advance(franchise, state, seconds)` moves time; catch-up is the first frame back.
 28. [**Franchise files: JSON, checked when they load**](#d28): a mistake names the file and the field; tuning numbers live in the file.
-29. **The economy engine** is D29, on the step 4b branch until that pull request merges.
+29. [**The economy engine: levels in, income out**](#d29): Demand, Service, Spend, samples and seats worked out from the levels, as rates; a human-like player checks the pacing.
 30. [**The coffee shop is counter service: Signage brings customers in, Tables seat them**](#d30): seated customers spend 1.5×; the first ×2 Demand global upgrade is Free Wi-Fi.
 31. [**Purchases may pay later**](#d31): a purchase can earn nothing until the rest of the shop catches up, and that's fine.
 32. [**Samples: at most 3 baristas outside; no self-serve for now**](#d32): each one brings in 10% more customers; idle baristas beyond 3 stay inside.
@@ -583,16 +583,17 @@ version from `.nvmrc`, so CI and local runs match, and uses GitHub's own `action
 each pull request, and merging isn't blocked.
 
 <a id="d27"></a>
-## D27 · The game runs outside React, on one clock — Accepted · 2026-09-28
+## D27 · The game runs outside React, on one clock — Accepted · 2026-09-28 · changed 2026-10-04
 
 **Decision:** how time moves while the game runs (step 3).
-- **One pure function moves time:** `advance(state, seconds)` in `src/game/state.ts` returns a
-  new state and never reads a clock. Live frames and catch-up both call it (D11). Any timer the
-  state gains later (a rush, the Buzz refill) is a duration, such as "42 s left", never a clock
-  time, so `advance` can split a long absence at the moment a rush ends.
-- **The state lives in a small store outside React** (`src/runtime/game-state-store.ts`). React reads it
-  with `useSyncExternalStore`; the Pixi scene (Phase 2) and saves (step 6) will read the same
-  store.
+- **One pure function moves time:** `advance(franchise, state, seconds)` in `src/game/state.ts`
+  returns a new state and never reads a clock. It earns the income `economy.ts` works out for the
+  state (D29). Live frames and catch-up both call it (D11). Any timer the state gains later (a rush,
+  the Buzz refill) is a duration, such as "42 s left", never a clock time, so `advance` can split a
+  long absence at the moment a rush ends.
+- **The state lives in a small store outside React** (`src/runtime/game-state-store.ts`). React
+  reads it with `useSyncExternalStore`; the Pixi scene (Phase 2) and saves (step 6) will read the
+  same store.
 - **The loop runs on `requestAnimationFrame` and the wall clock** (`src/runtime/loop.ts`). Each
   frame gets the `Date.now()` time since the previous frame. A clock set backward counts as 0,
   and counting resumes from the new time (D11). There's no upper limit on a frame (D14).
@@ -604,8 +605,9 @@ each pull request, and merging isn't blocked.
   `onCatchUp({ seconds, earned })` once the store has the new state, and `main.tsx` logs it to
   the browser console. A welcome-back message for players could use the same report later, but
   it isn't planned for Phase 0.
-- **One loop:** `main.tsx` calls `startGame` once, outside React, so StrictMode's double effects
-  can't start a second, and `start()` does nothing if the loop is already running.
+- **One loop:** `main.tsx` calls `startGame(franchise, initial, options)` once, outside React, so
+  StrictMode's double effects can't start a second, and `start()` does nothing if the loop is
+  already running.
 - **The clock is passed in**, so tests run in Node with a fake one.
 
 **Why:** Saves need the state from a page-close handler and the Pixi scene isn't React, so the
@@ -620,87 +622,109 @@ ticks (D11) · a separate `visibilitychange` catch-up (it would count the gap tw
 coordinated with the loop, and nothing needs "time away" apart from "time watching" until tips
 and special customers in Phase 1).
 
-**Updated 2026-09-30:** `advance(franchise, state, seconds)` now takes the franchise and earns the
-income `economy.ts` works out for the state (D29), and `startGame(franchise, initial, options)`
-passes it through. The $1/s stand-in is gone.
-
 <a id="d28"></a>
 ## D28 · Franchise files: JSON, checked when they load — Accepted · 2026-09-29 · changed 2026-10-04
 
 **Decision:** Each franchise is a JSON file in `src/game/franchises/`; the coffee shop is
 `coffee-shop.json`. `loadFranchise` in `src/game/franchise.ts` reads it when the game starts (D9).
+- **What the file holds:**
+  - the franchise's `bonusLevels` (the coffee shop's are `[10, 25, 50, 100]`) and its `maxLevel`,
+    which must be the last bonus level (D34, D35);
+  - `priceRisePerLevel`, `cookTime` (the `shortest` an item's cook time gets, as a share of its
+    starting time, the level it gets there, and the bonus levels that add machines, D33) and
+    `samples` (how many baristas go outside and the customers each brings in, D32);
+  - three leveled upgrades, named by their job: `demand` (Signage), `staff` (Baristas) and
+    `seating` (Tables, with its seated customers per level and what they spend, D30);
+  - the `menu`, each item with a price, `cookSeconds`, `popularity` and an `unlock` (`null` for
+    an item that's on the menu from the start);
+  - `globalUpgrades`, each with a lever, a multiplier, a requirement and a cost.
+- **Every leveled upgrade** has a `firstCost`, its own `costGrowth` (D35), and `bonusMultipliers`:
+  one per bonus level, in the same order (D34). In `src/game/upgrades.ts`, each level costs
+  `firstCost × costGrowth^(level − 1)`, and an unlock costs its own price and puts its item at
+  level 1.
 - **Checked when it loads.** Hand-written checks cover every field (nothing missing, nothing
-  unknown, numbers in range) and whether the setup makes sense: ids are unique, a global
-  upgrade's requirement names a real leveled upgrade at a level under the max, and something is
-  on the menu at the start. An error names the file and the field:
-  `coffee-shop.json: menu[2].popularity must be above 0, got -1`.
+  unknown, numbers in range) and whether the setup makes sense: ids are unique, the max level is
+  the last bonus level, each leveled upgrade has a multiplier for every bonus level, machines
+  arrive at bonus levels, a global upgrade's requirement names a real leveled upgrade at a level
+  the max allows, and something is on the menu at the start. An error names the file and the
+  field: `coffee-shop.json: menu[2].popularity must be above 0, got -1`.
 - **Dollar amounts are plain JSON numbers**, read into `Big` once, at load (D24). Levels,
   popularity, seconds and shares stay plain numbers (D5).
-- **Tuning lives in the file**, so Phase 1 can try variants without code changes. That covers the
-  franchise's bonus levels and max level (D34, D35), each leveled upgrade's price growth and
-  bonus-level multipliers, and each global upgrade's multiplier. How the file holds the
-  per-upgrade values is step 4b's call.
-- **Names:** `globalUpgrades` (one-time boosts to a lever) and `popularity` (how often customers
-  order an item), the terms the docs use too. An upgrade's id (`"tables"`, `"latte"`) has the type
-  `UpgradeItemId`. Anything with levels (Signage, Baristas, Tables, each menu item) is a *leveled
-  upgrade*, so "line" only ever means the queue of customers. A menu item with `"unlock": null`
-  starts at level 1; the others start locked, at 0.
+- **Tuning lives in the file**, so Phase 1 can try variants without code changes.
+- **Names:** `globalUpgrades` (one-time boosts to a lever), `popularity` (how often customers
+  order an item) and `cookSeconds` (an item's cook time), the terms the docs use too. An upgrade's
+  id (`"signage"`, `"latte"`) has the type `UpgradeItemId`. Anything with levels (Signage,
+  Baristas, Tables, each menu item) is a *leveled upgrade*, so "line" only ever means the queue of
+  customers.
 - **The game state** keeps each leveled upgrade's level (`levels`) and the global upgrades bought
-  (`globalUpgradesBought`). In `src/game/upgrades.ts`, each level costs
-  `firstCost × costGrowth^(level − 1)`. An unlock costs its own price and puts its item at level 1.
-  A global upgrade can be bought once, after the upgrade it requires reaches its level.
+  (`globalUpgradesBought`). A menu item with `"unlock": null` starts at level 1; the others start
+  locked, at 0. A global upgrade can be bought once, after the upgrade it requires reaches its
+  level.
 - **One staff role** for now. Several roles need rules the design docs don't have yet.
 
 **Why:** Franchises are data (D9), and the Phase 4 server has to read the same numbers, so the
 files are JSON rather than TypeScript. A mistake in a data file should stop the game at once with
-a clear message, not turn up later as a strange number (D6).
+a clear message, not turn up later as a strange number (D6). Per-upgrade lists in bonus-level
+order keep the file short and read like design.md's table of multipliers, and the loader checks
+that the lengths line up.
 
 **Passed on:** TypeScript checking the imported JSON on its own (it can't check ranges or
 cross-references) · zod (a new dependency, D4) · a version number (the file ships with the code
 that reads it, unlike a save, D10) · a list of staff roles now (their rules aren't designed yet) ·
-TypeScript files instead of JSON.
+TypeScript files instead of JSON · step 4a's format, with one cost growth for the whole franchise,
+one multiplier per bonus level shared by every upgrade, a repeating bonus level, and
+`"maxLevel": null` for no max (D34 and D35 made growth and multipliers per upgrade and put the max
+on the last bonus level) · multipliers keyed by level in each upgrade (`{ "10": 3, … }`), which
+repeat the franchise's bonus levels everywhere · `prepSeconds`, renamed so the file says "cook"
+like the docs.
 
 <a id="d29"></a>
-## D29 · The economy engine: levels in, income out — Proposed · 2026-09-30
+## D29 · The economy engine: levels in, income out — Accepted · 2026-10-04
 
 **Decision:** `economy(franchise, state)` in `src/game/economy.ts` works out the shop's levers,
-customers and income from its levels, as rates (D18). It's our reading of D17, D19 and design.md's
-*Inside a run*, with every number from the franchise file (D28). The design chat is confirming it.
-- **Bonus levels** multiply all of a leveled upgrade's output, and stack: Tables' customers,
-  Baristas' service, and a menu item's speed (its prep time is divided by the multiplier).
-- **Demand** (customers/min) = customers per table × tables × bonus × the Demand global
-  upgrades bought.
-- **The menu:** each level adds `priceRisePerLevel` (10%) of an item's starting price. Spend and
-  the average prep time are averaged over the unlocked items, weighted by popularity.
-- **Service** (customers/min) = baristas × bonus × 60 ÷ the average prep time × the Service
-  global upgrades bought.
-- **The bottleneck:** idle baristas bring in `spillover.acrossRoles` (20%) of their spare capacity
-  as extra customers. With a line, the baristas serve all they can, and `selfServe` (20%) of the
-  rest serve themselves at the cheapest unlocked item's current price. "100% within the role" has
-  no effect with one role.
-- **Income per second** = (served × Spend + self-serve × that price) ÷ 60. `advance` earns it
-  for every second, which is exact because income only changes when something is bought.
-- **Levers, prices, prep times and income are `Big`**, because bonus levels and global upgrades
-  stack without limit (D5). Levels, popularity and shares stay plain numbers.
-- **A pacing test** (`pacing.test.ts`) plays a player who always buys the most income per dollar
-  through the real engine, and checks design.md's placeholder milestones within a range. When
-  Phase 1 retunes the numbers, design.md and the test change together.
+customers and income from its levels, as rates (D18). The rules are D30–D34's, and every number
+comes from the franchise file (D28).
+- **Bonus multipliers:** an upgrade's output is multiplied by its multiplier at each bonus level
+  it has reached (D34).
+- **Demand** (customers/min) = customers per level × Signage's level × its bonus multiplier × the
+  Demand global upgrades bought.
+- **A menu item's price** = starting price × (1 + `priceRisePerLevel` × (level − 1)) × its bonus
+  multiplier. **Its cook time** = starting cook time ÷ (speed × machines): speed rises evenly from
+  1 at level 1 to 1 ÷ `shortest` at `shortestFromLevel`, and each level in `extraMachinesAt` adds
+  a machine (D33). **Spend** and the average cook time are averaged over the unlocked items,
+  weighted by popularity.
+- **Service** (customers/min) = baristas × their bonus multiplier × 60 ÷ the average cook time ×
+  the Service global upgrades bought.
+- **Customers served** (D17, D32): with a line (Service below Demand), the baristas serve Service
+  and the rest wait. Otherwise the spare Service, divided by what one barista serves, is the idle
+  baristas. Up to `maxBaristasOutside` of them go outside, each bringing in `customersEach` ×
+  Demand, but never more than the spare Service. Served = Demand + those samples.
+- **Seated** (D30) = the lower of customers served and the seats: seated customers per level ×
+  Tables' level × its bonus multiplier.
+- **Income per second** = (served × Spend + seated × (`seatedSpend` − 1) × Spend) ÷ 60. `advance`
+  earns it for every second, which is exact because income only changes when something is bought.
+- **`Big` for anything that stacks** (D5): Demand, Service, Spend, samples, served, seats, seated
+  and income. Levels, popularity, shares, cook times (they have a floor, D33) and the baristas
+  outside stay plain numbers.
+- **The pacing test** (`pacing.test.ts`) plays the human-like player (D40) through the real engine
+  on three fixed seeds. It checks when the first purchase, the first bonus level and each unlock
+  happen, that each unlock about doubles income, how long a full run takes, and that the shop is
+  balanced most of the time. Every range sits in one table at the top of the file, so moving one
+  is a one-line change. If a run misses a range by less than 10%, it gets talked through before
+  the franchise is retuned or the range is moved (Mainak).
 
-**Found while building:** under this reading, an unlock can lower income in two ways. Unlocked out
-of order, a cheaper item lowers Spend. With far more baristas than customers, a slow new item cuts
-the idle capacity that spillover turns into customers (6 tables, 35 baristas and drip coffee at 34:
-Latte takes income from $187/s to $144/s). Along the simulated player's path every unlock raises
-income, as D19 promises. Also, a franchise without self-serve gets nothing from an extra table while
-there's a line. Both are questions for the design chat.
+**Why:** One pure function from the state means income is never stale after a purchase, and catch-up
+stays a single multiplication. The formulas are the design chat's simulator's: on 52 shops the
+engine matched it to within floating-point rounding, and the human-like player's runs land where the
+simulator's did. The economy is tested through worked examples of each rule, not promises about
+income: players never see income (D20), and a purchase may pay later (D31).
 
-**Why:** One pure function from the state means income is never stale after a purchase, and
-catch-up stays a single multiplication. The simulated player reproduces design.md's milestones:
-first purchase at 6.4 s (6 s), first bonus at 2.1 min (2 min), unlocks at 4.5 min, 6.5 min and
-2.6 h (6 min, 8 min and 2.4 h).
-
-**Passed on:** keeping income in the game state (a copy to keep in step after every purchase, to
-save a few microseconds a frame) · self-serve at the average Spend (Mainak chose the cheapest item
-for now, pending the design chat) · plain numbers for the levers (they stack without limit, D5).
+**Passed on:** step 4b's first reading (bonus levels that speed up menu items, samples worth 20% of
+the idle capacity, self-serve at the cheapest item's price), replaced by D32 and D33 after the
+design chat found the shop sat overstaffed and samples ran away · the best-value player as the
+pacing test's player (D40) · a random-shop test that no purchase ever lowers income (a promise the
+game doesn't make, D31) · keeping income in the game state (a copy to keep in step after every
+purchase, to save a few microseconds a frame).
 
 <a id="d30"></a>
 ## D30 · The coffee shop is counter service: Signage brings customers in, Tables seat them — Accepted · 2026-10-04
