@@ -1,4 +1,4 @@
-# Grand Re-opening — Design Doc
+# Grand Reopening — Design Doc
 
 *The title is for display only (D42). Code, folders, packages and storage keys use the neutral
 codename `idle-restaurant-game` (D7), so the title can change without touching them.*

@@ -1,6 +1,6 @@
 # idle-restaurant-game
 
-**Grand Re-opening** is a cozy idle game about starting, growing and selling
+**Grand Reopening** is a cozy idle game about starting, growing and selling
 eating establishments, then choosing what to run next.
 
 **Status:** Phase 0 (foundations). Not playable yet.

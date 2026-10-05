@@ -67,7 +67,7 @@ changes.
 39. [**Where AI-generated content is allowed**](#d39): never in-game art or music; UX elements yes; sound effects real first; discussion visuals anything.
 40. [**Simulated players: the human-like player is the reference**](#d40): it goes by what the screen shows; optimizers only for special cases.
 41. [**Times shown with their two largest units**](#d41): 42s, 2m 41s, 1h 23m, 2d 4h.
-42. [**The title is Grand Re-opening**](#d42): every run reopens a place under a new owner; the title lives in `.env`, so it stays easy to change.
+42. [**The title is Grand Reopening**](#d42): every run reopens a place under a new owner; the title lives in `.env`, so it stays easy to change.
 
 ---
 
@@ -927,9 +927,9 @@ by.
 **Passed on:** a clock format (2:14:00) · full words (2 hours 14 minutes).
 
 <a id="d42"></a>
-## D42 · The title is Grand Re-opening — Accepted · 2026-10-05
+## D42 · The title is Grand Reopening — Accepted · 2026-10-05
 
-**Decision:** The game is called **Grand Re-opening**. It stays easy to change: code reads it from
+**Decision:** The game is called **Grand Reopening**. It stays easy to change: code reads it from
 `.env` (D7), and the docs name it only in design.md's heading and the README.
 
 **Why:** Every run takes over a place and opens it again under a new owner, and it was Mainak's
