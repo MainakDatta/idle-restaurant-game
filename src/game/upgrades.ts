@@ -1,6 +1,6 @@
-// What each upgrade costs, and what buying it does (design.md *Upgrades*, D19). Three kinds:
-// - a leveled upgrade (Tables, Baristas, an unlocked menu item): each level costs `costGrowth`
-//   times more than the one before, up to the franchise's max level;
+// What each upgrade costs, and what buying it does (design.md *Upgrades*, D19, D35). Three kinds:
+// - a leveled upgrade (Signage, Baristas, Tables, an unlocked menu item): each level costs its own
+//   `costGrowth` times more than the one before, up to the franchise's max level;
 // - an unlock: a menu item still at level 0, which the unlock puts on the menu at level 1;
 // - a global upgrade: bought once, after the leveled upgrade it requires reaches its level.
 // Everything here is pure: buy returns a new state and leaves the one it was given alone.
@@ -32,10 +32,10 @@ export function nextCost(franchise: Franchise, state: GameState, id: UpgradeItem
     }
     return leveled.unlock.cost
   }
-  if (franchise.maxLevel !== null && level >= franchise.maxLevel) return null
-  // The first level you buy (1 → 2 for Tables) costs firstCost, and each one after that
-  // costs costGrowth times more: $2, $2.52, $3.18…
-  return leveled.firstCost.mul(Big.fromValue(franchise.costGrowth).pow(level - 1))
+  if (level >= franchise.maxLevel) return null
+  // The first level you buy (1 → 2 for Signage) costs firstCost, and each one after that costs
+  // the upgrade's own costGrowth times more: $2, $2.79, $3.89…
+  return leveled.firstCost.mul(Big.fromValue(leveled.costGrowth).pow(level - 1))
 }
 
 /**
@@ -97,7 +97,8 @@ function findLeveledUpgrade(franchise: Franchise, id: UpgradeItemId): LeveledUpg
   return upgrade
 }
 
-function levelOf(state: GameState, id: UpgradeItemId): number {
+/** An upgrade's current level. A missing one is a bug: newGame gives every leveled upgrade one. */
+export function levelOf(state: GameState, id: UpgradeItemId): number {
   const level = state.levels[id]
   if (level === undefined) throw new Error(`The game state has no level for "${id}"`)
   return level

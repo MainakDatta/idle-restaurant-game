@@ -109,7 +109,7 @@ Customers line up at the counter to order (D30).
 
 ### The menu is real
 
-Each item has a price, a **cook time** (a barista's time to make one; `prepSeconds` in the file)
+Each item has a price, a **cook time** (a barista's time to make one; `cookSeconds` in the file)
 and a **popularity**. Spend is the popularity-weighted average price, and the popularity-weighted
 average cook time sets how many customers the baristas serve.
 
@@ -554,7 +554,7 @@ One step per branch → pull request → merge.
 | 1 ✅ | Scaffold: Vite, React, TypeScript, Vitest, oxlint | D12 |
 | 2 ✅ | `Big` class, plus the `src/game/` folder and a check that keeps React and Pixi out of it | D5, D6, D15, D24, D25 |
 | 3 ✅ | Game state and loop, with offline catch-up | D11, D14, D18, D27 |
-| 4 | Coffee shop definition file and the engine that reads it | D9, D17, D19, D28; *Inside a run* |
+| 4 ✅ | Coffee shop definition file and the engine that reads it | D9, D17, D19, D28–D37, D40; *Inside a run* |
 | 5 | Portrait UI: money, upgrades, and the scene in basic shapes. Try upgrades on the scene itself (tap the sign) and in a condensed menu under it | *Constraints*, D20, D38 |
 | 6 | Save system: one storage module, versioned JSON, export/import | D10 |
 | 7 | Rush Hour: the pour, the random rush, and Buzz (placeholder numbers) | *Active play*, D21–D23 |

@@ -1,78 +1,91 @@
 {
   "id": "coffee-shop",
   "name": "Coffee shop",
-  "maxLevel": 50,
-  "costGrowth": 1.26,
-  "bonusLevels": {
-    "at": [
-      { "level": 10, "multiplier": 2 },
-      { "level": 25, "multiplier": 2 },
-      { "level": 50, "multiplier": 2 },
-      { "level": 100, "multiplier": 2 }
-    ],
-    "thenEvery": { "levels": 50, "multiplier": 2 }
-  },
+  "bonusLevels": [10, 25, 50, 100],
+  "maxLevel": 100,
   "priceRisePerLevel": 0.1,
-  "spillover": { "acrossRoles": 0.2 },
-  "selfServe": 0.2,
+  "cookTime": { "shortest": 0.5, "shortestFromLevel": 25, "extraMachinesAt": [50, 100] },
+  "samples": { "maxBaristasOutside": 3, "customersEach": 0.1 },
   "demand": {
-    "id": "tables",
-    "name": "Tables",
+    "id": "signage",
+    "name": "Signage",
     "customersPerMinute": 6,
     "startLevel": 1,
-    "firstCost": 2
+    "firstCost": 2,
+    "costGrowth": 1.395,
+    "bonusMultipliers": [3, 3, 3, 6]
   },
   "staff": {
     "id": "baristas",
     "name": "Baristas",
     "startLevel": 1,
-    "firstCost": 8
+    "firstCost": 8,
+    "costGrowth": 1.375,
+    "bonusMultipliers": [2, 2, 3, 3]
+  },
+  "seating": {
+    "id": "tables",
+    "name": "Tables",
+    "seatedPerMinute": 8,
+    "seatedSpend": 1.5,
+    "startLevel": 1,
+    "firstCost": 4,
+    "costGrowth": 1.28,
+    "bonusMultipliers": [3, 3, 3, 6]
   },
   "menu": [
     {
       "id": "drip-coffee",
       "name": "Drip coffee",
       "price": 3,
-      "prepSeconds": 8,
+      "cookSeconds": 8,
       "popularity": 5,
       "firstCost": 6,
+      "costGrowth": 1.077,
+      "bonusMultipliers": [2, 2, 3, 5],
       "unlock": null
     },
     {
       "id": "latte",
       "name": "Latte",
-      "price": 51,
-      "prepSeconds": 12,
+      "price": 84,
+      "cookSeconds": 12,
       "popularity": 4,
-      "firstCost": 150,
-      "unlock": { "name": "Espresso machine", "cost": 1440 }
+      "firstCost": 194,
+      "costGrowth": 1.201,
+      "bonusMultipliers": [2, 2, 3, 5],
+      "unlock": { "name": "Espresso machine", "cost": 1940 }
     },
     {
       "id": "muffin",
       "name": "Muffin",
-      "price": 195,
-      "prepSeconds": 4,
+      "price": 25700,
+      "cookSeconds": 4,
       "popularity": 3,
-      "firstCost": 3600,
-      "unlock": { "name": "Pastry case", "cost": 36000 }
+      "firstCost": 9310000,
+      "costGrowth": 1.124,
+      "bonusMultipliers": [2, 2, 3, 5],
+      "unlock": { "name": "Pastry case", "cost": 93100000 }
     },
     {
       "id": "pumpkin-spice-latte",
       "name": "Pumpkin spice latte",
-      "price": 8500,
-      "prepSeconds": 14,
+      "price": 15200000,
+      "cookSeconds": 14,
       "popularity": 2,
-      "firstCost": 36000000,
-      "unlock": { "name": "Seasonal specials", "cost": 373000000 }
+      "firstCost": 1.63e10,
+      "costGrowth": 1.131,
+      "bonusMultipliers": [2, 2, 3, 5],
+      "unlock": { "name": "Seasonal specials", "cost": 1.63e11 }
     }
   ],
   "globalUpgrades": [
     {
-      "id": "chalkboard-sign",
-      "name": "Chalkboard sign",
+      "id": "free-wi-fi",
+      "name": "Free Wi-Fi",
       "lever": "demand",
       "multiplier": 2,
-      "requires": { "upgrade": "tables", "level": 10 },
+      "requires": { "upgrade": "signage", "level": 10 },
       "cost": 4800
     },
     {
@@ -88,8 +101,32 @@
       "name": "Loyalty cards",
       "lever": "demand",
       "multiplier": 2,
-      "requires": { "upgrade": "tables", "level": 50 },
+      "requires": { "upgrade": "signage", "level": 50 },
       "cost": 49700000
+    },
+    {
+      "id": "local-influencer-visit",
+      "name": "Local influencer visit",
+      "lever": "demand",
+      "multiplier": 2,
+      "requires": { "upgrade": "signage", "level": 75 },
+      "cost": 6.09e10
+    },
+    {
+      "id": "mobile-ordering",
+      "name": "Mobile ordering",
+      "lever": "service",
+      "multiplier": 2,
+      "requires": { "upgrade": "baristas", "level": 75 },
+      "cost": 1.24e11
+    },
+    {
+      "id": "barista-training",
+      "name": "Barista training",
+      "lever": "service",
+      "multiplier": 1.5,
+      "requires": { "upgrade": "baristas", "level": 100 },
+      "cost": 1.06e14
     }
   ]
 }

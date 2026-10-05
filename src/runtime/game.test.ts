@@ -3,14 +3,15 @@
 
 import { describe, expect, test } from 'vitest'
 import type { Big } from '../game/big.ts'
+import { economy } from '../game/economy.ts'
 import { COFFEE_SHOP } from '../game/franchise.ts'
-import { PLACEHOLDER_INCOME_PER_SECOND, advance, newGame } from '../game/state.ts'
+import { advance, newGame } from '../game/state.ts'
 import { expectBigClose } from '../game/test-utils.ts'
 import { AWAY_AFTER_SECONDS, startGame, type CatchUp } from './game.ts'
 import { makeFakeClock, type FakeClock } from './test-utils.ts'
 
-// Expected money comes from the rate, so these tests pass at any rate.
-const RATE = PLACEHOLDER_INCOME_PER_SECOND
+// A new game's income. Nothing is bought here, so it stays the same all the way through.
+const RATE = economy(COFFEE_SHOP, newGame(COFFEE_SHOP)).incomePerSecond
 const SECOND = 1000 // in milliseconds, like the clock
 const MINUTE = 60 * SECOND
 
@@ -18,7 +19,7 @@ const MINUTE = 60 * SECOND
 function startTestGame() {
   const fake = makeFakeClock()
   const catchUps: CatchUp[] = []
-  const gameStateStore = startGame(newGame(COFFEE_SHOP), {
+  const gameStateStore = startGame(COFFEE_SHOP, newGame(COFFEE_SHOP), {
     clock: fake.clock,
     onCatchUp: (catchUp) => catchUps.push(catchUp),
   })
@@ -37,7 +38,8 @@ describe('catch-up', () => {
     fake.frameAfter(10 * MINUTE) // the first frame back from a hidden tab
     play(fake, MINUTE)
     // 12 minutes in all, and the same money as one advance over the whole span.
-    expectBigClose(gameStateStore.getState().money, advance(newGame(COFFEE_SHOP), 12 * 60).money)
+    const oneStep = advance(COFFEE_SHOP, newGame(COFFEE_SHOP), 12 * 60)
+    expectBigClose(gameStateStore.getState().money, oneStep.money)
   })
 
   test('a week away counts in full, with no cap (D14)', () => {
@@ -75,7 +77,7 @@ describe('catch-up reports', () => {
   test('the store already has the new money when the report goes out', () => {
     const fake = makeFakeClock()
     let moneyWhenReported: Big | undefined
-    const gameStateStore = startGame(newGame(COFFEE_SHOP), {
+    const gameStateStore = startGame(COFFEE_SHOP, newGame(COFFEE_SHOP), {
       clock: fake.clock,
       onCatchUp: () => {
         moneyWhenReported = gameStateStore.getState().money
