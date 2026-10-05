@@ -10,6 +10,11 @@ its replacement.
 
 Adding a dependency always gets an entry (see D4).
 
+**Franchise names and numbers** appear in an entry only as examples, as they stood when it was
+written. The current ones live in design.md's placeholder numbers (later, in the franchise files),
+so changing them needs no new entry; changing a rule does. That keeps tuning and new franchises
+from growing this file.
+
 ## At a glance
 
 One line per decision. The numbers are the D-numbers, and each title links to the full entry.
@@ -50,7 +55,7 @@ status changes.
 31. [**Purchases may pay later**](#d31): a purchase can earn nothing until the rest of the shop catches up; D17's "never does nothing" is dropped.
 32. [**Samples: at most 3 baristas outside; self-serve removed**](#d32): each one brings in 10% more customers; idle baristas beyond 3 stay inside.
 33. [**Menu items: cook time shrinks gradually; bonus levels raise the price and add machines**](#d33): half the starting time by level 25; 2nd and 3rd machines at 50 and 100.
-34. [**Bonus levels vary by level and by upgrade; a finished shop must balance**](#d34): Signage ×3, ×3, ×3, ×6 leads; a maxed shop's Service ÷ Demand lands around 1.1.
+34. [**Bonus levels vary by level and by upgrade; a finished shop must balance**](#d34): each upgrade gets its own multipliers, with bigger jumps later; a maxed shop's Service ÷ Demand lands around 1.1.
 35. [**Max level 100 for every upgrade, each with its own price growth**](#d35): upgrades finish one after another, the last near the end of the run.
 36. [**Each menu unlock about doubles income; D19's promise becomes a guiding principle**](#d36): bought in cost order, upgrades should raise income, now or later.
 37. [**A 4–6 hour coffee shop run for now, with one-time upgrades spread across it**](#d37): late global upgrades paired in time and priced at about a minute of income.
@@ -767,18 +772,11 @@ faster · reaching the minimum at level 10 · minimums of a quarter or an eighth
 <a id="d34"></a>
 ## D34 · Bonus levels vary by level and by upgrade; a finished shop must balance — Accepted · 2026-10-04
 
-**Decision:** Each leveled upgrade has its own multipliers at bonus levels 10, 25, 50 and 100
-(placeholders):
-
-| Upgrade | 10 | 25 | 50 | 100 |
-|---|---|---|---|---|
-| Signage | ×3 customers | ×3 | ×3 | ×6 |
-| Baristas | ×2 service | ×2 | ×3 | ×3 |
-| Tables | ×3 seats | ×3 | ×3 | ×6 |
-| Menu items | ×2 price | ×2 | ×3 price, 2nd machine | ×5 price, 3rd machine |
-
-The set stays the same within a franchise; other franchises get their own. **Tuning rule:** with
-every upgrade at max level and every global upgrade bought, Service ÷ Demand should land around 1.1,
+**Decision:** Each leveled upgrade has its own multipliers at bonus levels 10, 25, 50 and 100, and
+they can differ from one bonus level to the next. In the coffee shop, for example, Signage goes ×3,
+×3, ×3, ×6 and Baristas ×2, ×2, ×3, ×3 (design.md's placeholder numbers list them all). The set
+stays the same within a franchise; other franchises get their own. **Tuning rule:** with every
+upgrade at max level and every global upgrade bought, Service ÷ Demand should land around 1.1,
 inside the balanced band.
 
 **Why:** Mainak wanted multipliers that aren't always ×2, with bigger jumps later, varying by both
@@ -841,15 +839,13 @@ still loses about half its income when it buys the Espresso machine late.
 **Decision:** For Phase 0 and Phase 1's first tests, a full coffee shop run (every upgrade maxed)
 takes **4–6 hours**. Session B decides the real first-run length, together with the sale and the
 knee. One-time upgrades spread across the run: the menu unlocks come at about 2.5 min, 15 min and
-1 h, and the three late global upgrades get requirements a run reaches, plus prices:
-- **Local influencer visit:** ×2 Demand, needs Signage 75.
-- **Mobile ordering:** ×2 Service, needs Baristas 75.
-- **Barista training:** ×1.5 Service, needs Baristas 100.
+1 h, and the three late global upgrades (Local influencer visit, Mobile ordering and Barista
+training) get requirements a run reaches, plus prices; both are in design.md's placeholder numbers.
 
-**Tuning rules:** boosts to Demand and Service arrive in pairs: the influencer with mobile ordering
-around the 1-hour mark, and training with Signage's ×6 at level 100 around 3 hours. A late global
-upgrade costs about a minute of income when its requirement is typically met, so the requirement
-sets the timing.
+**Tuning rules:** boosts to Demand and Service arrive in pairs, such as the influencer with mobile
+ordering around the 1-hour mark, and training with Signage's ×6 at level 100 around 3 hours. A late
+global upgrade costs about a minute of income when its requirement is typically met, so the
+requirement sets the timing.
 
 **Why:** The earlier target (a first run of 1–2 days, so upgrades kept finishing up to 36 hours in)
 felt far too long, and Phase 1's first tests need faster loops (Mainak). The three earlier global
