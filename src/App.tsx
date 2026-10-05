@@ -1,6 +1,12 @@
 import { useSyncExternalStore } from 'react'
-import { economy } from './game/economy.ts'
-import { leveledUpgrades, type Franchise, type UpgradeItemId } from './game/franchise.ts'
+import type { Big } from './game/big.ts'
+import { economy, type Economy } from './game/economy.ts'
+import {
+  leveledUpgrades,
+  type Franchise,
+  type Lever,
+  type UpgradeItemId,
+} from './game/franchise.ts'
 import { formatBig } from './game/format.ts'
 import type { GameState } from './game/state.ts'
 import { buy, canBuy, nextCost, requirementMet } from './game/upgrades.ts'
@@ -12,7 +18,7 @@ function App({ franchise, gameStateStore }: AppProps) {
   // React's hook for reading state kept outside React: it redraws App whenever the store
   // changes, which is every frame while money is going up.
   const state = useSyncExternalStore(gameStateStore.subscribe, gameStateStore.getState)
-  const now = economy(franchise, state)
+  const readout = temporaryReadout(state, economy(franchise, state))
 
   // Buys from the store's latest state, which can be a frame newer than the one drawn.
   const buyUpgrade = (id: UpgradeItemId) =>
@@ -21,13 +27,10 @@ function App({ franchise, gameStateStore }: AppProps) {
   return (
     <main>
       <h1>{import.meta.env.VITE_GAME_TITLE}</h1>
-      {/* Temporary, to try the loop and buying. Step 5 builds the real screen. */}
-      <p>Money: ${formatBig(state.money, 'short')}</p>
-      <p>Income: ${formatBig(now.incomePerSecond, 'short')}/s</p>
-      <p>
-        Demand {formatBig(now.demand, 'short')}/min · Service {formatBig(now.service, 'short')}/min
-        · Spend ${formatBig(now.spend, 'short')}
-      </p>
+      {/* Temporary, to try the economy and buying. Step 5 builds the real screen. */}
+      <p>{readout.money}</p>
+      <p>{readout.levers}</p>
+      <p>{readout.customers}</p>
       <ul className="upgrades">
         {upgradeButtons(franchise, state).map(({ id, label }) => (
           <li key={id}>
@@ -44,6 +47,31 @@ function App({ franchise, gameStateStore }: AppProps) {
     </main>
   )
 }
+
+/** The temporary screen's numbers, as lines of text. */
+function temporaryReadout(state: GameState, now: Economy) {
+  const levers = [
+    `Customers ${perMinute(now.demand)}`,
+    `Service ${perMinute(now.service)}`,
+    `Spend ${dollars(now.spend)}`,
+  ]
+  const customers = [
+    `Served ${perMinute(now.served)}`,
+    `${perMinute(now.samples)} from samples (${now.baristasOutside.toFixed(1)} baristas outside)`,
+    `Seated ${perMinute(now.seated)} of ${perMinute(now.seats)}`,
+  ]
+  return {
+    money: `Money: ${dollars(state.money)} · Income: ${dollars(now.incomePerSecond)}/s`,
+    levers: levers.join(' · '),
+    customers: customers.join(' · '),
+  }
+}
+
+const dollars = (amount: Big) => `$${formatBig(amount, 'short')}`
+const perMinute = (rate: Big) => `${formatBig(rate, 'short')}/min`
+
+/** What players call each lever: Demand shows as "Customers" for now (D30). */
+const LEVER_NAMES: Record<Lever, string> = { demand: 'customers', service: 'service' }
 
 type UpgradeButton = { id: UpgradeItemId; label: string }
 
@@ -64,7 +92,7 @@ function upgradeButtons(franchise: Franchise, state: GameState): UpgradeButton[]
   const globalButtons = franchise.globalUpgrades
     .filter((upgrade) => !state.globalUpgradesBought.includes(upgrade.id))
     .map((upgrade) => {
-      const name = `${upgrade.name} (${upgrade.lever} ×${upgrade.multiplier})`
+      const name = `${upgrade.name} (${LEVER_NAMES[upgrade.lever]} ×${upgrade.multiplier})`
       if (requirementMet(franchise, state, upgrade.id)) {
         return { id: upgrade.id, label: `${name} · $${formatBig(upgrade.cost, 'short')}` }
       }
