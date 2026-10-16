@@ -310,8 +310,8 @@ macOS runners, so iOS builds won't require owning a Mac.
 - **Check every art and audio license before committing,** and give every asset a row in
   `CREDITS.md` (source, license, required attribution). Packs that forbid redistribution stay out
   of the repo.
-- **AI disclosure:** one sentence in the README. Commit and PR attribution is decided per
-  change: the `Co-Authored-By` trailer goes on when Claude and Mainak wrote the change together,
+- **AI disclosure:** a short *About* section in the README. Commit and PR attribution is decided
+  per change: the `Co-Authored-By` trailer goes on when Claude and Mainak wrote the change together,
   and stays off when only Mainak wrote it. Where AI-generated content is allowed at all: see D39.
 - **No license:** default copyright applies, so the code can be read but not reused. GitHub's
   Terms still let users view the repo and fork it on GitHub.
@@ -576,8 +576,6 @@ which exit with success, so without the flag they could never fail the check.
 **Passed on:** a git pre-push hook (slows every push, is easy to skip, and husky would be a new
 dependency) · making GitHub block merges until the check passes (one person merges for now) · a
 formatter and a coverage threshold (no problem for them to solve yet, D4).
-
-**Next:** GitHub Actions runs `npm run check` on every pull request. Mainak is setting that up.
 
 **Updated 2026-09-25:** CI is in. `.github/workflows/check.yml` runs `npm ci` and then
 `npm run check` on every pull request into `main` and every push to `main`. It reads the Node

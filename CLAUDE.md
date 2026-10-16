@@ -1,6 +1,6 @@
 # Notes for Claude
 
-A cozy idle game, built as a learning project.
+A cozy idle game, co-developed by Mainak and Claude as a side project.
 Before changing anything, read `docs/design.md` (what the game is) and `docs/decisions.md`
 (why it's built this way). Record every new decision in `decisions.md` as a numbered entry,
 and always add one for a new dependency. When a decision changes, rewrite its entry so it always
@@ -16,7 +16,7 @@ file, and an anchor above its heading (the file explains how).
 
 ## How we work
 
-- Mainak is learning and wants to understand every line. Explain design choices and
+- Mainak wants to understand every line that ships, so explain design choices and
   non-obvious code as you go. Readable beats clever. Work in small steps he can review.
 - Game design is decided in a separate design chat and lands in `docs/design.md` and
   `docs/decisions.md`. If the docs don't answer a design question, stop and ask Mainak instead
@@ -63,11 +63,11 @@ What earlier sessions learned that the design and decision docs don't say.
 
 **Working with Mainak**
 - A short question about a specific line gets a short answer first. Go deeper when he asks.
-- Name PRs by what they do ("the check-command PR"), with a link. He doesn't track numbers.
+- Name PRs by what they do ("the check-command PR"), with a link, rather than by number.
 - Offer extras (pages, docs, files nobody asked for) in one line and wait for a yes.
 - When he wants to build something himself to learn (such as the CI workflow), provide links to
   relevant docs, answer questions, then review. Don't write it.
-- If he says he changed a file but the disk shows no change, it's probably unsaved in VS Code.
+- If an edit doesn't show up on disk, check for an unsaved file in VS Code.
 
 **Commits and PRs**
 - Commit verified work to the branch and push early. Review fixes go on as new commits. Open the
