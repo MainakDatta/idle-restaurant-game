@@ -35,7 +35,8 @@ file, and an anchor above its heading (the file explains how).
 - Work happens in numbered **steps**, listed in the current phase's checklist in
   `docs/design.md` (under *Build phases*). One step per branch → pull request → merge.
 - Attribution is decided per commit and per PR: add the `Co-Authored-By: Claude` trailer
-  when Claude wrote most of the change, leave it off when Mainak did, and ask when unclear.
+  when Claude and Mainak wrote code for the change together, leave it off when only Mainak wrote
+  it, and ask when unclear.
 - When Mainak asks for something to pass to the design chat, save it as a markdown file in
   `~/handoff/` and give him the path.
 
@@ -64,8 +65,8 @@ What earlier sessions learned that the design and decision docs don't say.
 - A short question about a specific line gets a short answer first. Go deeper when he asks.
 - Name PRs by what they do ("the check-command PR"), with a link. He doesn't track numbers.
 - Offer extras (pages, docs, files nobody asked for) in one line and wait for a yes.
-- When he wants to build something himself to learn (he wrote the CI workflow), give checked doc
-  links, an annotated example and the specific changes to make, then review. Don't write it.
+- When he wants to build something himself to learn (such as the CI workflow), provide links to
+  relevant docs, answer questions, then review. Don't write it.
 - If he says he changed a file but the disk shows no change, it's probably unsaved in VS Code.
 
 **Commits and PRs**

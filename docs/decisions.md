@@ -297,7 +297,7 @@ again. If the clock moves backward, elapsed time counts as zero, so progress is 
 **Passed on:** using the generated starter as-is, which comes with demo files we'd delete.
 
 <a id="d13"></a>
-## D13 · Public repository — Accepted · 2026-09-22 · changed 2026-10-04
+## D13 · Public repository — Accepted · 2026-09-22 · changed 2026-10-16
 
 **Decision:** The repo is public from the first commit, with no license.
 
@@ -311,13 +311,16 @@ macOS runners, so iOS builds won't require owning a Mac.
   `CREDITS.md` (source, license, required attribution). Packs that forbid redistribution stay out
   of the repo.
 - **AI disclosure:** one sentence in the README. Commit and PR attribution is decided per
-  change: the `Co-Authored-By` trailer goes on when Claude wrote most of it. Where AI-generated
-  content is allowed at all: see D39.
+  change: the `Co-Authored-By` trailer goes on when Claude and Mainak wrote the change together,
+  and stays off when only Mainak wrote it. Where AI-generated content is allowed at all: see D39.
 - **No license:** default copyright applies, so the code can be read but not reused. GitHub's
   Terms still let users view the repo and fork it on GitHub.
 - **Personal details stay out of the repo.** Project instructions for Claude live in
   `CLAUDE.md`; personal preferences and machine setup live in `~/.claude/CLAUDE.md`, which is
   never committed.
+
+**Passed on:** the trailer only when Claude wrote most of a change. Any change Claude helped write
+gets it now, matching how the project is co-developed (Mainak, 2026-10-16).
 
 <a id="d14"></a>
 ## D14 · No cap on offline progress — Accepted · 2026-09-22
