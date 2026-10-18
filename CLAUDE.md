@@ -75,7 +75,9 @@ What earlier sessions learned that the design and decision docs don't say.
 - A step's PR ticks its row ✅ in the phase's checklist and adds the new decision numbers to the
   row's *See* column.
 - PR descriptions have *What changed*, *Testing* and *Notes for review*; the PR that added `Big`
-  (#4) is a good example. Under Testing, report what you broke on purpose and what caught it.
+  (#4) is a good example. Under Testing, report what you broke on purpose and what caught it,
+  and add numbered *Try it in the browser* steps with the values the screen shows (money rounds
+  down, D15), so Mainak can test from the PR alone.
 - PRs merge with merge commits, so a branch built on an unmerged branch works. After its base
   merges, merge `main` into it so GitHub's diff refreshes.
 - CI (`.github/workflows/check.yml`, shown as "Regression Test / check") runs `npm run check` on
