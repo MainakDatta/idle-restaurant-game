@@ -128,7 +128,7 @@ function averageOrder(franchise: Franchise, state: GameState) {
  * A menu item's price at `level`: each level adds priceRisePerLevel of the starting price, and
  * bonus levels multiply it. Drip coffee is $3, then $3.30, $3.60… and $11.40 at level 10 (D33).
  */
-function priceAt(franchise: Franchise, item: MenuItem, level: number): Big {
+export function priceAt(franchise: Franchise, item: MenuItem, level: number): Big {
   const rise = 1 + franchise.priceRisePerLevel * (level - 1)
   const bonus = bonusMultiplier(franchise.bonusLevels, item.bonusMultipliers, level)
   return item.price.mul(rise).mul(bonus)

@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import type { Big } from './game/big.ts'
-import { currentRates, type CurrentRates } from './game/current-rates.ts'
+import { currentRates, priceAt, type CurrentRates } from './game/current-rates.ts'
 import {
   leveledUpgrades,
   type Franchise,
@@ -18,7 +18,7 @@ function App({ franchise, gameStateStore }: AppProps) {
   // React's hook for reading state kept outside React: it redraws App whenever the store
   // changes, which is every frame while money is going up.
   const state = useSyncExternalStore(gameStateStore.subscribe, gameStateStore.getState)
-  const readout = temporaryReadout(state, currentRates(franchise, state))
+  const readout = temporaryReadout(franchise, state, currentRates(franchise, state))
 
   // Buys from the store's latest state, which can be a frame newer than the one drawn.
   const buyUpgrade = (id: UpgradeItemId) =>
@@ -31,6 +31,7 @@ function App({ franchise, gameStateStore }: AppProps) {
       <p>{readout.money}</p>
       <p>{readout.levers}</p>
       <p>{readout.customers}</p>
+      <p>{readout.menu}</p>
       <ul className="upgrades">
         {upgradeButtons(franchise, state).map(({ id, label }) => (
           <li key={id}>
@@ -49,7 +50,7 @@ function App({ franchise, gameStateStore }: AppProps) {
 }
 
 /** The temporary screen's numbers, as lines of text. */
-function temporaryReadout(state: GameState, now: CurrentRates) {
+function temporaryReadout(franchise: Franchise, state: GameState, now: CurrentRates) {
   const levers = [
     `Customers ${perMinute(now.demand)}`,
     `Service ${perMinute(now.service)}`,
@@ -60,10 +61,18 @@ function temporaryReadout(state: GameState, now: CurrentRates) {
     `${perMinute(now.samples)} from samples (${now.baristasOutside.toFixed(1)} baristas outside)`,
     `Seated ${perMinute(now.seated)} of ${perMinute(now.seats)}`,
   ]
+  // What each unlocked item sells for at its level: "Drip coffee (level 1) $3".
+  const menu: string[] = []
+  for (const item of franchise.menu) {
+    const level = state.levels[item.id] ?? 0
+    if (level === 0) continue // not unlocked yet
+    menu.push(`${item.name} (level ${level}) ${dollars(priceAt(franchise, item, level))}`)
+  }
   return {
     money: `Money: ${dollars(state.money)} · Income: ${dollars(now.incomePerSecond)}/s`,
     levers: levers.join(' · '),
     customers: customers.join(' · '),
+    menu: `Menu: ${menu.join(' · ')}`,
   }
 }
 
@@ -86,8 +95,10 @@ function upgradeButtons(franchise: Franchise, state: GameState): UpgradeButton[]
       return { id: upgrade.id, label }
     }
     const cost = nextCost(franchise, state, upgrade.id)
-    const price = cost === null ? 'Max' : `$${formatBig(cost, 'short')}`
-    return { id: upgrade.id, label: `${upgrade.name} · level ${level} · ${price}` }
+    if (cost === null) return { id: upgrade.id, label: `${upgrade.name} · level ${level} · Max` }
+    // Says which level you're buying, so "level 1" can't be read as "buy level 1".
+    const label = `${upgrade.name} · level ${level} → ${level + 1} · $${formatBig(cost, 'short')}`
+    return { id: upgrade.id, label }
   })
   const globalButtons = franchise.globalUpgrades
     .filter((upgrade) => !state.globalUpgradesBought.includes(upgrade.id))
