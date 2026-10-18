@@ -25,17 +25,17 @@ function expectRates(state: GameState, expected: Partial<Record<keyof CurrentRat
 
 describe('a new coffee shop', () => {
   // design.md's opening: Service a little above Demand.
-  test('opens at Demand 6/min and Service 7.5/min, earning $0.459/s', () => {
+  test('opens at Demand 6/min and Service 7.5/min, earning $0.45/s', () => {
     expectRates(newGame(COFFEE_SHOP), {
       demand: 6, // 1 level of Signage × 6 customers a minute
       service: 7.5, // 1 barista × 60 s ÷ 8 s per drip coffee
       spend: 3,
-      baristasOutside: 0.2, // the spare 1.5 a minute is a fifth of a barista's 7.5
-      samples: 0.12, // 10% of Demand for each barista outside: 0.1 × 6 × 0.2
-      served: 6.12,
+      baristasOutside: 0, // the spare 1.5 a minute is only a fifth of the one barista's time
+      samples: 0,
+      served: 6,
       seats: 8,
-      seated: 6.12, // everyone finds a seat
-      incomePerSecond: 0.459, // (6.12 × $3 + 6.12 × $3 × 0.5) ÷ 60
+      seated: 6, // everyone finds a seat
+      incomePerSecond: 0.45, // (6 × $3 + 6 × $3 × 0.5) ÷ 60
     })
   })
 })
@@ -126,8 +126,25 @@ describe('the bottleneck', () => {
     expectRates(gameWith({ signage: 5, baristas: 4 }), { served: 30, samples: 0 })
   })
 
-  // 10 baristas serve 150 a minute (×2 from level 10), and 6 customers arrive: 9.6 baristas are
-  // idle. 3 go outside, and each brings in 10% of Demand.
+  // Service 15 and Demand 6: the spare 9 a minute is 1.2 baristas' time (7.5 each), so 1 whole
+  // barista is idle. Service 22.5 (3 baristas): the spare 16.5 is 2.2 baristas, so 2. Demand 18
+  // and Service 37.5 (5 baristas): the spare 19.5 is 2.6 baristas, still 2.
+  test('only whole idle baristas go outside, and a lone barista never does', () => {
+    expectRates(newGame(COFFEE_SHOP), { baristasOutside: 0 })
+    expectRates(gameWith({ baristas: 2 }), { baristasOutside: 1, samples: 0.6, served: 6.6 })
+    expectRates(gameWith({ baristas: 3 }), { baristasOutside: 2, samples: 1.2, served: 7.2 })
+    const fiveBaristas = gameWith({ signage: 3, baristas: 5 })
+    expectRates(fiveBaristas, { baristasOutside: 2, samples: 3.6, served: 21.6 })
+  })
+
+  // Demand 270 and Service 285 (19 baristas at 15 a minute) leave exactly one barista's time
+  // spare, but the division comes out as 0.9999999999999966.
+  test("rounding in the math doesn't cost a whole barista", () => {
+    expectRates(gameWith({ signage: 15, baristas: 19 }), { baristasOutside: 1, served: 285 })
+  })
+
+  // 10 baristas serve 150 a minute (×2 from level 10), and 6 customers arrive: 9.6 baristas' time
+  // is spare, so 9 are idle. 3 go outside, and each brings in 10% of Demand.
   test('up to 3 idle baristas hand out samples, each bringing in 10% of Demand', () => {
     expectRates(gameWith({ baristas: 10 }), { baristasOutside: 3, samples: 1.8, served: 7.8 })
   })
@@ -136,8 +153,8 @@ describe('the bottleneck', () => {
     expectRates(gameWith({ baristas: 11 }), { baristasOutside: 3, samples: 1.8, served: 7.8 })
   })
 
-  // Demand 180, Service 195 (13 baristas at 15 a minute): 1 idle barista, whose sample tray
-  // could bring in 18 more customers, but there's only time to serve 15.
+  // Demand 180, Service 195 (13 baristas at 15 a minute): exactly 1 idle barista, whose sample
+  // tray could bring in 18 more customers, but there's only time to serve 15.
   test('samples never bring in more than the idle baristas can serve', () => {
     expectRates(gameWith({ signage: 10, baristas: 13 }), {
       baristasOutside: 1,
@@ -148,13 +165,13 @@ describe('the bottleneck', () => {
 })
 
 describe('seating', () => {
-  // Demand 12, Service 15: 12.48 served (samples included), but only 8 seats.
+  // Demand 12, Service 15: 12 served (the spare is under one barista's time), but only 8 seats.
   test('served customers sit if there is a seat, and spend 1.5× when they do', () => {
     expectRates(gameWith({ signage: 2, baristas: 2 }), {
-      served: 12.48,
+      served: 12,
       seats: 8,
       seated: 8,
-      incomePerSecond: (12.48 * 3 + 8 * 3 * 0.5) / 60,
+      incomePerSecond: (12 * 3 + 8 * 3 * 0.5) / 60,
     })
   })
 

@@ -16,10 +16,7 @@ export type CurrentRates = {
   readonly service: Big
   /** Spend: what the average customer orders, weighted by popularity. */
   readonly spend: Big
-  /**
-   * Idle baristas outside with sample trays, from 0 up to the franchise's max. It can be a
-   * fraction: 0.2 means a fifth of a barista's time.
-   */
+  /** Idle baristas outside with sample trays: a whole number, from 0 up to the franchise's max. */
   readonly baristasOutside: number
   /** The extra customers a minute their samples bring in (D32). */
   readonly samples: Big
@@ -57,8 +54,12 @@ export function currentRates(franchise: Franchise, state: GameState): CurrentRat
   let baristasOutside = 0
   if (service.gte(demand)) {
     const spare = service.sub(demand)
-    // Each barista serves service ÷ baristas a minute, so the spare is this many idle baristas.
-    const idleBaristas = spare.div(service.div(baristas)).toNumber()
+    // Each barista serves service ÷ baristas a minute, so the spare is this many baristas' time.
+    // Only whole baristas go outside, so a lone barista never does (D32). Rounding in the division
+    // can leave a whole number a hair short (1 as 0.9999999999999966), so a hair is added back
+    // before rounding down.
+    const spareBaristas = spare.div(service.div(baristas)).toNumber()
+    const idleBaristas = Math.floor(spareBaristas + 1e-9)
     baristasOutside = Math.min(idleBaristas, franchise.samples.maxBaristasOutside)
     // Each one brings in a share of Demand, but never more than the idle baristas can serve.
     samples = demand.mul(franchise.samples.customersEach * baristasOutside).min(spare)

@@ -57,7 +57,7 @@ changes.
 29. [**Current rates: levels in, income out**](#d29): Demand, Service, Spend, samples and seats worked out from the levels, as rates; a human-like player checks the pacing.
 30. [**The coffee shop is counter service: Signage brings customers in, Tables seat them**](#d30): seated customers spend 1.5×; the first ×2 Demand global upgrade is Free Wi-Fi.
 31. [**Purchases may pay later**](#d31): a purchase can earn nothing until the rest of the shop catches up, and that's fine.
-32. [**Samples: at most 3 baristas outside; no self-serve for now**](#d32): each one brings in 10% more customers; idle baristas beyond 3 stay inside.
+32. [**Samples: at most 3 baristas outside; no self-serve for now**](#d32): only whole idle baristas go outside, each bringing in 10% more customers; idle baristas beyond 3 stay inside.
 33. [**Menu items: cook time shrinks gradually; bonus levels raise the price and add machines**](#d33): half the starting time by level 25; 2nd and 3rd machines at 50 and 100.
 34. [**Bonus levels are set per franchise, with multipliers by level and by upgrade; a finished shop must balance**](#d34): the coffee shop's are 10, 25, 50 and 100; later jumps are bigger, and a maxed shop's Service ÷ Demand lands around 1.1.
 35. [**One max level per franchise, on a bonus level; each upgrade has its own price growth**](#d35): 100 in the coffee shop; upgrades finish one after another, the last near the end of the run.
@@ -697,9 +697,9 @@ number comes from the franchise file (D28).
 - **Service** (customers/min) = baristas × their bonus multiplier × 60 ÷ the average cook time ×
   the Service global upgrades bought.
 - **Customers served** (D17, D32): with a line (Service below Demand), the baristas serve Service
-  and the rest wait. Otherwise the spare Service, divided by what one barista serves, is the idle
-  baristas. Up to `maxBaristasOutside` of them go outside, each bringing in `customersEach` ×
-  Demand, but never more than the spare Service. Served = Demand + those samples.
+  and the rest wait. Otherwise the spare Service, divided by what one barista serves and rounded
+  down, is the idle baristas. Up to `maxBaristasOutside` of them go outside, each bringing in
+  `customersEach` × Demand, but never more than the spare Service. Served = Demand + those samples.
 - **Seated** (D30) = the lower of customers served and the seats: seated customers per level ×
   Tables' level × its bonus multiplier.
 - **Income per second** = (served × Spend + seated × (`seatedSpend` − 1) × Spend) ÷ 60. `advance`
@@ -772,14 +772,15 @@ spillover for empty seats (empty tables drawing people in), which would work lik
 samples, and samples were already too strong.
 
 <a id="d32"></a>
-## D32 · Samples: at most 3 baristas outside; no self-serve for now — Accepted · 2026-10-04
+## D32 · Samples: at most 3 baristas outside; no self-serve for now — Accepted · 2026-10-04 · changed 2026-10-18
 
 **Decision:** When the baristas can serve more customers than arrive, up to **3** idle baristas step
-outside with sample trays. Each one brings in **10% more customers** (10% of Demand), never more
-than the idle baristas can serve. Idle baristas beyond the 3 stay behind the counter and earn
-nothing. Sampled customers join the back of the line like everyone else, pay the usual order and sit
-if a seat is free. Both numbers are franchise settings. **There's no self-serve from the line** for
-now; it's on the *Later* list in design.md.
+outside with sample trays. Only whole baristas count: the spare time is rounded down to whole idle
+baristas, so a shop with one barista never sends anyone out. Each one brings in **10% more
+customers** (10% of Demand), never more than the idle baristas can serve. Idle baristas beyond the
+3 stay behind the counter and earn nothing. Sampled customers join the back of the line like
+everyone else, pay the usual order and sit if a seat is free. Both numbers are franchise settings.
+**There's no self-serve from the line** for now; it's on the *Later* list in design.md.
 
 **Why:** With samples worth 20% of the idle capacity, a shop with far too many baristas got 96% of
 its customers from samples, with dozens of baristas outside: immersion-breaking. Mainak's limit on
@@ -789,12 +790,16 @@ customers on a typical run and in that lopsided shop alike. Walking out and back
 10% is an average that includes it, and Phase 2's live baristas get tuned to match (D18).
 Self-serve rarely triggered, because the shop was almost never backed up; in a shop that is, it was
 worth about 3% of income. It also needed a grab-and-go item for each franchise, the Pastry case
-requirement and a rule for dine-in. It's easy to bring back.
+requirement and a rule for dine-in. It's easy to bring back. Whole baristas only, because there's
+no such thing as a fifth of a barista outside (Mainak), and the scene can then show exactly what
+the math does. In the human-like player's runs (D40) it changed little: the full run, the time
+spent balanced and the unlock times all stayed within the pacing test's ranges.
 
 **Passed on:** 20% of the idle capacity (the runaway above) · capping samples at +50% of Demand
 (invisible on screen) · removing samples (with today's numbers, extra baristas would stop paying) ·
 a smaller share, such as 5–10% (still runs away in a lopsided shop) · self-serve customers buying a
-set grab-and-go item (the muffin) · self-serve from the line, for now (see above).
+set grab-and-go item (the muffin) · self-serve from the line, for now (see above) · fractions of a
+barista outside (the opening's spare fifth of a barista brought in 0.12 customers a minute).
 
 <a id="d33"></a>
 ## D33 · Menu items: cook time shrinks gradually; bonus levels raise the price and add machines — Accepted · 2026-10-04
