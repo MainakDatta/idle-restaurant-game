@@ -201,7 +201,7 @@ describe('past the number range', () => {
   })
 
   test('pow agrees with repeated multiplication', () => {
-    // A cost growing 26% per level (the coffee shop's placeholder rate), 3,000 levels in.
+    // A cost growing 26% per level, 3,000 levels in.
     const growth = Big.fromValue(1.26)
     let repeated = Big.ONE
     for (let level = 0; level < 3000; level++) repeated = repeated.mul(growth)

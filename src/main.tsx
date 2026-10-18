@@ -9,7 +9,7 @@ import { startGame } from './runtime/game.ts'
 
 // The one game loop, started here outside React so StrictMode's double effects can't start a
 // second one (D27). Saves (step 6) will hand startGame the loaded game instead of a new one.
-const gameStateStore = startGame(newGame(COFFEE_SHOP), {
+const gameStateStore = startGame(COFFEE_SHOP, newGame(COFFEE_SHOP), {
   // A debugging aid: logs each catch-up to the browser console (F12).
   onCatchUp: ({ seconds, earned }) => {
     const away = seconds < 60 ? `${Math.round(seconds)} s` : `${(seconds / 60).toFixed(1)} min`
