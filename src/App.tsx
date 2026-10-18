@@ -58,7 +58,7 @@ function temporaryReadout(franchise: Franchise, state: GameState, now: CurrentRa
   ]
   const customers = [
     `Served ${perMinute(now.served)}`,
-    `${perMinute(now.samples)} from samples (${now.baristasOutside.toFixed(1)} baristas outside)`,
+    `${perMinute(now.samples)} from samples (${now.baristasOutside} outside)`,
     `Seated ${perMinute(now.seated)} of ${perMinute(now.seats)}`,
   ]
   // What each unlocked item sells for at its level: "Drip coffee (level 1) $3".

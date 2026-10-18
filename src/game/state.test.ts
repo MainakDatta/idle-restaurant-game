@@ -5,7 +5,7 @@ import { COFFEE_SHOP } from './franchise.ts'
 import { advance, newGame } from './state.ts'
 import { expectBigClose, makeRandom } from './test-utils.ts'
 
-// A new game's income ($0.459/s), worked out rather than written down, so these tests keep
+// A new game's income ($0.45/s), worked out rather than written down, so these tests keep
 // passing when the coffee shop's numbers are tuned. current-rates.test.ts checks the number.
 const RATE = currentRates(COFFEE_SHOP, newGame(COFFEE_SHOP)).incomePerSecond
 
