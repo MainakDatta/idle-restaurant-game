@@ -54,7 +54,7 @@ changes.
 26. [**One check command before every pull request**](#d26): `npm run check` runs lint, types, tests and the build; CI runs it too.
 27. [**The game runs outside React, on one clock**](#d27): a pure `advance(franchise, state, seconds)` moves time; catch-up is the first frame back.
 28. [**Franchise files: JSON, checked when they load**](#d28): a mistake names the file and the field; tuning numbers live in the file.
-29. [**The economy engine: levels in, income out**](#d29): Demand, Service, Spend, samples and seats worked out from the levels, as rates; a human-like player checks the pacing.
+29. [**Current rates: levels in, income out**](#d29): Demand, Service, Spend, samples and seats worked out from the levels, as rates; a human-like player checks the pacing.
 30. [**The coffee shop is counter service: Signage brings customers in, Tables seat them**](#d30): seated customers spend 1.5×; the first ×2 Demand global upgrade is Free Wi-Fi.
 31. [**Purchases may pay later**](#d31): a purchase can earn nothing until the rest of the shop catches up, and that's fine.
 32. [**Samples: at most 3 baristas outside; no self-serve for now**](#d32): each one brings in 10% more customers; idle baristas beyond 3 stay inside.
@@ -588,10 +588,10 @@ each pull request, and merging isn't blocked.
 
 **Decision:** how time moves while the game runs (step 3).
 - **One pure function moves time:** `advance(franchise, state, seconds)` in `src/game/state.ts`
-  returns a new state and never reads a clock. It earns the income `economy.ts` works out for the
-  state (D29). Live frames and catch-up both call it (D11). Any timer the state gains later (a rush,
-  the Buzz refill) is a duration, such as "42 s left", never a clock time, so `advance` can split a
-  long absence at the moment a rush ends.
+  returns a new state and never reads a clock. It earns income at the state's current rates (D29).
+  Live frames and catch-up both call it (D11). Any timer the state gains later (a rush, the Buzz
+  refill) is a duration, such as "42 s left", never a clock time, so `advance` can split a long
+  absence at the moment a rush ends.
 - **The state lives in a small store outside React** (`src/runtime/game-state-store.ts`). React
   reads it with `useSyncExternalStore`; the Pixi scene (Phase 2) and saves (step 6) will read the
   same store.
@@ -680,11 +680,11 @@ repeat the franchise's bonus levels everywhere · `prepSeconds`, renamed so the 
 like the docs.
 
 <a id="d29"></a>
-## D29 · The economy engine: levels in, income out — Accepted · 2026-10-04
+## D29 · Current rates: levels in, income out — Accepted · 2026-10-04
 
-**Decision:** `economy(franchise, state)` in `src/game/economy.ts` works out the shop's levers,
-customers and income from its levels, as rates (D18). The rules are D30–D34's, and every number
-comes from the franchise file (D28).
+**Decision:** `currentRates(franchise, state)` in `src/game/current-rates.ts` works out the levers,
+customers and income from the current levels, as rates (D18). The rules are D30–D34's, and every
+number comes from the franchise file (D28).
 - **Bonus multipliers:** an upgrade's output is multiplied by its multiplier at each bonus level
   it has reached (D34).
 - **Demand** (customers/min) = customers per level × Signage's level × its bonus multiplier × the
@@ -709,23 +709,26 @@ comes from the franchise file (D28).
   outside stay plain numbers.
 - **The pacing test** (`pacing.test.ts`) plays the human-like player (D40) through the real engine
   on three fixed seeds. It checks when the first purchase, the first bonus level and each unlock
-  happen, that each unlock about doubles income, how long a full run takes, and that the shop is
-  balanced most of the time. Every range sits in one table at the top of the file, so moving one
-  is a one-line change. If a run misses a range by less than 10%, it gets talked through before
-  the franchise is retuned or the range is moved (Mainak).
+  happen, that each unlock about doubles income, how long a full run takes, and that Service and
+  Demand stay balanced most of the time. Every range sits in one table at the top of the file, so
+  moving one is a one-line change. If a run misses a range by less than 10%, it gets talked
+  through before the franchise is retuned or the range is moved (Mainak).
 
 **Why:** One pure function from the state means income is never stale after a purchase, and catch-up
-stays a single multiplication. The formulas are the design chat's simulator's: on 52 shops the
-engine matched it to within floating-point rounding, and the human-like player's runs land where the
-simulator's did. The economy is tested through worked examples of each rule, not promises about
-income: players never see income (D20), and a purchase may pay later (D31).
+stays a single multiplication. The formulas are the design chat's simulator's: on 52 random game
+states the code matched it to within floating-point rounding, and the human-like player's runs land
+where the simulator's did. The rates are tested through worked examples of each rule, not promises
+about income: players never see income (D20), and a purchase may pay later (D31).
 
 **Passed on:** step 4b's first reading (bonus levels that speed up menu items, samples worth 20% of
 the idle capacity, self-serve at the cheapest item's price), replaced by D32 and D33 after the
-design chat found the shop sat overstaffed and samples ran away · the best-value player as the
-pacing test's player (D40) · a random-shop test that no purchase ever lowers income (a promise the
-game doesn't make, D31) · keeping income in the game state (a copy to keep in step after every
-purchase, to save a few microseconds a frame).
+design chat found the coffee shop sat overstaffed and samples ran away · the best-value player as
+the pacing test's player (D40) · a test on random game states that no purchase ever lowers income
+(a promise the game doesn't make, D31) · keeping income in the game state (a copy to keep in step
+after every purchase, to save a few microseconds a frame) · naming the file `economy`,
+`franchise-rules`, `shop-rates` or `franchise-rates` (it holds the rates, not every rule of a run;
+"shop" would be a second word for a franchise; and a franchise's rates could mean the franchise
+file's own settings).
 
 <a id="d30"></a>
 ## D30 · The coffee shop is counter service: Signage brings customers in, Tables seat them — Accepted · 2026-10-04

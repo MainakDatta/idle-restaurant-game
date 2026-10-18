@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'vitest'
 import { Big } from './big.ts'
-import { economy } from './economy.ts'
+import { currentRates } from './current-rates.ts'
 import { COFFEE_SHOP } from './franchise.ts'
 import { advance, newGame } from './state.ts'
 import { expectBigClose, makeRandom } from './test-utils.ts'
 
 // A new game's income ($0.459/s), worked out rather than written down, so these tests keep
-// passing when the coffee shop's numbers are tuned. economy.test.ts checks the number itself.
-const RATE = economy(COFFEE_SHOP, newGame(COFFEE_SHOP)).incomePerSecond
+// passing when the coffee shop's numbers are tuned. current-rates.test.ts checks the number.
+const RATE = currentRates(COFFEE_SHOP, newGame(COFFEE_SHOP)).incomePerSecond
 
 describe('newGame', () => {
   test('starts with no money', () => {
@@ -46,7 +46,7 @@ describe('advance', () => {
     expectBigClose(advance(COFFEE_SHOP, state, 10).money, RATE.mul(10).add(100))
   })
 
-  test("earns at the shop's own income: a second level of Signage raises it to $0.5625/s", () => {
+  test('earns the current income: a second level of Signage raises it to $0.5625/s', () => {
     const state = newGame(COFFEE_SHOP)
     const moreSignage = { ...state, levels: { ...state.levels, signage: 2 } }
     expectBigClose(advance(COFFEE_SHOP, moreSignage, 10).money, Big.fromValue(5.625))

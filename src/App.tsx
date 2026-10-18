@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import type { Big } from './game/big.ts'
-import { economy, type Economy } from './game/economy.ts'
+import { currentRates, type CurrentRates } from './game/current-rates.ts'
 import {
   leveledUpgrades,
   type Franchise,
@@ -18,7 +18,7 @@ function App({ franchise, gameStateStore }: AppProps) {
   // React's hook for reading state kept outside React: it redraws App whenever the store
   // changes, which is every frame while money is going up.
   const state = useSyncExternalStore(gameStateStore.subscribe, gameStateStore.getState)
-  const readout = temporaryReadout(state, economy(franchise, state))
+  const readout = temporaryReadout(state, currentRates(franchise, state))
 
   // Buys from the store's latest state, which can be a frame newer than the one drawn.
   const buyUpgrade = (id: UpgradeItemId) =>
@@ -27,7 +27,7 @@ function App({ franchise, gameStateStore }: AppProps) {
   return (
     <main>
       <h1>{import.meta.env.VITE_GAME_TITLE}</h1>
-      {/* Temporary, to try the economy and buying. Step 5 builds the real screen. */}
+      {/* Temporary, to try the rates and buying. Step 5 builds the real screen. */}
       <p>{readout.money}</p>
       <p>{readout.levers}</p>
       <p>{readout.customers}</p>
@@ -49,7 +49,7 @@ function App({ franchise, gameStateStore }: AppProps) {
 }
 
 /** The temporary screen's numbers, as lines of text. */
-function temporaryReadout(state: GameState, now: Economy) {
+function temporaryReadout(state: GameState, now: CurrentRates) {
   const levers = [
     `Customers ${perMinute(now.demand)}`,
     `Service ${perMinute(now.service)}`,

@@ -35,7 +35,7 @@ export type Franchise = {
   /** Where served customers sit: the coffee shop's Tables (D30). */
   readonly seating: SeatingUpgrade
   readonly menu: readonly MenuItem[]
-  /** One-time purchases that multiply a lever for the whole shop. */
+  /** One-time purchases that each multiply one lever: Free Wi-Fi doubles Demand. */
   readonly globalUpgrades: readonly GlobalUpgrade[]
 }
 

@@ -3,7 +3,7 @@
 
 import { describe, expect, test } from 'vitest'
 import type { Big } from '../game/big.ts'
-import { economy } from '../game/economy.ts'
+import { currentRates } from '../game/current-rates.ts'
 import { COFFEE_SHOP } from '../game/franchise.ts'
 import { advance, newGame } from '../game/state.ts'
 import { expectBigClose } from '../game/test-utils.ts'
@@ -11,7 +11,7 @@ import { AWAY_AFTER_SECONDS, startGame, type CatchUp } from './game.ts'
 import { makeFakeClock, type FakeClock } from './test-utils.ts'
 
 // A new game's income. Nothing is bought here, so it stays the same all the way through.
-const RATE = economy(COFFEE_SHOP, newGame(COFFEE_SHOP)).incomePerSecond
+const RATE = currentRates(COFFEE_SHOP, newGame(COFFEE_SHOP)).incomePerSecond
 const SECOND = 1000 // in milliseconds, like the clock
 const MINUTE = 60 * SECOND
 

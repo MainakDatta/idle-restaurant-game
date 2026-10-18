@@ -4,7 +4,7 @@
 // has passed and calls advance, and coming back after time away goes through the same call.
 
 import { Big } from './big.ts'
-import { economy } from './economy.ts'
+import { currentRates } from './current-rates.ts'
 import type { Franchise, UpgradeItemId } from './franchise.ts'
 
 /**
@@ -41,8 +41,8 @@ export function newGame(franchise: Franchise): GameState {
 }
 
 /**
- * Moves the game forward by `seconds` of real time, earning the shop's income (economy.ts) for
- * that long. It's the only way time passes (D11): a frame of live play passes about 0.016 s,
+ * Moves the game forward by `seconds` of real time, earning the current income (current-rates.ts)
+ * for that long. It's the only way time passes (D11): a frame of live play passes about 0.016 s,
  * and the first frame back from another tab passes the whole time away. Returns a new state and
  * leaves the one it was given alone.
  */
@@ -57,7 +57,7 @@ export function advance(franchise: Franchise, state: GameState, seconds: number)
   if (seconds === 0) return state
   // Income only changes when something is bought, and nothing is bought during a step, so one
   // multiplication covers any length of time exactly (D18).
-  const earned = economy(franchise, state).incomePerSecond.mul(seconds)
+  const earned = currentRates(franchise, state).incomePerSecond.mul(seconds)
   // `...state` copies every other field unchanged, which matters once there are more of them.
   return { ...state, money: state.money.add(earned) }
 }

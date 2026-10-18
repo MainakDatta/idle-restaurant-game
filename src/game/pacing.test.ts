@@ -4,7 +4,7 @@
 
 import { beforeAll, describe, expect, test } from 'vitest'
 import type { Big } from './big.ts'
-import { economy, type Economy } from './economy.ts'
+import { currentRates, type CurrentRates } from './current-rates.ts'
 import { COFFEE_SHOP, leveledUpgrades, type UpgradeItemId } from './franchise.ts'
 import { advance, newGame, type GameState } from './state.ts'
 import { makeRandom } from './test-utils.ts'
@@ -39,7 +39,7 @@ const EXPECTED = {
    * Until every upgrade is maxed and every global upgrade bought. Simulated: 4.4 h. Target: 4–6 h.
    */
   fullRun: { from: 4 * HOUR, to: 6 * HOUR },
-  /** The share of the run the shop spends balanced. Simulated: about 80%. Target: most of it. */
+  /** The share of the run spent balanced. Simulated: about 80%. Target: most of it. */
   balanced: { from: 0.7, to: 1 },
 } as const
 
@@ -56,8 +56,8 @@ const PLAYER = {
 /** A run that hasn't finished by now has gone wrong. */
 const GIVE_UP_AFTER = 12 * HOUR
 
-/** How the shop looks on screen (design.md *The shop's three states*). */
-type ShopState = 'overstaffed' | 'balanced' | 'backed up'
+/** Whether Service keeps up with Demand, as the screen shows it (design.md *Pacing targets*). */
+type Bottleneck = 'overstaffed' | 'balanced' | 'backed up'
 
 type Purchase = {
   readonly id: UpgradeItemId
@@ -73,8 +73,8 @@ type Run = {
   readonly purchases: readonly Purchase[]
   /** Seconds until there was nothing left to buy. */
   readonly seconds: number
-  /** How long the shop spent in each state. */
-  readonly secondsIn: Readonly<Record<ShopState, number>>
+  /** How long the run spent overstaffed, balanced and backed up. */
+  readonly secondsIn: Readonly<Record<Bottleneck, number>>
 }
 
 /** Every upgrade in the coffee shop: the leveled ones, then the global ones. */
@@ -87,20 +87,20 @@ const ALL_IDS = [
 function playRun(seed: number): Run {
   const random = makeRandom(seed)
   const purchases: Purchase[] = []
-  const secondsIn: Record<ShopState, number> = { overstaffed: 0, balanced: 0, 'backed up': 0 }
+  const secondsIn: Record<Bottleneck, number> = { overstaffed: 0, balanced: 0, 'backed up': 0 }
   let state = newGame(COFFEE_SHOP)
   let seconds = 0
 
-  // Nothing changes while the player waits, so the shop stays in one state the whole time.
-  const wait = (waitSeconds: number, now: Economy) => {
+  // Nothing changes while the player waits, so the bottleneck stays the same the whole time.
+  const wait = (waitSeconds: number, now: CurrentRates) => {
     state = advance(COFFEE_SHOP, state, waitSeconds)
     seconds += waitSeconds
-    secondsIn[shopState(now)] += waitSeconds
+    secondsIn[bottleneckOf(now)] += waitSeconds
   }
 
   while (ALL_IDS.some((id) => nextCost(COFFEE_SHOP, state, id) !== null)) {
     if (seconds > GIVE_UP_AFTER) throw new Error(`the run didn't finish in ${GIVE_UP_AFTER} s`)
-    const now = economy(COFFEE_SHOP, state)
+    const now = currentRates(COFFEE_SHOP, state)
     const choice = choose(state, now, random)
     if (choice === undefined) {
       wait(PLAYER.lookAgainSeconds, now)
@@ -116,7 +116,7 @@ function playRun(seed: number): Run {
       at: seconds,
       level: state.levels[choice.id],
       incomeBefore: now.incomePerSecond,
-      incomeAfter: economy(COFFEE_SHOP, state).incomePerSecond,
+      incomeAfter: currentRates(COFFEE_SHOP, state).incomePerSecond,
     })
   }
   return { purchases, seconds, secondsIn }
@@ -127,11 +127,11 @@ function playRun(seed: number): Run {
  * scores each option by how much it likes it, nudged by gut feel, and buys the highest:
  * appeal × gut feel ÷ √(cost in minutes of income) ÷ (1 + minutes it must wait).
  */
-function choose(state: GameState, now: Economy, random: () => number) {
+function choose(state: GameState, now: CurrentRates, random: () => number) {
   // Plain numbers are fine for judging, and money itself stays a Big.
   const income = now.incomePerSecond.toNumber()
   const money = state.money.toNumber()
-  const shop = shopState(now)
+  const bottleneck = bottleneckOf(now)
   const seatsFull = now.seated.gte(now.seats.mul(0.999))
   let best: { id: UpgradeItemId; cost: Big; score: number } | undefined
   for (const id of ALL_IDS) {
@@ -144,7 +144,7 @@ function choose(state: GameState, now: Economy, random: () => number) {
     // counts as 3 seconds, so very cheap things don't divide by almost nothing.
     const costInMinutes = Math.max(cost.toNumber() / (income * MINUTE), 0.05)
     const score =
-      (appeal(id, state, shop, seatsFull) * gutFeel) /
+      (appeal(id, state, bottleneck, seatsFull) * gutFeel) /
       Math.sqrt(costInMinutes) /
       (1 + waitSeconds / MINUTE)
     if (best === undefined || score > best.score) best = { id, cost, score }
@@ -156,15 +156,15 @@ function choose(state: GameState, now: Economy, random: () => number) {
  * How much the player likes an option, going only by what the screen shows: it loves unlocks,
  * ×2 upgrades and maxing things out, and likes reaching bonus levels.
  */
-function appeal(id: UpgradeItemId, state: GameState, shop: ShopState, seatsFull: boolean) {
+function appeal(id: UpgradeItemId, state: GameState, bottleneck: Bottleneck, seatsFull: boolean) {
   const { demand, staff, seating, bonusLevels, maxLevel } = COFFEE_SHOP
   if (COFFEE_SHOP.globalUpgrades.some((upgrade) => upgrade.id === id)) return 6
   const level = state.levels[id] ?? 0
   if (level === 0) return 10 // an unlock: a new menu item
 
   let liking: number
-  if (id === demand.id) liking = { overstaffed: 5, balanced: 3, 'backed up': 1 }[shop]
-  else if (id === staff.id) liking = { 'backed up': 5, balanced: 3, overstaffed: 1 }[shop]
+  if (id === demand.id) liking = { overstaffed: 5, balanced: 3, 'backed up': 1 }[bottleneck]
+  else if (id === staff.id) liking = { 'backed up': 5, balanced: 3, overstaffed: 1 }[bottleneck]
   else if (id === seating.id) liking = seatsFull ? 4 : 1
   else {
     // A menu item: nicer when its next level is a bonus level, or one is 1 to 3 levels after it.
@@ -178,11 +178,11 @@ function appeal(id: UpgradeItemId, state: GameState, shop: ShopState, seatsFull:
 }
 
 /**
- * The shop's state as the player sees it, with a 5% margin for what a person would notice.
+ * The bottleneck as the player sees it, with a 5% margin for what a person would notice.
  * Overstaffed means baristas are still idle after the most samples can bring in: 3 baristas
  * outside at 10% each is 30% more customers.
  */
-function shopState(now: Economy): ShopState {
+function bottleneckOf(now: CurrentRates): Bottleneck {
   const { maxBaristasOutside, customersEach } = COFFEE_SHOP.samples
   const withMostSamples = 1 + maxBaristasOutside * customersEach
   const serviceOverDemand = now.service.div(now.demand).toNumber()
@@ -244,7 +244,7 @@ describe.each([1, 2, 3])('a coffee shop run, human-like player with seed %i', (s
     expectWithin(run.seconds, EXPECTED.fullRun, time)
   })
 
-  test('the shop is balanced most of the run', () => {
+  test('balanced most of the run', () => {
     expectWithin(run.secondsIn.balanced / run.seconds, EXPECTED.balanced, share)
   })
 })

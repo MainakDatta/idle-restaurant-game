@@ -1,5 +1,5 @@
-// The economy (D17, D29, design.md *Inside a run*): how a game's levels turn into customers and
-// money. Everything is a rate worked out from the state alone, so income only changes when a
+// The current rates (D17, D29, design.md *Inside a run*): how a game's levels turn into customers
+// and money. Everything is a rate worked out from the state alone, so income only changes when a
 // purchase does, and catch-up stays exact (D18). Nothing here changes the state, and every
 // number comes from the franchise file.
 
@@ -8,8 +8,8 @@ import type { Franchise, Lever, MenuItem } from './franchise.ts'
 import type { GameState } from './state.ts'
 import { levelOf } from './upgrades.ts'
 
-/** Everything the shop does right now. Customers are per minute; income is per second. */
-export type Economy = {
+/** The rates at the current levels. Customers are per minute; income is per second. */
+export type CurrentRates = {
   /** Demand: customers arriving per minute. Players see "Customers" (D30). */
   readonly demand: Big
   /** Service: customers the baristas could serve per minute. */
@@ -32,8 +32,8 @@ export type Economy = {
   readonly incomePerSecond: Big
 }
 
-/** Works out the shop's levers, customers and income from its levels. */
-export function economy(franchise: Franchise, state: GameState): Economy {
+/** Works out the levers, customers and income from the current levels. */
+export function currentRates(franchise: Franchise, state: GameState): CurrentRates {
   const { bonusLevels } = franchise
   const order = averageOrder(franchise, state)
 
